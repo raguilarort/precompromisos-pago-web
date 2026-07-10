@@ -83,21 +83,39 @@ export class Auth {
           // ¡Aquí ejecutamos la redirección real al home!
           this.router.navigate(['/home']);
         } else {
-          // Caso 2: El usuario recargó la página (F5) y ya tenía sesión activa en caché
-          const cuentas = this.msalService.instance.getAllAccounts();
-          if (!this.msalService.instance.getActiveAccount() && cuentas.length > 0) {
-            // Mantenemos la sesión activa en memoria si ya estaba logueado
-            this.msalService.instance.setActiveAccount(cuentas[0]);
-            this.cargarPerfilUsuario();
-          }
-
-          // NOTA IMPORTANTE: Hemos eliminado el bloque "this.router.navigate(['/home'])" 
-          // que estaba aquí. De esta forma, si el usuario entra a /portal, se queda 
-          // en el portal hasta que presione el botón explícitamente.
+          // El usuario recargó la página (F5) o abrió una pestaña nueva
+          this.restaurarSesionActiva();
         }
       },
       error: (error) => console.error('Error interno de MSAL:', error)
     });
+  }
+
+  // NUEVO MÉTODO: Reconstruye las Signals desde el caché local
+  private restaurarSesionActiva() {
+    let cuentaActiva = this.msalService.instance.getActiveAccount();
+    const cuentas = this.msalService.instance.getAllAccounts();
+
+    // Si MSAL perdió la cuenta activa en memoria, la recuperamos del listado de cuentas en caché
+    if (!cuentaActiva && cuentas.length > 0) {
+      cuentaActiva = cuentas[0];
+      this.msalService.instance.setActiveAccount(cuentaActiva);
+    }
+
+    // Si logramos recuperar una cuenta, hidratamos la interfaz
+    if (cuentaActiva) {
+      // 1. Renderizado Inmediato: Usamos el nombre que viene encriptado en el token de sesión
+      // Esto evita el parpadeo de "Usuario" a lo que tarda en responder Microsoft Graph.
+      if (cuentaActiva.name) {
+        this.userName.set(cuentaActiva.name);
+      } else if (cuentaActiva.username) {
+        this.userName.set(cuentaActiva.username);
+      }
+
+      // 2. Renderizado Secundario: Disparamos la petición a Graph de todos modos 
+      // para obtener la fotografía (que no viene en el token) y afinar los apellidos.
+      this.cargarPerfilUsuario();
+    }
   }
 
   private cargarPerfilUsuario() {
