@@ -2,7 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { MsalService, MsalBroadcastService } from '@azure/msal-angular';
-import { AuthenticationResult, InteractionStatus } from '@azure/msal-browser';
+import { AuthenticationResult, InteractionStatus, InteractionType } from '@azure/msal-browser';
 import { catchError, map, of } from 'rxjs';
 
 @Injectable({
@@ -20,6 +20,8 @@ export class Auth {
 
   // Nueva señal para controlar la UI. Inicia en true para enmascarar el tiempo de carga inicial.
   isAutenticando = signal<boolean>(true);
+  // Inicia asumiendo que venimos de una redirección para proteger el parpadeo inicial
+  mensajeCarga = signal<string | null>('Init...');
 
   iniciarSesion() {
     this.msalService.loginRedirect({
@@ -39,6 +41,17 @@ export class Auth {
     this.broadcastService.inProgress$.subscribe((status: InteractionStatus) => {
       // Si el estado no es 'None', significa que hay una redirección o validación en curso
       this.isAutenticando.set(status !== InteractionStatus.None);
+
+      this.mensajeCarga.set('Redirigiendo a Microsoft Entra ID...');
+
+      // Evaluamos en qué fase del flujo se encuentra MSAL
+      if (status === InteractionStatus.HandleRedirect || status === InteractionStatus.Startup) {
+        // El usuario viene de regreso con el token o la app está inicializando
+        this.mensajeCarga.set('Validando credenciales...');
+      } else if (status === InteractionStatus.None) {
+        // No hay procesos pendientes, mostramos el botón
+        this.mensajeCarga.set(null);
+      }
     });
 
     // 2. Procesamos el token como lo veníamos haciendo
