@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './core/auth/auth-guard'; // Asegúrate de ajustar la ruta de importación
 
 export const routes: Routes = [
   {
@@ -13,6 +14,7 @@ export const routes: Routes = [
   },
   {
     path: 'home',
+    canActivate: [authGuard], // <--- ESTE ES EL BLINDAJE
     // Ajustado a home.ts y la clase Home
     loadComponent: () => import('./features/home/home').then(m => m.Home),
     children: [
