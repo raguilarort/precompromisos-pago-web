@@ -19,7 +19,8 @@ export class Auth {
 
   iniciarSesion() {
     this.msalService.loginRedirect({
-      scopes: ['user.read']
+      scopes: ['user.read'],
+      prompt: 'select_account' //Para que el usuario pueda seleccionar qué cuenta desea utilizar
     });
   }
 
@@ -43,19 +44,19 @@ export class Auth {
           this.router.navigate(['/home']);
         } else {
           // Caso 2: El usuario recargó la página (F5) y ya tenía sesión activa en caché
-          const cuentaActiva = this.msalService.instance.getActiveAccount();
-          if (!cuentaActiva && this.msalService.instance.getAllAccounts().length > 0) {
-            this.msalService.instance.setActiveAccount(this.msalService.instance.getAllAccounts()[0]);
+          const cuentas = this.msalService.instance.getAllAccounts();
+          if (!this.msalService.instance.getActiveAccount() && cuentas.length > 0) {
+            // Mantenemos la sesión activa en memoria si ya estaba logueado
+            this.msalService.instance.setActiveAccount(cuentas[0]);
             this.cargarPerfilUsuario();
-            
-            // Lo enviamos al home si está intentando acceder a la raíz teniendo sesión
-            if (this.router.url === '/portal' || this.router.url === '/') {
-              this.router.navigate(['/home']);
-            }
           }
+
+          // NOTA IMPORTANTE: Hemos eliminado el bloque "this.router.navigate(['/home'])" 
+          // que estaba aquí. De esta forma, si el usuario entra a /portal, se queda 
+          // en el portal hasta que presione el botón explícitamente.
         }
       },
-      error: (error) => console.error('Error en autenticación:', error)
+      error: (error) => console.error('Error interno de MSAL:', error)
     });
   }
 
