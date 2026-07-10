@@ -1,6 +1,6 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
   <div class="container">
-    <a class="navbar-brand" href="#">Compromisos App</a>
+    <a class="navbar-brand fw-bold" href="#">Compromisos App</a>
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
       <span class="navbar-toggler-icon"></span>
@@ -14,11 +14,17 @@
       </ul>
       
       <div class="d-flex align-items-center">
-        <span class="text-light me-3">Usuario Demo</span>
-        <div class="bg-secondary rounded-circle d-flex justify-content-center align-items-center text-white" style="width: 40px; height: 40px;">
-          UD
-        </div>
-        <button class="btn btn-outline-light btn-sm ms-3">Salir</button>
+        <span class="text-light me-3 fw-medium">{{ authService.userName() }}</span>
+        
+        @if (authService.userPhoto()) {
+          <img [src]="authService.userPhoto()" alt="Perfil" class="rounded-circle me-3 border border-2 border-secondary" style="width: 42px; height: 42px; object-fit: cover;">
+        } @else {
+          <div class="bg-primary rounded-circle d-flex justify-content-center align-items-center text-white me-3 border border-2 border-secondary fw-bold" style="width: 42px; height: 42px; font-size: 0.9rem;">
+            {{ authService.userInitials() }}
+          </div>
+        }
+
+        <button class="btn btn-outline-light btn-sm" (click)="authService.cerrarSesion()">Salir</button>
       </div>
     </div>
   </div>

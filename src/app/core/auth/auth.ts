@@ -1,8 +1,8 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { MsalService, MsalBroadcastService } from '@azure/msal-angular';
-import { AuthenticationResult, InteractionStatus, InteractionType } from '@azure/msal-browser';
+import { AuthenticationResult, InteractionStatus, AccountInfo } from '@azure/msal-browser';
 import { catchError, map, of } from 'rxjs';
 
 @Injectable({
@@ -17,13 +17,25 @@ export class Auth {
   // Señales reactivas para actualizar el Navbar
   userName = signal<string>('Usuario');
   userPhoto = signal<string | null>(null);
-
   // Nueva señal para controlar la UI. Inicia en true para enmascarar el tiempo de carga inicial.
   isAutenticando = signal<boolean>(true);
   // Inicia asumiendo que venimos de una redirección para proteger el parpadeo inicial
   mensajeCarga = signal<string | null>('Init...');
 
+  // Señal computada: se recalcula sola cuando userName cambia
+  userInitials = computed(() => {
+    const nombreCompleto = this.userName().trim();
+    if (!nombreCompleto) return 'U';
+    
+    const partes = nombreCompleto.split(' ');
+    if (partes.length >= 2) {
+      return (partes[0][0] + partes[1][0]).toUpperCase();
+    }
+    return nombreCompleto.substring(0, 2).toUpperCase();
+  });
+
   iniciarSesion() {
+    this.mensajeCarga.set('Redirigiendo a Microsoft Entra ID...');
     this.msalService.loginRedirect({
       scopes: ['user.read'],
       prompt: 'select_account' //Para que el usuario pueda seleccionar qué cuenta desea utilizar
@@ -31,6 +43,12 @@ export class Auth {
   }
 
   cerrarSesion() {
+    const cuentaActiva = this.msalService.instance.getActiveAccount();
+
+    if (cuentaActiva) {
+      this.generarLogAuditoria('AUTH_LOGOUT', cuentaActiva);
+    }
+    
     this.msalService.logoutRedirect({
       postLogoutRedirectUri: window.location.origin
     });
@@ -41,8 +59,6 @@ export class Auth {
     this.broadcastService.inProgress$.subscribe((status: InteractionStatus) => {
       // Si el estado no es 'None', significa que hay una redirección o validación en curso
       this.isAutenticando.set(status !== InteractionStatus.None);
-
-      this.mensajeCarga.set('Redirigiendo a Microsoft Entra ID...');
 
       // Evaluamos en qué fase del flujo se encuentra MSAL
       if (status === InteractionStatus.HandleRedirect || status === InteractionStatus.Startup) {
@@ -61,7 +77,7 @@ export class Auth {
         if (resultado !== null && resultado.account) {
           // Caso 1: Regresa de Microsoft Entra con un login exitoso
           this.msalService.instance.setActiveAccount(resultado.account);
-          this.generarLogAuditoria(resultado);
+          this.generarLogAuditoria('AUTH_LOGIN_SUCCESS', resultado.account);
           this.cargarPerfilUsuario();
           
           // ¡Aquí ejecutamos la redirección real al home!
@@ -86,7 +102,13 @@ export class Auth {
 
   private cargarPerfilUsuario() {
     this.http.get('https://graph.microsoft.com/v1.0/me').subscribe((perfil: any) => {
-      this.userName.set(perfil.displayName || perfil.givenName);
+      // Extraemos Nombre y Primer Apellido
+      const nombre = perfil.givenName || '';
+      // Si el surname trae varios apellidos, tomamos solo el primero
+      const primerApellido = perfil.surname ? perfil.surname.split(' ')[0] : ''; 
+      
+      const nombreAjustado = `${nombre} ${primerApellido}`.trim() || perfil.displayName;
+      this.userName.set(nombreAjustado);
     });
 
     this.http.get('https://graph.microsoft.com/v1.0/me/photo/$value', { responseType: 'blob' })
@@ -99,16 +121,17 @@ export class Auth {
       });
   }
 
-  private generarLogAuditoria(resultado: AuthenticationResult) {
+  // Método ajustado para recibir el tipo de evento y la cuenta dinámicamente
+  private generarLogAuditoria(tipoEvento: string, account: AccountInfo) {
     const auditEvent = {
       timestamp: new Date().toISOString(),
-      eventType: 'AUTH_SUCCESS',
+      eventType: tipoEvento,
       identityProvider: 'Microsoft Entra ID',
-      accountName: resultado.account.username,
-      tenantId: resultado.account.tenantId,
+      accountName: account.username,
+      tenantId: account.tenantId,
       authMethod: 'OAuth2_AuthorizationCodeFlow',
       clientInfo: navigator.userAgent
     };
-    console.info('[SECURITY LOG] Autenticación Exitosa:', JSON.stringify(auditEvent, null, 2));
+    console.info(`[SECURITY LOG] ${tipoEvento}:`, JSON.stringify(auditEvent, null, 2));
   }
 }

@@ -8,5 +8,5 @@ import { Auth } from '../../../core/auth/auth';
   styleUrl: './navbar.css',
 })
 export class Navbar {
-  private authService = inject(Auth);
+  authService = inject(Auth);
 }
