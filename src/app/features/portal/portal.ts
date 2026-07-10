@@ -11,7 +11,8 @@ import { Auth } from '../../core/auth/auth';
 export class Portal {
   // Inyectamos el Router de Angular usando la sintaxis moderna
   //private router = inject(Router);
-  private authService = inject(Auth);
+  //private authService = inject(Auth); //Se retira esta línea para que sea public y lo pueda tomar el html
+  authService = inject(Auth);
 
   /*iniciarSesion() {
     // Aquí más adelante irá la lógica real de MSAL.
