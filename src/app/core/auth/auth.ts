@@ -80,8 +80,8 @@ export class Auth {
           this.generarLogAuditoria('AUTH_LOGIN_SUCCESS', resultado.account);
           this.cargarPerfilUsuario();
           
-          // ¡Aquí ejecutamos la redirección real al home!
-          this.router.navigate(['/home']);
+          // Aquí ejecutamos la validación de la cuenta
+          this.validarCuentaInstitucional(resultado.account.username);
         } else {
           // El usuario recargó la página (F5) o abrió una pestaña nueva
           this.restaurarSesionActiva();
@@ -115,7 +115,31 @@ export class Auth {
       // 2. Renderizado Secundario: Disparamos la petición a Graph de todos modos 
       // para obtener la fotografía (que no viene en el token) y afinar los apellidos.
       this.cargarPerfilUsuario();
+
+      // Bloqueamos al usuario que presiona F5 si le quitaron los permisos
+      this.validarCuentaInstitucional(cuentaActiva.username);
     }
+  }
+
+  // Agrega este método dentro de tu clase Auth
+  private validarCuentaInstitucional(email: string) {
+    this.mensajeCarga.set('Verificando permisos de acceso...');
+    
+    // SIMULACIÓN: Aquí irá tu llamada HTTP real:
+    // return this.http.get<boolean>(`${environment.apiUrl}/usuarios/validar?email=${email}`);
+    
+    // Por ahora, simulamos que responde "true" o "false" de forma aleatoria para que lo pruebes:
+    const esValido = false; // Cambia esto a false para probar la pantalla de error
+    
+    import('rxjs').then(({ of, delay }) => {
+      of(esValido).pipe(delay(500)).subscribe(autorizado => {
+        if (autorizado) {
+          this.router.navigate(['/home']);
+        } else {
+          this.router.navigate(['/unauthorized']);
+        }
+      });
+    });
   }
 
   private cargarPerfilUsuario() {

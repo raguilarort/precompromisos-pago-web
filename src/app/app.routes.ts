@@ -36,7 +36,11 @@ export const routes: Routes = [
     ]
   },
   {
+    path: 'unauthorized',
+    loadComponent: () => import('./features/unauthorized/unauthorized').then(m => m.Unauthorized)
+  },
+  {
     path: '**',
     redirectTo: 'portal'
-  }
+  },
 ];
