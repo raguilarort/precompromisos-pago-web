@@ -19,18 +19,28 @@ export const routes: Routes = [
     loadComponent: () => import('./features/home/home').then(m => m.Home),
     children: [
       {
-        path: 'commitments/list',
-        // Ajustado a list.ts y la clase List
-        loadComponent: () => import('./features/commitments/list/list').then(m => m.List)
+        // Ruta para visualizar el listado de precompromisos
+        path: 'precompromisos/list',
+        loadComponent: () => import('./features/precompromisos/list/list').then(m => m.List)
       },
       {
-        path: 'commitments/register',
-        // Ajustado a register.ts y la clase Register
-        loadComponent: () => import('./features/commitments/register/register').then(m => m.Register)
+        // Ruta para visualizar el formulario para el registro
+        path: 'precompromisos/register',
+        loadComponent: () => import('./features/precompromisos/register/register').then(m => m.Register)
       },
       {
-        path: 'commitments',
-        redirectTo: 'commitments/list',
+        // Ruta para visualizar el detalle
+        path: 'precompromisos/detail/:id',
+        loadComponent: () => import('./features/precompromisos/detail/detail').then(m => m.Detail)
+      },
+      {
+        // Ruta para editar
+        path: 'precompromisos/edit/:id',
+        loadComponent: () => import('./features/precompromisos/edit/edit').then(m => m.Edit)
+      },
+      {
+        path: 'precompromisos',
+        redirectTo: 'precompromisos/list',
         pathMatch: 'full'
       }
     ]
