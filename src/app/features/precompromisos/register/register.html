@@ -1,1 +1,50 @@
-<p>register works!</p>
+<div class="card shadow-sm mt-4">
+  <div class="card-header bg-primary text-white">
+    <h5 class="mb-0">Registrar Nuevo Compromiso</h5>
+  </div>
+  <div class="card-body">
+    <form [formGroup]="formulario" (ngSubmit)="guardar()">
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Folio</label>
+          <input type="text" class="form-control" formControlName="folio" placeholder="Ej. COMP-003"
+                 [class.is-invalid]="formulario.get('folio')?.invalid && formulario.get('folio')?.touched">
+          <div class="invalid-feedback">El folio es obligatorio.</div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Cliente</label>
+          <input type="text" class="form-control" formControlName="cliente" placeholder="Nombre de la empresa"
+                 [class.is-invalid]="formulario.get('cliente')?.invalid && formulario.get('cliente')?.touched">
+          <div class="invalid-feedback">El cliente es obligatorio.</div>
+        </div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Monto ($)</label>
+          <input type="number" class="form-control" formControlName="monto" placeholder="0.00"
+                 [class.is-invalid]="formulario.get('monto')?.invalid && formulario.get('monto')?.touched">
+          <div class="invalid-feedback">El monto es obligatorio y debe ser mayor a 0.</div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Fecha del Compromiso</label>
+          <input type="date" class="form-control" formControlName="fechaCompromiso"
+                 [class.is-invalid]="formulario.get('fechaCompromiso')?.invalid && formulario.get('fechaCompromiso')?.touched">
+          <div class="invalid-feedback">La fecha es obligatoria.</div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label fw-bold">Descripción / Concepto</label>
+        <textarea class="form-control" formControlName="descripcion" rows="3"
+                  [class.is-invalid]="formulario.get('descripcion')?.invalid && formulario.get('descripcion')?.touched"></textarea>
+        <div class="invalid-feedback">La descripción es obligatoria.</div>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2">
+        <a routerLink="/home/precompromisos/list" class="btn btn-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-primary">Guardar Registro</button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -4,7 +4,7 @@ import { Precompromiso } from '../../models/precompromiso.model';
 @Injectable({
   providedIn: 'root'
 })
-export class CommitmentService {
+export class PrecompromisoService {
   // Estado base (nuestra base de datos simulada)
   private compromisos = signal<Precompromiso[]>([
     {
