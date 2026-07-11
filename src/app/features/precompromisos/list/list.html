@@ -4,6 +4,15 @@
     + Nuevo Registro
   </a>
 </div>
+<div class="row mb-3">
+  <div class="col-md-5 col-lg-4">
+    <input 
+      type="text" 
+      class="form-control" 
+      placeholder="🔍 Buscar por folio o cliente..." 
+      (input)="terminoBusqueda.set($any($event.target).value)">
+  </div>
+</div>
 
 <div class="card shadow-sm">
   <div class="card-body p-0">
@@ -19,7 +28,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (item of listaCompromisos(); track item.id) {
+          @for (item of compromisosFiltrados(); track item.id) {
             <tr>
               <td class="fw-bold">{{ item.folio }}</td>
               <td>{{ item.cliente }}</td>
