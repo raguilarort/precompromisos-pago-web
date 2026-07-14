@@ -1,11 +1,36 @@
-export interface Precompromiso {
-  id: string;
-  folio: string;
-  cliente: string;
-  monto: number;
-  fechaRegistro: Date;
-  fechaCompromiso: Date;
+export interface ConceptoPresupuestal {
+  idCvePresupuestaria: number;
   descripcion: string;
-  // Bandera para el borrado lógico
-  activo: boolean; 
+  importeEnero: number;
+  importeFebrero: number;
+  importeMarzo: number;
+  importeAbril: number;
+  importeMayo: number;
+  importeJunio: number;
+  importeJulio: number;
+  importeAgosto: number;
+  importeSeptiembre: number;
+  importeOctubre: number;
+  importeNoviembre: number;
+  importeDiciembre: number;
+  importeTotal: number;
+}
+
+export interface Requisicion {
+  numeroRequisicion: string;
+  tipoContratacion: 'Licitación Pública' | 'Adjudicación Directa' | 'Invitación a tres personas';
+  tipo: 'Bien' | 'Servicio';
+  importeTotalRequisicion: number;
+  conceptos: ConceptoPresupuestal[];
+}
+
+export interface Precompromiso {
+  id: number;
+  ejercicio: number;
+  unidad: number;
+  consecutivo: number;
+  folio: string;
+  estatus: 'Capturado' | 'Comprometido' | 'Cancelado';
+  requisicion: Requisicion;
+  activo: boolean; // Para borrado lógico en frontend
 }

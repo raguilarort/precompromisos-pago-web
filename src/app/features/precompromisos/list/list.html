@@ -1,57 +1,90 @@
 <div class="d-flex justify-content-between align-items-center mb-4 mt-3">
-  <h2 class="mb-0">Mis Compromisos de Pago</h2>
-  <a routerLink="/home/precompromisos/register" class="btn btn-success fw-bold">
-    + Nuevo Registro
+  <h2 class="mb-0 fw-bold text-dark">Estructura de Precompromisos</h2>
+  <a routerLink="/home/precompromisos/register" class="btn btn-success fw-bold shadow-sm">
+    <i class="bi bi-plus-circle me-1"></i> Nuevo Registro
   </a>
 </div>
+
 <div class="row mb-3">
   <div class="col-md-5 col-lg-4">
-    <input 
-      type="text" 
-      class="form-control" 
-      placeholder="🔍 Buscar por folio o cliente..." 
-      (input)="terminoBusqueda.set($any($event.target).value)">
+    <div class="input-group shadow-sm">
+      <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+      <input 
+        type="text" 
+        class="form-control border-start-0 ps-0" 
+        placeholder="Buscar por folio o requisición..." 
+        (input)="terminoBusqueda.set($any($event.target).value)">
+    </div>
   </div>
 </div>
 
-<div class="card shadow-sm">
+<div class="card shadow-sm border-0">
   <div class="card-body p-0">
     <div class="table-responsive">
-      <table class="table table-hover table-striped mb-0 align-middle">
-        <thead class="table-dark">
+      <table class="table table-hover mb-0 align-middle">
+        <thead class="table-light text-secondary uppercase border-bottom">
           <tr>
-            <th>Folio</th>
-            <th>Cliente</th>
-            <th>Monto</th>
-            <th>Fecha Promesa</th>
-            <th class="text-center">Acciones</th>
+            <th class="ps-3 py-3">Folio Precompromiso</th>
+            <th>Ejercicio / Unidad</th>
+            <th>No. Requisición</th>
+            <th>Tipo / Contratación</th>
+            <th class="text-center">Partidas</th>
+            <th class="text-end">Importe Total</th>
+            <th class="text-center">Estatus</th>
+            <th class="text-center pe-3">Acciones</th>
           </tr>
         </thead>
         <tbody>
           @for (item of compromisosFiltrados(); track item.id) {
-            <tr>
-              <td class="fw-bold">{{ item.folio }}</td>
-              <td>{{ item.cliente }}</td>
-              <td class="text-success fw-medium">{{ item.monto | currency }}</td>
-              <td>{{ item.fechaCompromiso | date:'dd/MMM/yyyy' }}</td>
+            <tr class="border-bottom">
+              <td class="ps-3 fw-bold text-primary">{{ item.folio }}</td>
+              <td>
+                <span class="d-block fw-medium">{{ item.ejercicio }}</span>
+                <span class="text-muted small">U. Ejecutora: {{ item.unidad }}</span>
+              </td>
+              <td class="fw-medium text-dark">{{ item.requisicion.numeroRequisicion }}</td>
+              <td>
+                <span class="d-block text-dark small fw-medium">{{ item.requisicion.tipo }}</span>
+                <span class="badge bg-light text-secondary border font-monospace">{{ item.requisicion.tipoContratacion }}</span>
+              </td>
+              <td class="text-center fw-bold text-secondary">
+                {{ item.requisicion.conceptos.length }}
+              </td>
+              <td class="text-end fw-bold text-success font-monospace fs-6">
+                {{ item.requisicion.importeTotalRequisicion | currency }}
+              </td>
               <td class="text-center">
+                <span class="badge px-3 py-2 rounded-pill font-monospace"
+                      [class.bg-warning-subtle]="item.estatus === 'Capturado'"
+                      [class.text-warning]="item.estatus === 'Capturado'"
+                      [class.bg-success-subtle]="item.estatus === 'Comprometido'"
+                      [class.text-success]="item.estatus === 'Comprometido'"
+                      [class.bg-danger-subtle]="item.estatus === 'Cancelado'"
+                      [class.text-danger]="item.estatus === 'Cancelado'">
+                  {{ item.estatus }}
+                </span>
+              </td>
+              <td class="text-center pe-3">
                 <div class="btn-group btn-group-sm" role="group">
-                  <a [routerLink]="['/home/precompromisos/detail', item.id]" class="btn btn-outline-info" title="Ver detalle">
-                    Ver
+                  <a [routerLink]="['/home/precompromisos/detail', item.id]" class="btn btn-outline-secondary" title="Ver">
+                    <i class="bi bi-eye"></i> Ver
                   </a>
                   <a [routerLink]="['/home/precompromisos/edit', item.id]" class="btn btn-outline-primary" title="Editar">
-                    Editar
+                    <i class="bi bi-pencil-square"></i> Editar
                   </a>
                   <button type="button" class="btn btn-outline-danger" (click)="eliminar(item.id)" title="Eliminar">
-                    Borrar
+                    <i class="bi bi-trash"></i> Borrar
                   </button>
                 </div>
               </td>
             </tr>
           } @empty {
             <tr>
-              <td colspan="5" class="text-center py-5 text-muted">
-                No hay compromisos de pago registrados o activos en este momento.
+              <td colspan="8" class="text-center py-5 text-muted bg-light">
+                <div class="py-3">
+                  <p class="mb-1 fw-bold">Sin registros coincidentes</p>
+                  <p class="small text-muted mb-0">No se encontraron precompromisos con los criterios de búsqueda actuales.</p>
+                </div>
               </td>
             </tr>
           }

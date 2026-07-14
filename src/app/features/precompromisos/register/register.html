@@ -1,50 +1,175 @@
 <div class="card shadow-sm mt-4">
-  <div class="card-header bg-primary text-white">
-    <h5 class="mb-0">Registrar Nuevo Compromiso</h5>
+  <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+    <h5 class="mb-0">{{ esEdicion ? 'Modificar' : 'Registrar' }} Precompromiso</h5>
+    <span class="badge bg-light text-dark fw-bold">Ejercicio {{ formulario.get('ejercicio')?.value }}</span>
   </div>
+
+  <div class="card-header bg-light">
+    <ul class="nav nav-tabs card-header-tabs ms-0">
+      <li class="nav-item">
+        <button type="button" class="nav-link" [class.active]="activeTab === 'generales'" (click)="activeTab = 'generales'">
+          1. Datos Generales
+        </button>
+      </li>
+      <li class="nav-item">
+        <button type="button" class="nav-link" [class.active]="activeTab === 'conceptos'" (click)="activeTab = 'conceptos'">
+          2. Conceptos y Presupuesto Mensual
+        </button>
+      </li>
+    </ul>
+  </div>
+
   <div class="card-body">
     <form [formGroup]="formulario" (ngSubmit)="guardar()">
-      <div class="row mb-3">
-        <div class="col-md-6">
-          <label class="form-label fw-bold">Folio</label>
-          <input type="text" class="form-control" formControlName="folio" placeholder="Ej. COMP-003"
-                 [class.is-invalid]="formulario.get('folio')?.invalid && formulario.get('folio')?.touched">
-          <div class="invalid-feedback">El folio es obligatorio.</div>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label fw-bold">Cliente</label>
-          <input type="text" class="form-control" formControlName="cliente" placeholder="Nombre de la empresa"
-                 [class.is-invalid]="formulario.get('cliente')?.invalid && formulario.get('cliente')?.touched">
-          <div class="invalid-feedback">El cliente es obligatorio.</div>
-        </div>
-      </div>
+      
+      @if (activeTab === 'generales') {
+        <div>
+          <h6 class="text-primary border-bottom pb-2 mb-3">Cabecera del Precompromiso</h6>
+          <div class="row mb-3">
+            <div class="col-md-3">
+              <label class="form-label fw-bold">Folio</label>
+              <input type="text" class="form-control bg-light" formControlName="folio">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-bold">Ejercicio</label>
+              <input type="number" class="form-control" formControlName="ejercicio">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-bold">Unidad Ejecutora</label>
+              <select class="form-select" formControlName="unidad">
+                <option value="1">Recursos Humanos</option>
+                <option value="2">Comprometido</option>
+                <option value="3">Cancelado</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-bold">Estatus</label>
+              <select class="form-select" formControlName="estatus">
+                <option value="Capturado">Capturado</option>
+                <option value="Comprometido">Comprometido</option>
+                <option value="Cancelado">Cancelado</option>
+              </select>
+            </div>
+          </div>
 
-      <div class="row mb-3">
-        <div class="col-md-6">
-          <label class="form-label fw-bold">Monto ($)</label>
-          <input type="number" class="form-control" formControlName="monto" placeholder="0.00"
-                 [class.is-invalid]="formulario.get('monto')?.invalid && formulario.get('monto')?.touched">
-          <div class="invalid-feedback">El monto es obligatorio y debe ser mayor a 0.</div>
+          <h6 class="text-primary border-bottom pb-2 mb-3 mt-4">Datos de la Requisición</h6>
+          <div class="row b-3" formGroupName="requisicion">
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Número de la Requisición</label>
+              <input type="text" class="form-control" formControlName="numeroRequisicion" placeholder="Ej. 103/26">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Tipo de Contratación</label>
+              <select class="form-select" formControlName="tipoContratacion">
+                <option value="Licitación Pública">Licitación Pública</option>
+                <option value="Adjudicación Directa">Adjudicación Directa</option>
+                <option value="Invitación a tres personas">Invitación a tres personas</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Tipo de Requerimiento</label>
+              <select class="form-select" formControlName="tipo">
+                <option value="Bien">Bien</option>
+                <option value="Servicio">Servicio</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="d-flex justify-content-end mt-4">
+            <button type="button" class="btn btn-primary" (click)="activeTab = 'conceptos'">Siguiente Paso →</button>
+          </div>
         </div>
-        <div class="col-md-6">
-          <label class="form-label fw-bold">Fecha del Compromiso</label>
-          <input type="date" class="form-control" formControlName="fechaCompromiso"
-                 [class.is-invalid]="formulario.get('fechaCompromiso')?.invalid && formulario.get('fechaCompromiso')?.touched">
-          <div class="invalid-feedback">La fecha es obligatoria.</div>
+      }
+
+      @if (activeTab === 'conceptos') {
+        <div>
+          <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+            <h6 class="text-primary mb-0">Matriz de Calendarización Mensual por Concepto</h6>
+            <button type="button" class="btn btn-outline-success btn-sm fw-bold" (click)="agregarConcepto()">
+              <i class="bi bi-journal-plus"></i> Agregar Concepto
+            </button>
+          </div>
+
+          <div formArrayName="conceptos">
+            @for (concepto of conceptosFormArray.controls; track $index) {
+              <div [formGroupName]="$index" class="card border-secondary mb-4 bg-white shadow-sm">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-2">
+                  <span class="fw-medium">Concepto #{{ $index + 1 }}</span>
+                  <button type="button" class="btn btn-sm btn-danger py-0" (click)="eliminarConcepto($index)" [disabled]="conceptosFormArray.length === 1">
+                    Quitar
+                  </button>
+                </div>
+                <div class="card-body p-3">                  
+                  <div class="row mb-3">
+                    <div class="col">
+                      <label class="form-label small fw-bold">Descripción del Concepto</label>
+                      <input type="text" class="form-control form-control-sm" formControlName="descripcion" placeholder="Nombre o detalle del insumo/servicio">
+                    </div>
+                  </div>
+                  <div class="row mb-3">
+                    <div class="col-md-5 col-xxl-5">
+                      <label class="form-label small fw-bold">Clave Programática</label>
+                      <select class="form-select form-select-sm" formControlName="programaPresupuestal">
+                        <option value="15009">04R01-09-40-01 M01-ACTIVIDADES Y SERVICIOS DE APOYO ADMINISTRATIVO</option>
+                        <option value="15010">04R01-09-40-02 M01-ACTIVIDADES Y SERVICIOS DE APOYO ADMINISTRATIVO</option>
+                        <option value="15012">04R01-09-41-01 M02-MODERNIZACIÓN Y GOBIERNO DIGITAL</option>
+                      </select>
+                    </div>
+                    <div class="col-md-4 col-xxl-5">
+                      <label class="form-label small fw-bold">Partida Presupuestal</label>
+                      <select class="form-select form-select-sm" formControlName="partida">
+                        <option value="57">21101 Materiales y utiles de oficina</option>
+                        <option value="86">24601 Material electrico y electronico</option>
+                        <option value="63"> 21401 Materiales y utiles consumibles para el procesamiento en equipos y bienes informaticos</option>
+                      </select>
+                    </div>
+                    <div class="col-md-3 col-xxl-2">
+                      <label class="form-label small fw-bold">Fuente de Financiamiento</label>
+                      <select class="form-select form-select-sm" formControlName="programaPresupuestal">
+                        <option value="1">1 Recursos fiscales</option>
+                        <option value="3">3 Aprovechamientos</option>
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <label class="form-label small fw-bold text-muted mb-2">Montos Distribuidos por Mes ($)</label>
+                  <div class="row row-cols-2 row-cols-md-4 row-cols-lg-6 g-2">
+                    <div><label class="small text-muted mb-0">Ene</label><input type="number" class="form-control form-control-sm" formControlName="importeEnero"></div>
+                    <div><label class="small text-muted mb-0">Feb</label><input type="number" class="form-control form-control-sm" formControlName="importeFebrero"></div>
+                    <div><label class="small text-muted mb-0">Mar</label><input type="number" class="form-control form-control-sm" formControlName="importeMarzo"></div>
+                    <div><label class="small text-muted mb-0">Abr</label><input type="number" class="form-control form-control-sm" formControlName="importeAbril"></div>
+                    <div><label class="small text-muted mb-0">May</label><input type="number" class="form-control form-control-sm" formControlName="importeMayo"></div>
+                    <div><label class="small text-muted mb-0">Jun</label><input type="number" class="form-control form-control-sm" formControlName="importeJunio"></div>
+                    <div><label class="small text-muted mb-0">Jul</label><input type="number" class="form-control form-control-sm" formControlName="importeJulio"></div>
+                    <div><label class="small text-muted mb-0">Ago</label><input type="number" class="form-control form-control-sm" formControlName="importeAgosto"></div>
+                    <div><label class="small text-muted mb-0">Sep</label><input type="number" class="form-control form-control-sm" formControlName="importeSeptiembre"></div>
+                    <div><label class="small text-muted mb-0">Oct</label><input type="number" class="form-control form-control-sm" formControlName="importeOctubre"></div>
+                    <div><label class="small text-muted mb-0">Nov</label><input type="number" class="form-control form-control-sm" formControlName="importeNoviembre"></div>
+                    <div><label class="small text-muted mb-0">Dic</label><input type="number" class="form-control form-control-sm" formControlName="importeDiciembre"></div>
+                  </div>
+
+                  <div class="d-flex justify-content-end mt-3 border-top pt-2">
+                    <span class="fw-bold text-dark">Total Concepto: <span class="text-primary">{{ concepto.get('importeTotal')?.value | currency }}</span></span>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="alert alert-secondary d-flex justify-content-between align-items-center mt-4 p-3" formGroupName="requisicion">
+            <span class="text-muted fw-medium">Suma Acumulada del Gasto Comprometido:</span>
+            <span class="fs-4 fw-bold text-success">{{ formulario.get('requisicion.importeTotalRequisicion')?.value | currency }}</span>
+          </div>
+
+          <div class="d-flex justify-content-between mt-4 border-top pt-3">
+            <button type="button" class="btn btn-outline-primary" (click)="activeTab = 'generales'">← Regresar</button>
+            <div class="gap-2 d-flex">
+              <a routerLink="/home/precompromisos/list" class="btn btn-secondary">Cancelar</a>
+              <button type="submit" class="btn btn-success fw-bold">Guardar Todo</button>
+            </div>
+          </div>
         </div>
-      </div>
-
-      <div class="mb-4">
-        <label class="form-label fw-bold">Descripción / Concepto</label>
-        <textarea class="form-control" formControlName="descripcion" rows="3"
-                  [class.is-invalid]="formulario.get('descripcion')?.invalid && formulario.get('descripcion')?.touched"></textarea>
-        <div class="invalid-feedback">La descripción es obligatoria.</div>
-      </div>
-
-      <div class="d-flex justify-content-end gap-2">
-        <a routerLink="/home/precompromisos/list" class="btn btn-secondary">Cancelar</a>
-        <button type="submit" class="btn btn-primary">Guardar Registro</button>
-      </div>
+      }
     </form>
   </div>
 </div>

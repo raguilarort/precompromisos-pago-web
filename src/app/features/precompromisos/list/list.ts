@@ -5,7 +5,7 @@ import { PrecompromisoService } from '../services/precompromisos/precompromisos'
 
 @Component({
   selector: 'app-list',
-  imports: [RouterLink, CurrencyPipe, DatePipe],
+  imports: [RouterLink, CurrencyPipe],
   templateUrl: './list.html',
   styleUrl: './list.css',
 })
@@ -29,11 +29,11 @@ export class List {
     // Filtramos buscando coincidencias en folio o cliente
     return compromisos.filter(c => 
       c.folio.toLowerCase().includes(termino) ||
-      c.cliente.toLowerCase().includes(termino)
+      c.requisicion.numeroRequisicion.toLowerCase().includes(termino)
     );
   });
 
-  eliminar(id: string) {
+  eliminar(id: number) {
     if (confirm('¿Estás seguro de que deseas eliminar este registro?')) {
       this.precompromisoService.eliminarLogico(id);
     }
