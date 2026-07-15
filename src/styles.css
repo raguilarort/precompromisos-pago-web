@@ -1,1 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
+@import "@ng-select/ng-select/themes/default.theme.css";
+
+/* Pequeño ajuste para que los bordes coincidan perfectamente con Bootstrap 5 */
+.ng-select .ng-select-container {
+    border-color: #dee2e6;
+    border-radius: 0.375rem;
+}
