@@ -1,13 +1,15 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators, FormArray, FormGroup } from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CurrencyPipe } from '@angular/common';
+import { NgSelectModule } from '@ng-select/ng-select'; // <-- Importación necesaria
 import { PrecompromisoService } from '../services/precompromisos/precompromisos';
 import { Precompromiso } from '../models/precompromiso.model';
+import { FiltrarCatalogoPipe } from '../../../shared/pipes/filtrar-catalogo-pipe'; // Ajusta la ruta si es necesario
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule, RouterLink, CurrencyPipe],
+  imports: [ReactiveFormsModule, RouterLink, CurrencyPipe, NgSelectModule, FiltrarCatalogoPipe],
   templateUrl: './register.html',
   styleUrl: './register.css',
 })
@@ -20,6 +22,32 @@ export class Register implements OnInit {
   esEdicion = false;
   idCompromiso?: number;
   activeTab = 'generales'; // Control del formulario dividido
+
+  //BORRAR AL HACER LA INTEGRACIÓN CON EL SERVICIO
+  // 1. Catálogos simulados (En el futuro, esto vendrá de tu backend)
+  catalogoClaves = [
+    { id: 15009, descripcion: '04R01-09-40-01 M01-ACTIVIDADES Y SERVICIOS DE APOYO ADMINISTRATIVO' },
+    { id: 15010, descripcion: '04R01-09-40-02 M01-ACTIVIDADES Y SERVICIOS DE APOYO ADMINISTRATIVO' },
+    { id: 15012, descripcion: '04R01-09-41-01 M02-MODERNIZACIÓN Y GOBIERNO DIGITAL' }
+  ];
+
+  catalogoPartidas = [
+    { id: 57, idClave: 15009, descripcion: '21101 Materiales y utiles de oficina' },
+    { id: 86, idClave: 15010, descripcion: '24601 Material electrico y electronico' },
+    { id: 63, idClave: 15010, descripcion: '21401 Materiales y utiles consumibles para el procesamiento en equipos y bienes informaticos' },
+    { id: 200, idClave: 15012, descripcion: '51101 - Muebles de oficina' }
+  ];
+
+  catalogoFuentes = [
+    { id: 1, idPartida: 57, descripcion: 'Recursos Financieros' },
+    { id: 3, idPartida: 57, descripcion: 'Aprovechamientos' },
+    { id: 1, idPartida: 86, descripcion: 'Recursos Financieros' },
+    { id: 3, idPartida: 86, descripcion: 'Aprovechamientos' },
+    { id: 1, idPartida: 63, descripcion: 'Recursos Financieros' },
+    { id: 1, idPartida: 200, descripcion: 'Recursos Financieros' },
+    { id: 3, idPartida: 200, descripcion: 'Aprovechamientos' }
+  ];
+  //BORRAR AL HACER LA INTEGRACIÓN CON EL SERVICIO
 
   formulario = this.fb.group({
     ejercicio: [2026, [Validators.required, Validators.min(2000)]],
@@ -57,9 +85,17 @@ export class Register implements OnInit {
   // Crea la sub-estructura de controles para un concepto nuevo con sus 12 meses
   crearConceptoFormGroup(): FormGroup {
     const grupo = this.fb.group({
-      idCvePresupuestaria: [null, Validators.required],
       descripcion: ['', Validators.required],
-      importeEnero: [0, [Validators.required, Validators.min(0)]],
+      // 1. Los 3 nuevos campos en lugar del idCvePresupuestaria
+      claveProgramatica: [null, Validators.required],
+      partidaPresupuestal: [{ value: null, disabled: true }, Validators.required],
+      fuenteFinanciamiento: [{ value: null, disabled: true }, Validators.required],     
+      
+      // 2. Controles ocultos o de solo lectura para almacenar el saldo disponible
+      disponibleEnero: [10000], // Mock: Supongamos que el backend dice que hay $10,000
+      disponibleFebrero: [10000],
+
+      importeEnero: [0, [Validators.required, Validators.min(0), this.validarDisponibilidad('Enero')]],
       importeFebrero: [0, [Validators.required, Validators.min(0)]],
       importeMarzo: [0, [Validators.required, Validators.min(0)]],
       importeAbril: [0, [Validators.required, Validators.min(0)]],
@@ -74,8 +110,51 @@ export class Register implements OnInit {
       importeTotal: [{ value: 0, disabled: true }]
     });
 
+    // Escucha cambios en Clave Programática
+    grupo.get('claveProgramatica')?.valueChanges.subscribe(idClave => {
+      const controlPartida = grupo.get('partidaPresupuestal');
+      const controlFuente = grupo.get('fuenteFinanciamiento');
+      
+      // Reseteamos los hijos al cambiar el padre
+      controlPartida?.setValue(null);
+      controlFuente?.setValue(null);
+      controlFuente?.disable();
+
+      if (idClave) {
+        controlPartida?.enable();
+        // Aquí podrías llamar al backend: this.catalogosService.obtenerPartidas(idClave).subscribe(...)
+      } else {
+        controlPartida?.disable();
+      }
+    });
+
+    // Escucha cambios en Partida Presupuestal
+    grupo.get('partidaPresupuestal')?.valueChanges.subscribe(idPartida => {
+      const controlFuente = grupo.get('fuenteFinanciamiento');
+      controlFuente?.setValue(null);
+
+      if (idPartida) {
+        controlFuente?.enable();
+      } else {
+        controlFuente?.disable();
+      }
+    });
+
     // Escucha cambios en los meses de este concepto específico para recalcular totales
     grupo.valueChanges.subscribe(() => this.calcularTotales());
+
+    // LÓGICA DE CASCADA (Puntos 4, 5 y 6)
+    grupo.get('claveProgramatica')?.valueChanges.subscribe(valor => {
+      if (valor) {
+        // Habilitamos la partida y llamamos al backend simulado
+        grupo.get('partidaPresupuestal')?.enable();
+        // Aquí iría tu: this.catalogosService.obtenerPartidas(valor).subscribe(...)
+      } else {
+        grupo.get('partidaPresupuestal')?.disable();
+        grupo.get('fuenteFinanciamiento')?.disable();
+      }
+    });
+
     return grupo;
   }
 
@@ -164,5 +243,15 @@ export class Register implements OnInit {
     } else {
       this.formulario.markAllAsTouched();
     }
+  }
+
+  // Validador personalizado para evaluar el tope presupuestal
+  validarDisponibilidad(mes: string) {
+    return (control: AbstractControl) => {
+      if (!control.parent) return null;
+      // Buscamos el valor disponible que el backend nos entregó para este mes
+      const disponible = control.parent.get(`disponible${mes}`)?.value || 0;
+      return control.value > disponible ? { excedePresupuesto: true } : null;
+    };
   }
 }

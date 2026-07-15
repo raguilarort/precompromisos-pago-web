@@ -108,33 +108,60 @@
                   </div>
                   <div class="row mb-3">
                     <div class="col-md-5 col-xxl-5">
-                      <label class="form-label small fw-bold">Clave Programática</label>
-                      <select class="form-select form-select-sm" formControlName="programaPresupuestal">
-                        <option value="15009">04R01-09-40-01 M01-ACTIVIDADES Y SERVICIOS DE APOYO ADMINISTRATIVO</option>
-                        <option value="15010">04R01-09-40-02 M01-ACTIVIDADES Y SERVICIOS DE APOYO ADMINISTRATIVO</option>
-                        <option value="15012">04R01-09-41-01 M02-MODERNIZACIÓN Y GOBIERNO DIGITAL</option>
-                      </select>
+                      <label class="form-label small fw-bold text-muted">Clave Programática</label>
+                        <ng-select 
+                          [items]="catalogoClaves" 
+                          bindLabel="descripcion" 
+                          bindValue="id" 
+                          formControlName="claveProgramatica" 
+                          placeholder="Buscar clave...">
+                        </ng-select>
                     </div>
                     <div class="col-md-4 col-xxl-5">
                       <label class="form-label small fw-bold">Partida Presupuestal</label>
-                      <select class="form-select form-select-sm" formControlName="partida">
-                        <option value="57">21101 Materiales y utiles de oficina</option>
-                        <option value="86">24601 Material electrico y electronico</option>
-                        <option value="63"> 21401 Materiales y utiles consumibles para el procesamiento en equipos y bienes informaticos</option>
-                      </select>
+                      <ng-select 
+                        [items]="catalogoPartidas | filtrarCatalogo:'idClave':concepto.get('claveProgramatica')?.value"
+                        bindLabel="descripcion" 
+                        bindValue="id" 
+                        formControlName="partidaPresupuestal" 
+                        placeholder="Buscar partida..."
+                        notFoundText="Seleccione una clave programática primero">
+                      </ng-select>
                     </div>
                     <div class="col-md-3 col-xxl-2">
                       <label class="form-label small fw-bold">Fuente de Financiamiento</label>
-                      <select class="form-select form-select-sm" formControlName="programaPresupuestal">
-                        <option value="1">1 Recursos fiscales</option>
-                        <option value="3">3 Aprovechamientos</option>
-                      </select>
+                      <ng-select 
+                        [items]="catalogoFuentes | filtrarCatalogo:'idPartida':concepto.get('partidaPresupuestal')?.value"
+                        bindLabel="descripcion" 
+                        bindValue="id" 
+                        formControlName="fuenteFinanciamiento" 
+                        placeholder="Buscar fuente..."
+                        notFoundText="Seleccione una partida primero">
+                      </ng-select>
                     </div>
                   </div>
                   
                   <label class="form-label small fw-bold text-muted mb-2">Montos Distribuidos por Mes ($)</label>
                   <div class="row row-cols-2 row-cols-md-4 row-cols-lg-6 g-2">
-                    <div><label class="small text-muted mb-0">Ene</label><input type="number" class="form-control form-control-sm" formControlName="importeEnero"></div>
+                    <div class="p-2 border rounded bg-light">
+                      <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label class="small fw-bold mb-0">Enero</label>
+                        <span class="badge" 
+                              [class.bg-success]="!concepto.get('importeEnero')?.hasError('excedePresupuesto')"
+                              [class.bg-danger]="concepto.get('importeEnero')?.hasError('excedePresupuesto')">
+                          Disp: {{ concepto.get('disponibleEnero')?.value | currency }}
+                        </span>
+                      </div>
+                      
+                      <input type="number" class="form-control form-control-sm text-end" formControlName="importeEnero"
+                            [class.is-invalid]="concepto.get('importeEnero')?.hasError('excedePresupuesto')">
+                            
+                      @if (concepto.get('importeEnero')?.hasError('excedePresupuesto')) {
+                        <div class="invalid-feedback d-block small fw-bold">
+                          <i class="bi bi-exclamation-triangle-fill"></i> No hay disponibilidad
+                        </div>
+                      }
+                    </div>
                     <div><label class="small text-muted mb-0">Feb</label><input type="number" class="form-control form-control-sm" formControlName="importeFebrero"></div>
                     <div><label class="small text-muted mb-0">Mar</label><input type="number" class="form-control form-control-sm" formControlName="importeMarzo"></div>
                     <div><label class="small text-muted mb-0">Abr</label><input type="number" class="form-control form-control-sm" formControlName="importeAbril"></div>
