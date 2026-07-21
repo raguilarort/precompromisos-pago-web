@@ -83,30 +83,41 @@ export class Register implements OnInit {
   }
 
   // Crea la sub-estructura de controles para un concepto nuevo con sus 12 meses
-  crearConceptoFormGroup(): FormGroup {
+  crearConceptoFormGroup(datosPrevios?: any): FormGroup {
     const grupo = this.fb.group({
-      descripcion: ['', Validators.required],
+      descripcion: [datosPrevios?.descripcion || '', Validators.required],
       // 1. Los 3 nuevos campos en lugar del idCvePresupuestaria
-      claveProgramatica: [null, Validators.required],
-      partidaPresupuestal: [{ value: null, disabled: true }, Validators.required],
-      fuenteFinanciamiento: [{ value: null, disabled: true }, Validators.required],     
+      // 1. Inicializamos con el valor previo si existe, si no, null
+      claveProgramatica: [datosPrevios?.claveProgramatica || null, Validators.required],
+      // 2. Si trae claveProgramatica previa, la partida nace habilitada
+      partidaPresupuestal: [{ 
+        value: datosPrevios?.partidaPresupuestal || null, 
+        disabled: !datosPrevios?.claveProgramatica 
+      }, Validators.required],
+      // 3. Si trae partida previa, la fuente nace habilitada
+      fuenteFinanciamiento: [{ 
+        value: datosPrevios?.fuenteFinanciamiento || null, 
+        disabled: !datosPrevios?.partidaPresupuestal 
+      }, Validators.required],
+
+      
       
       // 2. Controles ocultos o de solo lectura para almacenar el saldo disponible
       disponibleEnero: [10000], // Mock: Supongamos que el backend dice que hay $10,000
       disponibleFebrero: [10000],
 
-      importeEnero: [0, [Validators.required, Validators.min(0), this.validarDisponibilidad('Enero')]],
-      importeFebrero: [0, [Validators.required, Validators.min(0)]],
-      importeMarzo: [0, [Validators.required, Validators.min(0)]],
-      importeAbril: [0, [Validators.required, Validators.min(0)]],
-      importeMayo: [0, [Validators.required, Validators.min(0)]],
-      importeJunio: [0, [Validators.required, Validators.min(0)]],
-      importeJulio: [0, [Validators.required, Validators.min(0)]],
-      importeAgosto: [0, [Validators.required, Validators.min(0)]],
-      importeSeptiembre: [0, [Validators.required, Validators.min(0)]],
-      importeOctubre: [0, [Validators.required, Validators.min(0)]],
-      importeNoviembre: [0, [Validators.required, Validators.min(0)]],
-      importeDiciembre: [0, [Validators.required, Validators.min(0)]],
+      importeEnero: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0), this.validarDisponibilidad('Enero')]],
+      importeFebrero: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0)]],
+      importeMarzo: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0)]],
+      importeAbril: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0)]],
+      importeMayo: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0)]],
+      importeJunio: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0)]],
+      importeJulio: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0)]],
+      importeAgosto: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0)]],
+      importeSeptiembre: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0)]],
+      importeOctubre: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0)]],
+      importeNoviembre: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0)]],
+      importeDiciembre: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0)]],
       importeTotal: [{ value: 0, disabled: true }]
     });
 
@@ -116,27 +127,28 @@ export class Register implements OnInit {
       const controlFuente = grupo.get('fuenteFinanciamiento');
       
       // Reseteamos los hijos al cambiar el padre
-      controlPartida?.setValue(null);
-      controlFuente?.setValue(null);
-      controlFuente?.disable();
+      // EmitEvent: false evita que se disparen reacciones en cadena innecesarias
+      controlPartida?.setValue(null, { emitEvent: false });
+      controlFuente?.setValue(null, { emitEvent: false });
+      controlFuente?.disable({ emitEvent: false });
 
       if (idClave) {
-        controlPartida?.enable();
+        controlPartida?.enable({ emitEvent: false });
         // Aquí podrías llamar al backend: this.catalogosService.obtenerPartidas(idClave).subscribe(...)
       } else {
-        controlPartida?.disable();
+        controlPartida?.disable({ emitEvent: false });
       }
     });
 
     // Escucha cambios en Partida Presupuestal
     grupo.get('partidaPresupuestal')?.valueChanges.subscribe(idPartida => {
       const controlFuente = grupo.get('fuenteFinanciamiento');
-      controlFuente?.setValue(null);
+      controlFuente?.setValue(null, { emitEvent: false });
 
       if (idPartida) {
-        controlFuente?.enable();
+        controlFuente?.enable({ emitEvent: false });
       } else {
-        controlFuente?.disable();
+        controlFuente?.disable({ emitEvent: false });
       }
     });
 
@@ -209,14 +221,18 @@ export class Register implements OnInit {
 
     // Limpiamos e hidratamos el FormArray dinámicamente
     this.conceptosFormArray.clear();
+
     registro.requisicion.conceptos.forEach((concepto) => {
       const fg = this.crearConceptoFormGroup();
+
       fg.patchValue(concepto);
+
       this.conceptosFormArray.push(fg);
     });
+
     this.calcularTotales();
   }
-
+  
   guardar() {
     if (this.formulario.valid) {
       const rawValues = this.formulario.getRawValue(); // Obtiene incluso valores deshabilitados
