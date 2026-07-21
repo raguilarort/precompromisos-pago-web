@@ -243,6 +243,53 @@ export class Register implements OnInit {
     this.calcularTotales();
   }
 
+  refrescarSaldos(index: number) {
+    const concepto = this.conceptosFormArray.at(index) as FormGroup;
+    
+    const idClave = concepto.get('claveProgramatica')?.value;
+    const idPartida = concepto.get('partidaPresupuestal')?.value;
+    const idFuente = concepto.get('fuenteFinanciamiento')?.value;
+
+    // Medida de seguridad: No buscar si la clave presupuestaria está incompleta
+    if (!idClave || !idPartida || !idFuente) return;
+
+    // SIMULACIÓN DE LLAMADA AL BACKEND
+    // Nota: Cuando implementes el servicio real hacia tu base de datos MariaDB, 
+    // asegúrate de que el módulo en la capa de consulta esté optimizado y libre 
+    // de sentencias con loggers de strings pesados para evitar que la UI se trabe durante esta validación.
+    
+    import('rxjs').then(({ of, delay }) => {
+      // Generamos saldos aleatorios para la simulación
+      const saldosActualizados = {
+        disponibleEnero: Math.floor(Math.random() * 15000),
+        disponibleFebrero: Math.floor(Math.random() * 15000),
+        disponibleMarzo: Math.floor(Math.random() * 15000),
+        disponibleAbril: Math.floor(Math.random() * 15000),
+        disponibleMayo: Math.floor(Math.random() * 15000),
+        disponibleJunio: Math.floor(Math.random() * 15000),
+        disponibleJulio: Math.floor(Math.random() * 15000),
+        disponibleAgosto: Math.floor(Math.random() * 15000),
+        disponibleSeptiembre: Math.floor(Math.random() * 15000),
+        disponibleOctubre: Math.floor(Math.random() * 15000),
+        disponibleNoviembre: Math.floor(Math.random() * 15000),
+        disponibleDiciembre: Math.floor(Math.random() * 15000)
+      };
+
+      of(saldosActualizados).pipe(delay(500)).subscribe(saldos => {
+        // 1. Inyectamos los nuevos saldos en los campos ocultos del concepto
+        concepto.patchValue(saldos);
+
+        // 2. Obligamos a los 12 inputs de captura a recalcular su validez contra los nuevos saldos
+        const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+        
+        meses.forEach(mes => {
+          const controlImporte = concepto.get(`importe${mes}`);
+          controlImporte?.updateValueAndValidity({ emitEvent: false });
+        });
+      });
+    });
+  }
+
   guardar() {
     if (this.formulario.valid) {
       const rawValues = this.formulario.getRawValue(); // Obtiene incluso valores deshabilitados
