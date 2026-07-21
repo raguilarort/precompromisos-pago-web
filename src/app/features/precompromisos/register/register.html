@@ -437,7 +437,10 @@
             <button type="button" class="btn btn-outline-primary" (click)="activeTab = 'generales'">← Regresar</button>
             <div class="gap-2 d-flex">
               <a routerLink="/home/precompromisos/list" class="btn btn-secondary">Cancelar</a>
-              <button type="submit" class="btn btn-success fw-bold">Guardar Todo</button>
+              <!-- Se deshabilitará automáticamente si hay errores de presupuesto o campos obligatorios vacíos -->
+              <button type="submit" class="btn btn-success fw-bold shadow-sm" [disabled]="formulario.invalid">
+                <i class="bi bi-floppy me-1"></i> Guardar Todo
+              </button>
             </div>
           </div>
         </div>
