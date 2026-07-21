@@ -142,39 +142,272 @@
                   </div>
                   
                   <label class="form-label small fw-bold text-muted mb-2">Montos Distribuidos por Mes ($)</label>
-                  <div class="row row-cols-2 row-cols-md-4 row-cols-lg-6 g-2">
-                    <div class="p-2 border rounded bg-light">
-                      <div class="d-flex justify-content-between align-items-center mb-1">
-                        <label class="small fw-bold mb-0">Enero</label>
-                        <span class="badge" 
-                              [class.bg-success]="!concepto.get('importeEnero')?.hasError('excedePresupuesto')"
-                              [class.bg-danger]="concepto.get('importeEnero')?.hasError('excedePresupuesto')">
-                          Disp: {{ concepto.get('disponibleEnero')?.value | currency }}
-                        </span>
-                      </div>
-                      
-                      <input type="number" class="form-control form-control-sm text-end" formControlName="importeEnero"
-                            [class.is-invalid]="concepto.get('importeEnero')?.hasError('excedePresupuesto')">
-                            
-                      @if (concepto.get('importeEnero')?.hasError('excedePresupuesto')) {
-                        <div class="invalid-feedback d-block small fw-bold">
-                          <i class="bi bi-exclamation-triangle-fill"></i> No hay disponibilidad
+                  <div class="row row-cols-2 row-cols-md-4 row-cols-lg-6 g-1">
+                    <!-- ENERO -->
+                    <div class="col">
+                      <div class="p-2 border rounded bg-light h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                          <label class="small fw-bold mb-0">Enero</label>
+                          <span class="badge" 
+                                [class.bg-success]="!concepto.get('importeEnero')?.hasError('excedePresupuesto')"
+                                [class.bg-danger]="concepto.get('importeEnero')?.hasError('excedePresupuesto')">
+                            Disp: {{ concepto.get('disponibleEnero')?.value | currency }}
+                          </span>
                         </div>
-                      }
+                        
+                        <input type="number" class="form-control form-control-sm text-end" formControlName="importeEnero"
+                              [class.is-invalid]="concepto.get('importeEnero')?.hasError('excedePresupuesto')">
+                              
+                        @if (concepto.get('importeEnero')?.hasError('excedePresupuesto')) {
+                          <div class="invalid-feedback d-block small fw-bold mt-1">
+                            <i class="bi bi-exclamation-triangle-fill"></i> Sin disponibilidad
+                          </div>
+                        }
+                      </div>
                     </div>
-                    <div><label class="small text-muted mb-0">Feb</label><input type="number" class="form-control form-control-sm" formControlName="importeFebrero"></div>
-                    <div><label class="small text-muted mb-0">Mar</label><input type="number" class="form-control form-control-sm" formControlName="importeMarzo"></div>
-                    <div><label class="small text-muted mb-0">Abr</label><input type="number" class="form-control form-control-sm" formControlName="importeAbril"></div>
-                    <div><label class="small text-muted mb-0">May</label><input type="number" class="form-control form-control-sm" formControlName="importeMayo"></div>
-                    <div><label class="small text-muted mb-0">Jun</label><input type="number" class="form-control form-control-sm" formControlName="importeJunio"></div>
-                    <div><label class="small text-muted mb-0">Jul</label><input type="number" class="form-control form-control-sm" formControlName="importeJulio"></div>
-                    <div><label class="small text-muted mb-0">Ago</label><input type="number" class="form-control form-control-sm" formControlName="importeAgosto"></div>
-                    <div><label class="small text-muted mb-0">Sep</label><input type="number" class="form-control form-control-sm" formControlName="importeSeptiembre"></div>
-                    <div><label class="small text-muted mb-0">Oct</label><input type="number" class="form-control form-control-sm" formControlName="importeOctubre"></div>
-                    <div><label class="small text-muted mb-0">Nov</label><input type="number" class="form-control form-control-sm" formControlName="importeNoviembre"></div>
-                    <div><label class="small text-muted mb-0">Dic</label><input type="number" class="form-control form-control-sm" formControlName="importeDiciembre"></div>
+                    <!-- FEBRERO -->
+                    <div class="col">
+                      <div class="p-2 border rounded bg-light h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                          <label class="small fw-bold mb-0">Febrero</label>
+                          <span class="badge" 
+                                [class.bg-success]="!concepto.get('importeFebrero')?.hasError('excedePresupuesto')"
+                                [class.bg-danger]="concepto.get('importeFebrero')?.hasError('excedePresupuesto')">
+                            Disp: {{ concepto.get('disponibleFebrero')?.value | currency }}
+                          </span>
+                        </div>
+                        
+                        <input type="number" class="form-control form-control-sm text-end" formControlName="importeEnero"
+                              [class.is-invalid]="concepto.get('importeFebrero')?.hasError('excedePresupuesto')">
+                              
+                        @if (concepto.get('importeFebrero')?.hasError('excedePresupuesto')) {
+                          <div class="invalid-feedback d-block small fw-bold mt-1">
+                            <i class="bi bi-exclamation-triangle-fill"></i> Sin disponibilidad
+                          </div>
+                        }
+                      </div>
+                    </div>
+                    <!-- MARZO -->
+                    <div class="col">
+                      <div class="p-2 border rounded bg-light h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                          <label class="small fw-bold mb-0">Marzo</label>
+                          <span class="badge" 
+                                [class.bg-success]="!concepto.get('importeMarzo')?.hasError('excedePresupuesto')"
+                                [class.bg-danger]="concepto.get('importeMarzo')?.hasError('excedePresupuesto')">
+                            Disp: {{ concepto.get('disponibleMarzo')?.value | currency }}
+                          </span>
+                        </div>
+                        
+                        <input type="number" class="form-control form-control-sm text-end" formControlName="importeEnero"
+                              [class.is-invalid]="concepto.get('importeMarzo')?.hasError('excedePresupuesto')">
+                              
+                        @if (concepto.get('importeMarzo')?.hasError('excedePresupuesto')) {
+                          <div class="invalid-feedback d-block small fw-bold mt-1">
+                            <i class="bi bi-exclamation-triangle-fill"></i> Sin disponibilidad
+                          </div>
+                        }
+                      </div>
+                    </div>
+                    <!-- ABRIL -->
+                    <div class="col">
+                      <div class="p-2 border rounded bg-light h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                          <label class="small fw-bold mb-0">Abril</label>
+                          <span class="badge" 
+                                [class.bg-success]="!concepto.get('importeAbril')?.hasError('excedePresupuesto')"
+                                [class.bg-danger]="concepto.get('importeAbril')?.hasError('excedePresupuesto')">
+                            Disp: {{ concepto.get('disponibleAbril')?.value | currency }}
+                          </span>
+                        </div>
+                        
+                        <input type="number" class="form-control form-control-sm text-end" formControlName="importeEnero"
+                              [class.is-invalid]="concepto.get('importeAbril')?.hasError('excedePresupuesto')">
+                              
+                        @if (concepto.get('importeAbril')?.hasError('excedePresupuesto')) {
+                          <div class="invalid-feedback d-block small fw-bold mt-1">
+                            <i class="bi bi-exclamation-triangle-fill"></i> Sin disponibilidad
+                          </div>
+                        }
+                      </div>
+                    </div>
+                    <!-- MAYO -->
+                    <div class="col">
+                      <div class="p-2 border rounded bg-light h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                          <label class="small fw-bold mb-0">Mayo</label>
+                          <span class="badge" 
+                                [class.bg-success]="!concepto.get('importeMayo')?.hasError('excedePresupuesto')"
+                                [class.bg-danger]="concepto.get('importeMayo')?.hasError('excedePresupuesto')">
+                            Disp: {{ concepto.get('disponibleMayo')?.value | currency }}
+                          </span>
+                        </div>
+                        
+                        <input type="number" class="form-control form-control-sm text-end" formControlName="importeEnero"
+                              [class.is-invalid]="concepto.get('importeMayo')?.hasError('excedePresupuesto')">
+                              
+                        @if (concepto.get('importeMayo')?.hasError('excedePresupuesto')) {
+                          <div class="invalid-feedback d-block small fw-bold mt-1">
+                            <i class="bi bi-exclamation-triangle-fill"></i> Sin disponibilidad
+                          </div>
+                        }
+                      </div>
+                    </div>
+                    <!-- JUNIO -->
+                    <div class="col">
+                      <div class="p-2 border rounded bg-light h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                          <label class="small fw-bold mb-0">Junio</label>
+                          <span class="badge" 
+                                [class.bg-success]="!concepto.get('importeJunio')?.hasError('excedePresupuesto')"
+                                [class.bg-danger]="concepto.get('importeJunio')?.hasError('excedePresupuesto')">
+                            Disp: {{ concepto.get('disponibleJunio')?.value | currency }}
+                          </span>
+                        </div>
+                        
+                        <input type="number" class="form-control form-control-sm text-end" formControlName="importeEnero"
+                              [class.is-invalid]="concepto.get('importeJunio')?.hasError('excedePresupuesto')">
+                              
+                        @if (concepto.get('importeJunio')?.hasError('excedePresupuesto')) {
+                          <div class="invalid-feedback d-block small fw-bold mt-1">
+                            <i class="bi bi-exclamation-triangle-fill"></i> Sin disponibilidad
+                          </div>
+                        }
+                      </div>
+                    </div>
+                    <!-- JULIO -->
+                    <div class="col">
+                      <div class="p-2 border rounded bg-light h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                          <label class="small fw-bold mb-0">Julio</label>
+                          <span class="badge" 
+                                [class.bg-success]="!concepto.get('importeJulio')?.hasError('excedePresupuesto')"
+                                [class.bg-danger]="concepto.get('importeJulio')?.hasError('excedePresupuesto')">
+                            Disp: {{ concepto.get('disponibleJulio')?.value | currency }}
+                          </span>
+                        </div>
+                        
+                        <input type="number" class="form-control form-control-sm text-end" formControlName="importeEnero"
+                              [class.is-invalid]="concepto.get('importeJulio')?.hasError('excedePresupuesto')">
+                              
+                        @if (concepto.get('importeJulio')?.hasError('excedePresupuesto')) {
+                          <div class="invalid-feedback d-block small fw-bold mt-1">
+                            <i class="bi bi-exclamation-triangle-fill"></i> Sin disponibilidad
+                          </div>
+                        }
+                      </div>
+                    </div>
+                    <!-- AGOSTO -->
+                    <div class="col">
+                      <div class="p-2 border rounded bg-light h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                          <label class="small fw-bold mb-0">Agosto</label>
+                          <span class="badge" 
+                                [class.bg-success]="!concepto.get('importeAgosto')?.hasError('excedePresupuesto')"
+                                [class.bg-danger]="concepto.get('importeAgosto')?.hasError('excedePresupuesto')">
+                            Disp: {{ concepto.get('disponibleAgosto')?.value | currency }}
+                          </span>
+                        </div>
+                        
+                        <input type="number" class="form-control form-control-sm text-end" formControlName="importeEnero"
+                              [class.is-invalid]="concepto.get('importeAgosto')?.hasError('excedePresupuesto')">
+                              
+                        @if (concepto.get('importeAgosto')?.hasError('excedePresupuesto')) {
+                          <div class="invalid-feedback d-block small fw-bold mt-1">
+                            <i class="bi bi-exclamation-triangle-fill"></i> Sin disponibilidad
+                          </div>
+                        }
+                      </div>
+                    </div>
+                    <!-- SEPTIEMBRE -->
+                    <div class="col">
+                      <div class="p-2 border rounded bg-light h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                          <label class="small fw-bold mb-0">Septiembre</label>
+                          <span class="badge" 
+                                [class.bg-success]="!concepto.get('importeSeptiembre')?.hasError('excedePresupuesto')"
+                                [class.bg-danger]="concepto.get('importeSeptiembre')?.hasError('excedePresupuesto')">
+                            Disp: {{ concepto.get('disponibleSeptiembre')?.value | currency }}
+                          </span>
+                        </div>
+                        
+                        <input type="number" class="form-control form-control-sm text-end" formControlName="importeEnero"
+                              [class.is-invalid]="concepto.get('importeSeptiembre')?.hasError('excedePresupuesto')">
+                              
+                        @if (concepto.get('importeSeptiembre')?.hasError('excedePresupuesto')) {
+                          <div class="invalid-feedback d-block small fw-bold mt-1">
+                            <i class="bi bi-exclamation-triangle-fill"></i> Sin disponibilidad
+                          </div>
+                        }
+                      </div>
+                    </div>
+                    <!-- OCTUBRE -->
+                    <div class="col">
+                      <div class="p-2 border rounded bg-light h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                          <label class="small fw-bold mb-0">Octubre</label>
+                          <span class="badge" 
+                                [class.bg-success]="!concepto.get('importeOctubre')?.hasError('excedePresupuesto')"
+                                [class.bg-danger]="concepto.get('importeOctubre')?.hasError('excedePresupuesto')">
+                            Disp: {{ concepto.get('disponibleOctubre')?.value | currency }}
+                          </span>
+                        </div>
+                        
+                        <input type="number" class="form-control form-control-sm text-end" formControlName="importeEnero"
+                              [class.is-invalid]="concepto.get('importeOctubre')?.hasError('excedePresupuesto')">
+                              
+                        @if (concepto.get('importeOctubre')?.hasError('excedePresupuesto')) {
+                          <div class="invalid-feedback d-block small fw-bold mt-1">
+                            <i class="bi bi-exclamation-triangle-fill"></i> Sin disponibilidad
+                          </div>
+                        }
+                      </div>
+                    </div>
+                    <!-- NOVIEMBRE -->
+                    <div class="col">
+                      <div class="p-2 border rounded bg-light h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                          <label class="small fw-bold mb-0">Noviembre</label>
+                          <span class="badge" 
+                                [class.bg-success]="!concepto.get('importeNoviembre')?.hasError('excedePresupuesto')"
+                                [class.bg-danger]="concepto.get('importeNoviembre')?.hasError('excedePresupuesto')">
+                            Disp: {{ concepto.get('disponibleNoviembre')?.value | currency }}
+                          </span>
+                        </div>
+                        
+                        <input type="number" class="form-control form-control-sm text-end" formControlName="importeEnero"
+                              [class.is-invalid]="concepto.get('importeNoviembre')?.hasError('excedePresupuesto')">
+                              
+                        @if (concepto.get('importeNoviembre')?.hasError('excedePresupuesto')) {
+                          <div class="invalid-feedback d-block small fw-bold mt-1">
+                            <i class="bi bi-exclamation-triangle-fill"></i> Sin disponibilidad
+                          </div>
+                        }
+                      </div>
+                    </div>
+                    <!-- DICIEMBRE -->
+                    <div class="col">
+                      <div class="p-2 border rounded bg-light h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                          <label class="small fw-bold mb-0">Diciembre</label>
+                          <span class="badge" 
+                                [class.bg-success]="!concepto.get('importeDiciembre')?.hasError('excedePresupuesto')"
+                                [class.bg-danger]="concepto.get('importeDiciembre')?.hasError('excedePresupuesto')">
+                            Disp: {{ concepto.get('disponibleDiciembre')?.value | currency }}
+                          </span>
+                        </div>
+                        
+                        <input type="number" class="form-control form-control-sm text-end" formControlName="importeEnero"
+                              [class.is-invalid]="concepto.get('importeDiciembre')?.hasError('excedePresupuesto')">
+                              
+                        @if (concepto.get('importeDiciembre')?.hasError('excedePresupuesto')) {
+                          <div class="invalid-feedback d-block small fw-bold mt-1">
+                            <i class="bi bi-exclamation-triangle-fill"></i> Sin disponibilidad
+                          </div>
+                        }
+                      </div>
+                    </div>
                   </div>
-
                   <div class="d-flex justify-content-end mt-3 border-top pt-2">
                     <span class="fw-bold text-dark">Total Concepto: <span class="text-primary">{{ concepto.get('importeTotal')?.value | currency }}</span></span>
                   </div>
