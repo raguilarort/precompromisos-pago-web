@@ -105,19 +105,29 @@ export class Register implements OnInit {
       // 2. Controles ocultos o de solo lectura para almacenar el saldo disponible
       disponibleEnero: [10000], // Mock: Supongamos que el backend dice que hay $10,000
       disponibleFebrero: [10000],
+      disponibleMarzo: [10000],
+      disponibleAbril: [10000],
+      disponibleMayo: [10000],
+      disponibleJunio: [10000],
+      disponibleJulio: [10000],
+      disponibleAgosto: [10000],
+      disponibleSeptiembre: [10000],
+      disponibleOctubre: [10000],
+      disponibleNoviembre: [10000],
+      disponibleDiciembre: [10000],
 
       importeEnero: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0), this.validarDisponibilidad('Enero')]],
-      importeFebrero: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0)]],
-      importeMarzo: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0)]],
-      importeAbril: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0)]],
-      importeMayo: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0)]],
-      importeJunio: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0)]],
-      importeJulio: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0)]],
-      importeAgosto: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0)]],
-      importeSeptiembre: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0)]],
-      importeOctubre: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0)]],
-      importeNoviembre: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0)]],
-      importeDiciembre: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0)]],
+      importeFebrero: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0), this.validarDisponibilidad('Febrero')]],
+      importeMarzo: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0), this.validarDisponibilidad('Marzo')]],
+      importeAbril: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0), this.validarDisponibilidad('Abril')]],
+      importeMayo: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0), this.validarDisponibilidad('Mayo')]],
+      importeJunio: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0), this.validarDisponibilidad('Junio')]],
+      importeJulio: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0), this.validarDisponibilidad('Julio')]],
+      importeAgosto: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0), this.validarDisponibilidad('Agosto')]],
+      importeSeptiembre: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0), this.validarDisponibilidad('Septiembre')]],
+      importeOctubre: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0), this.validarDisponibilidad('Octubre')]],
+      importeNoviembre: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0), this.validarDisponibilidad('Noviembre')]],
+      importeDiciembre: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0), this.validarDisponibilidad('Diciembre')]],
       importeTotal: [{ value: 0, disabled: true }]
     });
 
@@ -232,7 +242,7 @@ export class Register implements OnInit {
 
     this.calcularTotales();
   }
-  
+
   guardar() {
     if (this.formulario.valid) {
       const rawValues = this.formulario.getRawValue(); // Obtiene incluso valores deshabilitados
