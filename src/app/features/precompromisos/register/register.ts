@@ -1,15 +1,17 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CurrencyPipe } from '@angular/common';
 import { NgSelectModule } from '@ng-select/ng-select'; // <-- Importación necesaria
+import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { PrecompromisoService } from '../services/precompromisos/precompromisos';
 import { Precompromiso } from '../models/precompromiso.model';
 import { FiltrarCatalogoPipe } from '../../../shared/pipes/filtrar-catalogo-pipe'; // Ajusta la ruta si es necesario
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule, RouterLink, CurrencyPipe, NgSelectModule, FiltrarCatalogoPipe],
+  imports: [ReactiveFormsModule, RouterLink, CurrencyPipe, NgSelectModule, FiltrarCatalogoPipe, NgxMaskDirective],
+  providers: [provideNgxMask()],
   templateUrl: './register.html',
   styleUrl: './register.css',
 })
@@ -22,6 +24,8 @@ export class Register implements OnInit {
   esEdicion = false;
   idCompromiso?: number;
   activeTab = 'generales'; // Control del formulario dividido
+
+  mensajeAlerta = signal<string | null>(null);
 
   //BORRAR AL HACER LA INTEGRACIÓN CON EL SERVICIO
   // 1. Catálogos simulados (En el futuro, esto vendrá de tu backend)
@@ -326,5 +330,28 @@ export class Register implements OnInit {
       const disponible = control.parent.get(`disponible${mes}`)?.value || 0;
       return control.value > disponible ? { excedePresupuesto: true } : null;
     };
+  }
+
+  // Método para interceptar el teclado
+  bloquearCaracteresInvalidos(event: KeyboardEvent) {
+    // Permitir teclas de navegación y borrado (BackSpace, Tab, Flechas, Suprimir, Enter)
+    const teclasControl = ['Backspace', 'Tab', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Delete', 'Enter'];
+    if (teclasControl.includes(event.key)) return;
+
+    // Permitir atajos de teclado (Ctrl+C, Ctrl+V, etc.)
+    if (event.ctrlKey || event.metaKey) return;
+
+    // Validar que la tecla presionada sea un número del 0 al 9 o el punto decimal
+    const esNumeroOPunto = /^[0-9.]$/.test(event.key);
+
+    if (!esNumeroOPunto) {
+      event.preventDefault(); // Detiene la pulsación de la tecla
+      
+      // Lanzamos el regaño amistoso
+      this.mensajeAlerta.set('Solo se aceptan cifras mayores que cero');
+      
+      // Ocultamos el mensaje después de 3.5 segundos
+      setTimeout(() => this.mensajeAlerta.set(null), 3000);
+    }
   }
 }

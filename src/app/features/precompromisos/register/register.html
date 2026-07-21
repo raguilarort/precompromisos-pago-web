@@ -167,7 +167,9 @@
                           </span>
                         </div>
                         
-                        <input type="number" class="form-control form-control-sm text-end" formControlName="importeEnero"
+                        <input type="text" class="form-control form-control-sm text-end" formControlName="importeEnero"
+                              mask="separator.2" thousandSeparator=","
+                              (keydown)="bloquearCaracteresInvalidos($event)"
                               [class.is-invalid]="concepto.get('importeEnero')?.hasError('excedePresupuesto')">
                               
                         @if (concepto.get('importeEnero')?.hasError('excedePresupuesto')) {
@@ -189,7 +191,9 @@
                           </span>
                         </div>
                         
-                        <input type="number" class="form-control form-control-sm text-end" formControlName="importeFebrero"
+                        <input type="text" class="form-control form-control-sm text-end" formControlName="importeFebrero"
+                              mask="separator.2" thousandSeparator=","
+                              (keydown)="bloquearCaracteresInvalidos($event)"
                               [class.is-invalid]="concepto.get('importeFebrero')?.hasError('excedePresupuesto')">
                               
                         @if (concepto.get('importeFebrero')?.hasError('excedePresupuesto')) {
@@ -211,7 +215,9 @@
                           </span>
                         </div>
                         
-                        <input type="number" class="form-control form-control-sm text-end" formControlName="importeMarzo"
+                        <input type="text" class="form-control form-control-sm text-end" formControlName="importeMarzo"
+                              mask="separator.2" thousandSeparator=","
+                              (keydown)="bloquearCaracteresInvalidos($event)"
                               [class.is-invalid]="concepto.get('importeMarzo')?.hasError('excedePresupuesto')">
                               
                         @if (concepto.get('importeMarzo')?.hasError('excedePresupuesto')) {
@@ -233,7 +239,9 @@
                           </span>
                         </div>
                         
-                        <input type="number" class="form-control form-control-sm text-end" formControlName="importeAbril"
+                        <input type="text" class="form-control form-control-sm text-end" formControlName="importeAbril"
+                              mask="separator.2" thousandSeparator=","
+                              (keydown)="bloquearCaracteresInvalidos($event)"
                               [class.is-invalid]="concepto.get('importeAbril')?.hasError('excedePresupuesto')">
                               
                         @if (concepto.get('importeAbril')?.hasError('excedePresupuesto')) {
@@ -255,7 +263,9 @@
                           </span>
                         </div>
                         
-                        <input type="number" class="form-control form-control-sm text-end" formControlName="importeMayo"
+                        <input type="text" class="form-control form-control-sm text-end" formControlName="importeMayo"
+                              mask="separator.2" thousandSeparator=","
+                              (keydown)="bloquearCaracteresInvalidos($event)"
                               [class.is-invalid]="concepto.get('importeMayo')?.hasError('excedePresupuesto')">
                               
                         @if (concepto.get('importeMayo')?.hasError('excedePresupuesto')) {
@@ -277,7 +287,9 @@
                           </span>
                         </div>
                         
-                        <input type="number" class="form-control form-control-sm text-end" formControlName="importeJunio"
+                        <input type="text" class="form-control form-control-sm text-end" formControlName="importeJunio"
+                              mask="separator.2" thousandSeparator=","
+                              (keydown)="bloquearCaracteresInvalidos($event)"
                               [class.is-invalid]="concepto.get('importeJunio')?.hasError('excedePresupuesto')">
                               
                         @if (concepto.get('importeJunio')?.hasError('excedePresupuesto')) {
@@ -299,7 +311,9 @@
                           </span>
                         </div>
                         
-                        <input type="number" class="form-control form-control-sm text-end" formControlName="importeJulio"
+                        <input type="text" class="form-control form-control-sm text-end" formControlName="importeJulio"
+                              mask="separator.2" thousandSeparator=","
+                              (keydown)="bloquearCaracteresInvalidos($event)"
                               [class.is-invalid]="concepto.get('importeJulio')?.hasError('excedePresupuesto')">
                               
                         @if (concepto.get('importeJulio')?.hasError('excedePresupuesto')) {
@@ -321,7 +335,9 @@
                           </span>
                         </div>
                         
-                        <input type="number" class="form-control form-control-sm text-end" formControlName="importeAgosto"
+                        <input type="text" class="form-control form-control-sm text-end" formControlName="importeAgosto"
+                              mask="separator.2" thousandSeparator=","
+                              (keydown)="bloquearCaracteresInvalidos($event)"
                               [class.is-invalid]="concepto.get('importeAgosto')?.hasError('excedePresupuesto')">
                               
                         @if (concepto.get('importeAgosto')?.hasError('excedePresupuesto')) {
@@ -343,7 +359,9 @@
                           </span>
                         </div>
                         
-                        <input type="number" class="form-control form-control-sm text-end" formControlName="importeSeptiembre"
+                        <input type="text" class="form-control form-control-sm text-end" formControlName="importeSeptiembre"
+                              mask="separator.2" thousandSeparator=","
+                              (keydown)="bloquearCaracteresInvalidos($event)"
                               [class.is-invalid]="concepto.get('importeSeptiembre')?.hasError('excedePresupuesto')">
                               
                         @if (concepto.get('importeSeptiembre')?.hasError('excedePresupuesto')) {
@@ -365,7 +383,9 @@
                           </span>
                         </div>
                         
-                        <input type="number" class="form-control form-control-sm text-end" formControlName="importeOctubre"
+                        <input type="text" class="form-control form-control-sm text-end" formControlName="importeOctubre"
+                              mask="separator.2" thousandSeparator=","
+                              (keydown)="bloquearCaracteresInvalidos($event)"
                               [class.is-invalid]="concepto.get('importeOctubre')?.hasError('excedePresupuesto')">
                               
                         @if (concepto.get('importeOctubre')?.hasError('excedePresupuesto')) {
@@ -387,7 +407,9 @@
                           </span>
                         </div>
                         
-                        <input type="number" class="form-control form-control-sm text-end" formControlName="importeNoviembre"
+                        <input type="text" class="form-control form-control-sm text-end" formControlName="importeNoviembre"
+                              mask="separator.2" thousandSeparator=","
+                              (keydown)="bloquearCaracteresInvalidos($event)"
                               [class.is-invalid]="concepto.get('importeNoviembre')?.hasError('excedePresupuesto')">
                               
                         @if (concepto.get('importeNoviembre')?.hasError('excedePresupuesto')) {
@@ -409,7 +431,9 @@
                           </span>
                         </div>
                         
-                        <input type="number" class="form-control form-control-sm text-end" formControlName="importeDiciembre"
+                        <input type="text" class="form-control form-control-sm text-end" formControlName="importeDiciembre"
+                              mask="separator.2" thousandSeparator=","
+                              (keydown)="bloquearCaracteresInvalidos($event)"
                               [class.is-invalid]="concepto.get('importeDiciembre')?.hasError('excedePresupuesto')">
                               
                         @if (concepto.get('importeDiciembre')?.hasError('excedePresupuesto')) {
@@ -448,3 +472,17 @@
     </form>
   </div>
 </div>
+@if (mensajeAlerta()) {
+  <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1080;">
+    <!-- El toast aparece en rojo/naranja llamativo -->
+    <div class="toast show align-items-center text-white bg-danger border-0 shadow-lg" role="alert">
+      <div class="d-flex p-1">
+        <div class="toast-body fs-6">
+          <i class="bi bi-exclamation-triangle"></i>
+          {{ mensajeAlerta() }}
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="mensajeAlerta.set(null)" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+}
