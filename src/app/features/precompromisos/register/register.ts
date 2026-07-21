@@ -102,36 +102,34 @@ export class Register implements OnInit {
       fuenteFinanciamiento: [{ 
         value: datosPrevios?.fuenteFinanciamiento || null, 
         disabled: !datosPrevios?.partidaPresupuestal 
-      }, Validators.required],
-
-      
+      }, Validators.required],     
       
       // 2. Controles ocultos o de solo lectura para almacenar el saldo disponible
-      disponibleEnero: [10000], // Mock: Supongamos que el backend dice que hay $10,000
-      disponibleFebrero: [10000],
-      disponibleMarzo: [10000],
-      disponibleAbril: [10000],
-      disponibleMayo: [10000],
-      disponibleJunio: [10000],
-      disponibleJulio: [10000],
-      disponibleAgosto: [10000],
-      disponibleSeptiembre: [10000],
-      disponibleOctubre: [10000],
-      disponibleNoviembre: [10000],
-      disponibleDiciembre: [10000],
-
-      importeEnero: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0), this.validarDisponibilidad('Enero')]],
-      importeFebrero: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0), this.validarDisponibilidad('Febrero')]],
-      importeMarzo: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0), this.validarDisponibilidad('Marzo')]],
-      importeAbril: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0), this.validarDisponibilidad('Abril')]],
-      importeMayo: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0), this.validarDisponibilidad('Mayo')]],
-      importeJunio: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0), this.validarDisponibilidad('Junio')]],
-      importeJulio: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0), this.validarDisponibilidad('Julio')]],
-      importeAgosto: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0), this.validarDisponibilidad('Agosto')]],
-      importeSeptiembre: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0), this.validarDisponibilidad('Septiembre')]],
-      importeOctubre: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0), this.validarDisponibilidad('Octubre')]],
-      importeNoviembre: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0), this.validarDisponibilidad('Noviembre')]],
-      importeDiciembre: [datosPrevios?.descripcion || 0, [Validators.required, Validators.min(0), this.validarDisponibilidad('Diciembre')]],
+      disponibleEnero: [0],
+      disponibleFebrero: [0],
+      disponibleMarzo: [0],
+      disponibleAbril: [0],
+      disponibleMayo: [0],
+      disponibleJunio: [0],
+      disponibleJulio: [0],
+      disponibleAgosto: [0],
+      disponibleSeptiembre: [0],
+      disponibleOctubre: [0],
+      disponibleNoviembre: [0],
+      disponibleDiciembre: [0],
+      
+      importeEnero: [{ value: datosPrevios?.importeEnero || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Enero')]],
+      importeFebrero: [{ value: datosPrevios?.importeFebrero || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Febrero')]],
+      importeMarzo: [{ value: datosPrevios?.importeMarzo || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Marzo')]],
+      importeAbril: [{ value: datosPrevios?.importeAbril || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Abril')]],
+      importeMayo: [{ value: datosPrevios?.importeMayo || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Mayo')]],
+      importeJunio: [{ value: datosPrevios?.importeJunio || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Junio')]],
+      importeJulio: [{ value: datosPrevios?.importeJulio || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Julio')]],
+      importeAgosto: [{ value: datosPrevios?.importeAgosto || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Agosto')]],
+      importeSeptiembre: [{ value: datosPrevios?.importeSeptiembre || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Septiembre')]],
+      importeOctubre: [{ value: datosPrevios?.importeOctubre || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Octubre')]],
+      importeNoviembre: [{ value: datosPrevios?.importeNoviembre || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Noviembre')]],
+      importeDiciembre: [{ value: datosPrevios?.importeDiciembre || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Diciembre')]],
       importeTotal: [{ value: 0, disabled: true }]
     });
 
@@ -266,8 +264,8 @@ export class Register implements OnInit {
       // Generamos saldos aleatorios para la simulación
       const saldosActualizados = {
         disponibleEnero: Math.floor(Math.random() * 15000),
-        disponibleFebrero: Math.floor(Math.random() * 15000),
-        disponibleMarzo: Math.floor(Math.random() * 15000),
+        disponibleFebrero: 0, // Simulamos un mes en cero
+        disponibleMarzo: -500, // Simulamos un mes en negativo
         disponibleAbril: Math.floor(Math.random() * 15000),
         disponibleMayo: Math.floor(Math.random() * 15000),
         disponibleJunio: Math.floor(Math.random() * 15000),
@@ -283,14 +281,31 @@ export class Register implements OnInit {
         // 1. Inyectamos los nuevos saldos en los campos ocultos del concepto
         concepto.patchValue(saldos);
 
-        // 2. Obligamos a los 12 inputs de captura a recalcular su validez contra los nuevos saldos
-        const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-        
-        meses.forEach(mes => {
-          const controlImporte = concepto.get(`importe${mes}`);
-          controlImporte?.updateValueAndValidity({ emitEvent: false });
-        });
+        // 2. Llamamos a nuestra función evaluadora
+        this.evaluarEstadoMeses(concepto);
       });
+    });
+  }
+
+  evaluarEstadoMeses(concepto: FormGroup) {
+    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    
+    meses.forEach(mes => {
+      // Obtenemos el saldo disponible de ese mes
+      const disponible = concepto.get(`disponible${mes}`)?.value || 0;
+      const controlImporte = concepto.get(`importe${mes}`);
+
+      if (disponible === 0 || disponible < 0) {
+        // Si es 0, lo bloqueamos y nos aseguramos de que su valor sea 0
+        controlImporte?.setValue(0, { emitEvent: false });
+        controlImporte?.disable({ emitEvent: false });
+      } else {
+        // Si hay saldo positivo, lo habilitamos
+        controlImporte?.enable({ emitEvent: false });
+      }
+      
+      // Forzamos la validación visual
+      controlImporte?.updateValueAndValidity({ emitEvent: false });
     });
   }
 

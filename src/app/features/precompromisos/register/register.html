@@ -161,12 +161,15 @@
                         <div class="d-flex justify-content-between align-items-center mb-2">
                           <label class="small fw-bold mb-0">Enero</label>
                           <span class="badge" 
-                                [class.bg-success]="!concepto.get('importeEnero')?.hasError('excedePresupuesto')"
-                                [class.bg-danger]="concepto.get('importeEnero')?.hasError('excedePresupuesto')">
+                                [class.bg-secondary]="concepto.get('disponibleEnero')?.value === 0"
+                                [class.bg-warning]="concepto.get('disponibleEnero')?.value < 0"
+                                [class.text-dark]="concepto.get('disponibleEnero')?.value < 0"
+                                [class.bg-success]="concepto.get('disponibleEnero')?.value > 0 && !concepto.get('importeEnero')?.hasError('excedePresupuesto')"
+                                [class.bg-danger]="concepto.get('disponibleEnero')?.value > 0 && concepto.get('importeEnero')?.hasError('excedePresupuesto')">
                             Disp: {{ concepto.get('disponibleEnero')?.value | currency }}
                           </span>
                         </div>
-                        
+
                         <input type="text" class="form-control form-control-sm text-end" formControlName="importeEnero"
                               mask="separator.2" thousandSeparator=","
                               (keydown)="bloquearCaracteresInvalidos($event)"
@@ -185,8 +188,11 @@
                         <div class="d-flex justify-content-between align-items-center mb-2">
                           <label class="small fw-bold mb-0">Febrero</label>
                           <span class="badge" 
-                                [class.bg-success]="!concepto.get('importeFebrero')?.hasError('excedePresupuesto')"
-                                [class.bg-danger]="concepto.get('importeFebrero')?.hasError('excedePresupuesto')">
+                                [class.bg-secondary]="concepto.get('disponibleFebrero')?.value === 0"
+                                [class.bg-warning]="concepto.get('disponibleFebrero')?.value < 0"
+                                [class.text-dark]="concepto.get('disponibleFebrero')?.value < 0"
+                                [class.bg-success]="concepto.get('disponibleFebrero')?.value > 0 && !concepto.get('importeFebrero')?.hasError('excedePresupuesto')"
+                                [class.bg-danger]="concepto.get('disponibleFebrero')?.value > 0 && concepto.get('importeFebrero')?.hasError('excedePresupuesto')">
                             Disp: {{ concepto.get('disponibleFebrero')?.value | currency }}
                           </span>
                         </div>
@@ -209,8 +215,11 @@
                         <div class="d-flex justify-content-between align-items-center mb-2">
                           <label class="small fw-bold mb-0">Marzo</label>
                           <span class="badge" 
-                                [class.bg-success]="!concepto.get('importeMarzo')?.hasError('excedePresupuesto')"
-                                [class.bg-danger]="concepto.get('importeMarzo')?.hasError('excedePresupuesto')">
+                                [class.bg-secondary]="concepto.get('disponibleMarzo')?.value === 0"
+                                [class.bg-warning]="concepto.get('disponibleMarzo')?.value < 0"
+                                [class.text-dark]="concepto.get('disponibleMarzo')?.value < 0"
+                                [class.bg-success]="concepto.get('disponibleMarzo')?.value > 0 && !concepto.get('importeMarzo')?.hasError('excedePresupuesto')"
+                                [class.bg-danger]="concepto.get('disponibleMarzo')?.value > 0 && concepto.get('importeMarzo')?.hasError('excedePresupuesto')">
                             Disp: {{ concepto.get('disponibleMarzo')?.value | currency }}
                           </span>
                         </div>
@@ -233,8 +242,11 @@
                         <div class="d-flex justify-content-between align-items-center mb-2">
                           <label class="small fw-bold mb-0">Abril</label>
                           <span class="badge" 
-                                [class.bg-success]="!concepto.get('importeAbril')?.hasError('excedePresupuesto')"
-                                [class.bg-danger]="concepto.get('importeAbril')?.hasError('excedePresupuesto')">
+                                [class.bg-secondary]="concepto.get('disponibleAbril')?.value === 0"
+                                [class.bg-warning]="concepto.get('disponibleAbril')?.value < 0"
+                                [class.text-dark]="concepto.get('disponibleAbril')?.value < 0"
+                                [class.bg-success]="concepto.get('disponibleAbril')?.value > 0 && !concepto.get('importeAbril')?.hasError('excedePresupuesto')"
+                                [class.bg-danger]="concepto.get('disponibleAbril')?.value > 0 && concepto.get('importeAbril')?.hasError('excedePresupuesto')">
                             Disp: {{ concepto.get('disponibleAbril')?.value | currency }}
                           </span>
                         </div>
@@ -257,8 +269,11 @@
                         <div class="d-flex justify-content-between align-items-center mb-2">
                           <label class="small fw-bold mb-0">Mayo</label>
                           <span class="badge" 
-                                [class.bg-success]="!concepto.get('importeMayo')?.hasError('excedePresupuesto')"
-                                [class.bg-danger]="concepto.get('importeMayo')?.hasError('excedePresupuesto')">
+                                [class.bg-secondary]="concepto.get('disponibleMayo')?.value === 0"
+                                [class.bg-warning]="concepto.get('disponibleMayo')?.value < 0"
+                                [class.text-dark]="concepto.get('disponibleMayo')?.value < 0"
+                                [class.bg-success]="concepto.get('disponibleMayo')?.value > 0 && !concepto.get('importeMayo')?.hasError('excedePresupuesto')"
+                                [class.bg-danger]="concepto.get('disponibleMayo')?.value > 0 && concepto.get('importeMayo')?.hasError('excedePresupuesto')">
                             Disp: {{ concepto.get('disponibleMayo')?.value | currency }}
                           </span>
                         </div>
@@ -281,8 +296,11 @@
                         <div class="d-flex justify-content-between align-items-center mb-2">
                           <label class="small fw-bold mb-0">Junio</label>
                           <span class="badge" 
-                                [class.bg-success]="!concepto.get('importeJunio')?.hasError('excedePresupuesto')"
-                                [class.bg-danger]="concepto.get('importeJunio')?.hasError('excedePresupuesto')">
+                                [class.bg-secondary]="concepto.get('disponibleJunio')?.value === 0"
+                                [class.bg-warning]="concepto.get('disponibleJunio')?.value < 0"
+                                [class.text-dark]="concepto.get('disponibleJunio')?.value < 0"
+                                [class.bg-success]="concepto.get('disponibleJunio')?.value > 0 && !concepto.get('importeJunio')?.hasError('excedePresupuesto')"
+                                [class.bg-danger]="concepto.get('disponibleJunio')?.value > 0 && concepto.get('importeJunio')?.hasError('excedePresupuesto')">
                             Disp: {{ concepto.get('disponibleJunio')?.value | currency }}
                           </span>
                         </div>
@@ -305,8 +323,11 @@
                         <div class="d-flex justify-content-between align-items-center mb-2">
                           <label class="small fw-bold mb-0">Julio</label>
                           <span class="badge" 
-                                [class.bg-success]="!concepto.get('importeJulio')?.hasError('excedePresupuesto')"
-                                [class.bg-danger]="concepto.get('importeJulio')?.hasError('excedePresupuesto')">
+                                [class.bg-secondary]="concepto.get('disponibleJulio')?.value === 0"
+                                [class.bg-warning]="concepto.get('disponibleJulio')?.value < 0"
+                                [class.text-dark]="concepto.get('disponibleJulio')?.value < 0"
+                                [class.bg-success]="concepto.get('disponibleJulio')?.value > 0 && !concepto.get('importeJulio')?.hasError('excedePresupuesto')"
+                                [class.bg-danger]="concepto.get('disponibleJulio')?.value > 0 && concepto.get('importeJulio')?.hasError('excedePresupuesto')">
                             Disp: {{ concepto.get('disponibleJulio')?.value | currency }}
                           </span>
                         </div>
@@ -329,8 +350,11 @@
                         <div class="d-flex justify-content-between align-items-center mb-2">
                           <label class="small fw-bold mb-0">Agosto</label>
                           <span class="badge" 
-                                [class.bg-success]="!concepto.get('importeAgosto')?.hasError('excedePresupuesto')"
-                                [class.bg-danger]="concepto.get('importeAgosto')?.hasError('excedePresupuesto')">
+                                [class.bg-secondary]="concepto.get('disponibleAgosto')?.value === 0"
+                                [class.bg-warning]="concepto.get('disponibleAgosto')?.value < 0"
+                                [class.text-dark]="concepto.get('disponibleAgosto')?.value < 0"
+                                [class.bg-success]="concepto.get('disponibleAgosto')?.value > 0 && !concepto.get('importeAgosto')?.hasError('excedePresupuesto')"
+                                [class.bg-danger]="concepto.get('disponibleAgosto')?.value > 0 && concepto.get('importeAgosto')?.hasError('excedePresupuesto')">
                             Disp: {{ concepto.get('disponibleAgosto')?.value | currency }}
                           </span>
                         </div>
@@ -353,8 +377,11 @@
                         <div class="d-flex justify-content-between align-items-center mb-2">
                           <label class="small fw-bold mb-0">Septiembre</label>
                           <span class="badge" 
-                                [class.bg-success]="!concepto.get('importeSeptiembre')?.hasError('excedePresupuesto')"
-                                [class.bg-danger]="concepto.get('importeSeptiembre')?.hasError('excedePresupuesto')">
+                                [class.bg-secondary]="concepto.get('disponibleSeptiembre')?.value === 0"
+                                [class.bg-warning]="concepto.get('disponibleSeptiembre')?.value < 0"
+                                [class.text-dark]="concepto.get('disponibleSeptiembre')?.value < 0"
+                                [class.bg-success]="concepto.get('disponibleSeptiembre')?.value > 0 && !concepto.get('importeSeptiembre')?.hasError('excedePresupuesto')"
+                                [class.bg-danger]="concepto.get('disponibleSeptiembre')?.value > 0 && concepto.get('importeSeptiembre')?.hasError('excedePresupuesto')">
                             Disp: {{ concepto.get('disponibleSeptiembre')?.value | currency }}
                           </span>
                         </div>
@@ -377,8 +404,11 @@
                         <div class="d-flex justify-content-between align-items-center mb-2">
                           <label class="small fw-bold mb-0">Octubre</label>
                           <span class="badge" 
-                                [class.bg-success]="!concepto.get('importeOctubre')?.hasError('excedePresupuesto')"
-                                [class.bg-danger]="concepto.get('importeOctubre')?.hasError('excedePresupuesto')">
+                                [class.bg-secondary]="concepto.get('disponibleOctubre')?.value === 0"
+                                [class.bg-warning]="concepto.get('disponibleOctubre')?.value < 0"
+                                [class.text-dark]="concepto.get('disponibleOctubre')?.value < 0"
+                                [class.bg-success]="concepto.get('disponibleOctubre')?.value > 0 && !concepto.get('importeOctubre')?.hasError('excedePresupuesto')"
+                                [class.bg-danger]="concepto.get('disponibleOctubre')?.value > 0 && concepto.get('importeOctubre')?.hasError('excedePresupuesto')">
                             Disp: {{ concepto.get('disponibleOctubre')?.value | currency }}
                           </span>
                         </div>
@@ -401,8 +431,11 @@
                         <div class="d-flex justify-content-between align-items-center mb-2">
                           <label class="small fw-bold mb-0">Noviembre</label>
                           <span class="badge" 
-                                [class.bg-success]="!concepto.get('importeNoviembre')?.hasError('excedePresupuesto')"
-                                [class.bg-danger]="concepto.get('importeNoviembre')?.hasError('excedePresupuesto')">
+                                [class.bg-secondary]="concepto.get('disponibleNoviembre')?.value === 0"
+                                [class.bg-warning]="concepto.get('disponibleNoviembre')?.value < 0"
+                                [class.text-dark]="concepto.get('disponibleNoviembre')?.value < 0"
+                                [class.bg-success]="concepto.get('disponibleNoviembre')?.value > 0 && !concepto.get('importeNoviembre')?.hasError('excedePresupuesto')"
+                                [class.bg-danger]="concepto.get('disponibleNoviembre')?.value > 0 && concepto.get('importeNoviembre')?.hasError('excedePresupuesto')">
                             Disp: {{ concepto.get('disponibleNoviembre')?.value | currency }}
                           </span>
                         </div>
@@ -425,8 +458,11 @@
                         <div class="d-flex justify-content-between align-items-center mb-2">
                           <label class="small fw-bold mb-0">Diciembre</label>
                           <span class="badge" 
-                                [class.bg-success]="!concepto.get('importeDiciembre')?.hasError('excedePresupuesto')"
-                                [class.bg-danger]="concepto.get('importeDiciembre')?.hasError('excedePresupuesto')">
+                                [class.bg-secondary]="concepto.get('disponibleDiciembre')?.value === 0"
+                                [class.bg-warning]="concepto.get('disponibleDiciembre')?.value < 0"
+                                [class.text-dark]="concepto.get('disponibleDiciembre')?.value < 0"
+                                [class.bg-success]="concepto.get('disponibleDiciembre')?.value > 0 && !concepto.get('importeDiciembre')?.hasError('excedePresupuesto')"
+                                [class.bg-danger]="concepto.get('disponibleDiciembre')?.value > 0 && concepto.get('importeDiciembre')?.hasError('excedePresupuesto')">
                             Disp: {{ concepto.get('disponibleDiciembre')?.value | currency }}
                           </span>
                         </div>
