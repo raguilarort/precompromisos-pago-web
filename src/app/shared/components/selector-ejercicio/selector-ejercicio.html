@@ -1,16 +1,56 @@
-<div class="input-group input-group-sm shadow-sm" style="width: auto;">
-  <span class="input-group-text bg-dark text-white border-secondary">
-    <i class="bi bi-calendar-event me-1"></i> Ejercicio
-  </span>
-  <!-- Usamos ejercicioEnCurso para que el código sea a prueba de futuro -->
-  <select class="form-select border-secondary fw-bold"
-          [class.bg-warning-subtle]="ejercicioSeleccionado !== ejercicioEnCurso"
-          [class.text-dark]="ejercicioSeleccionado !== ejercicioEnCurso"
-          [class.bg-white]="ejercicioSeleccionado === ejercicioEnCurso"
-          (change)="cambiarEjercicio($event)">
-          
-    @for (anio of ejerciciosPermitidos; track anio) {
-      <option [value]="anio" [selected]="anio === ejercicioSeleccionado">{{ anio }}</option>
-    }
-  </select>
-</div>
+<!-- ESTADO 1: BLOQUEADO (Natural y sutil) -->
+@if (!estaDesbloqueado()) {
+  <div class="d-flex align-items-center gap-2 px-3 py-1 rounded-pill bg-dark border border-secondary transition-all"
+       style="cursor: pointer;"
+        [class.border-warning-subtle]="ejercicioSeleccionado !== ejercicioEnCurso"
+        [class.border-success-subtle]="ejercicioSeleccionado === ejercicioEnCurso"
+       (click)="intentarDesbloqueo()"
+       title="Clic para desbloquear cambio de ejercicio">
+       
+    <i class="bi bi-calendar-check text-secondary"></i>
+    
+    <span class="text-white fw-medium mb-0" style="font-size: 0.95rem;">
+      Ejercicio {{ ejercicioSeleccionado }}
+    </span>
+    
+    <!-- Candado cerrado muy discreto -->
+    <i class="bi bi-lock-fill text-secondary ms-1" style="font-size: 0.8rem;"></i>
+  </div>
+}
+
+<!-- ESTADO 2: DESBLOQUEADO (Dropdown interactivo) -->
+@if (estaDesbloqueado()) {
+  <div class="input-group input-group-sm shadow-sm transition-all" style="width: auto;">
+    
+    <!-- Botón para volver a bloquear manualmente -->
+    <button class="btn btn-warning d-flex align-items-center" type="button" (click)="bloquear()" title="Bloquear ejercicio">
+      <i class="bi bi-unlock-fill text-dark"></i>
+    </button>
+    
+    <span class="input-group-text bg-white border-warning fw-bold text-dark">
+      Ejercicio
+    </span>
+
+    <!-- Dropdown de Bootstrap -->
+    <button type="button" class="btn btn-light border-warning dropdown-toggle fw-bold" data-bs-toggle="dropdown" aria-expanded="false">
+      {{ ejercicioSeleccionado }}
+    </button>
+    
+    <ul class="dropdown-menu dropdown-menu-end shadow">
+      <li class="dropdown-header text-muted fw-bold">Ejercicios Disponibles</li>
+      @for (anio of ejerciciosPermitidos; track anio) {
+        <li>
+          <a class="dropdown-item d-flex justify-content-between align-items-center" 
+             href="javascript:void(0)" 
+             (click)="seleccionarEjercicio(anio)"
+             [class.active]="anio === ejercicioSeleccionado">
+            {{ anio }}
+            @if (anio === ejercicioSeleccionado) {
+              <i class="bi bi-check-lg ms-3"></i>
+            }
+          </a>
+        </li>
+      }
+    </ul>
+  </div>
+}

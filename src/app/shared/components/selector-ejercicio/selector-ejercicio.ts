@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 
 @Component({
   selector: 'app-selector-ejercicio',
@@ -8,25 +8,33 @@ import { Component, OnInit } from '@angular/core';
   styleUrl: './selector-ejercicio.css',
 })
 export class SelectorEjercicio implements OnInit {
-  // 1. Calculamos el año dinámicamente con el reloj del sistema.
-  // Así, en 2027, esto valdrá automáticamente 2027.
-  ejercicioEnCurso = new Date().getFullYear(); 
-  
-  // El ejercicio que el usuario tiene seleccionado actualmente
+ ejercicioEnCurso = new Date().getFullYear(); 
   ejercicioSeleccionado = this.ejercicioEnCurso;
-
-  // Mocks: Ejercicios a los que tiene permiso
   ejerciciosPermitidos: number[] = [];
 
+  // Controla el estado visual del componente
+  estaDesbloqueado = signal<boolean>(false);
+
   ngOnInit() {
-    // Simulamos la carga desde el backend. 
-    // Siempre le damos el año en curso, más sus años históricos.
     this.ejerciciosPermitidos = [this.ejercicioEnCurso, 2025, 2024];
   }
 
-  cambiarEjercicio(event: Event) {
-    const selectElement = event.target as HTMLSelectElement;
-    this.ejercicioSeleccionado = Number(selectElement.value);
-    console.log('Ejercicio seleccionado:', this.ejercicioSeleccionado);
+  intentarDesbloqueo() {
+    // Fricción positiva: Confirmación del sistema
+    const confirmacion = confirm('¿Estás seguro que deseas desbloquear la opción para consultar o modificar un ejercicio fiscal diferente?');
+    
+    if (confirmacion) {
+      this.estaDesbloqueado.set(true);
+    }
+  }
+
+  bloquear() {
+    this.estaDesbloqueado.set(false);
+  }
+
+  seleccionarEjercicio(anio: number) {
+    this.ejercicioSeleccionado = anio;
+    this.estaDesbloqueado.set(false); // Se vuelve a bloquear automáticamente al elegir
+    console.log('Ejercicio seleccionado y bloqueado:', this.ejercicioSeleccionado);
   }
 }
