@@ -1,0 +1,16 @@
+<div class="input-group input-group-sm shadow-sm" style="width: auto;">
+  <span class="input-group-text bg-dark text-white border-secondary">
+    <i class="bi bi-calendar-event me-1"></i> Ejercicio
+  </span>
+  <!-- Usamos ejercicioEnCurso para que el código sea a prueba de futuro -->
+  <select class="form-select border-secondary fw-bold"
+          [class.bg-warning-subtle]="ejercicioSeleccionado !== ejercicioEnCurso"
+          [class.text-dark]="ejercicioSeleccionado !== ejercicioEnCurso"
+          [class.bg-white]="ejercicioSeleccionado === ejercicioEnCurso"
+          (change)="cambiarEjercicio($event)">
+          
+    @for (anio of ejerciciosPermitidos; track anio) {
+      <option [value]="anio" [selected]="anio === ejercicioSeleccionado">{{ anio }}</option>
+    }
+  </select>
+</div>
