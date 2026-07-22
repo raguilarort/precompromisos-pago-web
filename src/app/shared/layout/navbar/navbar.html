@@ -1,34 +1,70 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
-  <div class="container-fluid">
-    <a class="navbar-brand fw-bold" href="#">Compromisos App</a>
+<!-- Agregamos fixed-top para anclarla arriba -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top">
+  <div class="container-fluid px-3 px-lg-4 position-relative">
     
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+    <!-- MARCA (Siempre visible) -->
+    <a class="navbar-brand fw-bold text-white" href="#">Precompromisos App</a>
+
+    <!-- BOTÓN HAMBURGUESA (Visible solo en móviles/tablets) -->
+    <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContenido" aria-controls="navbarContenido" aria-expanded="false" aria-label="Alternar navegación">
       <span class="navbar-toggler-icon"></span>
     </button>
-    
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav me-auto">
+
+    <!-- CONTENEDOR COLAPSABLE -->
+    <div class="collapse navbar-collapse" id="navbarContenido">
+      
+      <!-- 1. SECCIÓN IZQUIERDA: Menú -->
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0 mt-3 mt-lg-0">
         <li class="nav-item">
-          <a class="nav-link" 
-             routerLink="/home/precompromisos/list" 
-             routerLinkActive="active fw-bold">
-             Mis Precompromisos
-          </a>
+          <a class="nav-link px-0 px-lg-2" aria-current="page" routerLink="/home/precompromisos/list" >Mis Precompromisos</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link px-0 px-lg-2" aria-current="page" routerLink="#" >Opción 2</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link px-0 px-lg-2" aria-current="page" routerLink="#" >Opción 3</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link px-0 px-lg-2" aria-current="page" routerLink="#" >Opción 4</a>
         </li>
       </ul>
-      
-      <div class="d-flex align-items-center">
+
+      <!-- 2. SECCIÓN CENTRAL: Selector de Ejercicio -->
+      <!-- Vista Móvil: Flujo normal con un buen margen vertical (my-3) -->
+      <div class="d-lg-none my-3">
         <app-selector-ejercicio></app-selector-ejercicio>
+      </div>
+      <!-- Vista Desktop: Centro matemático absoluto, ignorando el ancho de los demás elementos -->
+      <div class="d-none d-lg-block position-absolute top-50 start-50 translate-middle">
+        <app-selector-ejercicio></app-selector-ejercicio>
+      </div>
+
+      <!-- 3. SECCIÓN DERECHA: Perfil y Salida -->
+      <!-- En móviles, agregamos un borde superior sutil para separar el perfil del resto del menú -->
+      <!--<div class="d-flex align-items-center gap-3 pt-3 pt-lg-0 border-top border-secondary border-opacity-50 d-lg-flex" style="border-top: none !important;">-->
+      <div class="d-flex align-items-center gap-3 pt-3 pt-lg-0 mt-2 mt-lg-0 pb-2 pb-lg-0">
         
-        <span class="text-light me-3 fw-medium">{{ authService.userName() }}</span>
-        
-        @if (authService.userPhoto()) {
-          <img [src]="authService.userPhoto()" alt="Perfil" class="rounded-circle me-3 border border-2 border-secondary" style="width: 42px; height: 42px; object-fit: cover;">
-        } @else {
-          <div class="bg-primary rounded-circle d-flex justify-content-center align-items-center text-white me-3 border border-2 border-secondary fw-bold" style="width: 42px; height: 42px; font-size: 0.9rem;">
-            {{ authService.userInitials() }}
+        <!-- Perfil de Usuario -->
+        <div class="d-flex align-items-center gap-2">
+           <!-- El nombre se muestra siempre, alineado a la izquierda en móvil y a la derecha en desktop -->
+          <div class="text-white small fw-medium text-start text-lg-end lh-sm">
+            <span class="d-block">{{ authService.userName() }}</span>
+            <span class="text-secondary" style="font-size: 0.75rem;">Administrador</span>
           </div>
-        }
+          @if (authService.userPhoto()) {
+            <div class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center fw-bold shadow-sm flex-shrink-0" 
+               style="width: 38px; height: 38px; font-size: 0.9rem;">
+              <img [src]="authService.userPhoto()" alt="Perfil" class="rounded-circle me-3 border border-2 border-secondary" style="width: 42px; height: 42px; object-fit: cover;">
+            </div>
+          } @else {
+            <div class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center fw-bold shadow-sm flex-shrink-0" 
+               style="width: 38px; height: 38px; font-size: 0.9rem;">
+              {{ authService.userInitials() }}
+            </div>
+          }
+        </div>
+
+        <div class="vr text-secondary d-none d-lg-block"></div>
 
         <button class="btn btn-outline-light btn-sm" (click)="authService.cerrarSesion()">Salir</button>
       </div>
