@@ -18,6 +18,8 @@
       </ul>
       
       <div class="d-flex align-items-center">
+        <app-selector-ejercicio></app-selector-ejercicio>
+        
         <span class="text-light me-3 fw-medium">{{ authService.userName() }}</span>
         
         @if (authService.userPhoto()) {
