@@ -78,10 +78,10 @@ export class Auth {
           // Caso 1: Regresa de Microsoft Entra con un login exitoso
           this.msalService.instance.setActiveAccount(resultado.account);
           this.generarLogAuditoria('AUTH_LOGIN_SUCCESS', resultado.account);
-          this.cargarPerfilUsuario();
+          this.cargarDatosCuentaInstitucional();
           
           // Aquí ejecutamos la validación de la cuenta
-          this.validarCuentaInstitucional(resultado.account.username);
+          this.validarCuentaInstitucionalAutorizada(resultado.account.username);
         } else {
           // El usuario recargó la página (F5) o abrió una pestaña nueva
           this.restaurarSesionActiva();
@@ -114,15 +114,15 @@ export class Auth {
 
       // 2. Renderizado Secundario: Disparamos la petición a Graph de todos modos 
       // para obtener la fotografía (que no viene en el token) y afinar los apellidos.
-      this.cargarPerfilUsuario();
+      this.cargarDatosCuentaInstitucional();
 
       // Bloqueamos al usuario que presiona F5 si le quitaron los permisos
-      this.validarCuentaInstitucional(cuentaActiva.username);
+      this.validarCuentaInstitucionalAutorizada(cuentaActiva.username);
     }
   }
 
   // Agrega este método dentro de tu clase Auth
-  private validarCuentaInstitucional(email: string) {
+  private validarCuentaInstitucionalAutorizada(email: string) {
     this.mensajeCarga.set('Verificando permisos de acceso...');
     
     // SIMULACIÓN: Aquí irá tu llamada HTTP real:
@@ -142,7 +142,7 @@ export class Auth {
     });
   }
 
-  private cargarPerfilUsuario() {
+  private cargarDatosCuentaInstitucional() {
     this.http.get('https://graph.microsoft.com/v1.0/me').subscribe((perfil: any) => {
       // Extraemos Nombre y Primer Apellido
       const nombre = perfil.givenName || '';
