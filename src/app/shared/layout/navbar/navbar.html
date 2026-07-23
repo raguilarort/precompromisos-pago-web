@@ -40,7 +40,7 @@
            <!-- El nombre se muestra siempre, alineado a la izquierda en móvil y a la derecha en desktop -->
           <div class="text-white small fw-medium text-start text-lg-end lh-sm">
             <span class="d-block">{{ authService.userName() }}</span>
-            <span class="text-secondary" style="font-size: 0.75rem;">Administrador</span>
+            <span class="text-secondary" style="font-size: 0.75rem;">{{ nombreRolActual() }}</span>
           </div>
           @if (authService.userPhoto()) {
             <div class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center fw-bold shadow-sm flex-shrink-0" 
