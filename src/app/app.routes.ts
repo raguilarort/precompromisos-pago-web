@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './core/auth/auth-guard'; // Asegúrate de ajustar la ruta de importación
+import { authGuard } from './core/auth/guards/auth-guard'; // Asegúrate de ajustar la ruta de importación
+import { roleGuard } from './core/auth/guards/role-guard';
+import { RolSistema } from './core/auth/models/auth.model';
 
 export const routes: Routes = [
   {
