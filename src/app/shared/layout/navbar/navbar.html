@@ -34,6 +34,25 @@
       <!-- En móviles, agregamos un borde superior sutil para separar el perfil del resto del menú -->
       <!--<div class="d-flex align-items-center gap-3 pt-3 pt-lg-0 border-top border-secondary border-opacity-50 d-lg-flex" style="border-top: none !important;">-->
       <div class="d-flex align-items-center gap-3 pt-3 pt-lg-0 mt-2 mt-lg-0 pb-2 pb-lg-0">
+        <!-- HERRAMIENTA DEV: Selector de Roles temporal -->
+        <div class="d-none d-lg-flex align-items-center me-3 border border-warning rounded px-2" title="Herramienta de Desarrollo">
+          <span class="badge bg-warning text-dark me-2 shadow-sm" style="font-size: 0.65rem;">DEV MODE</span>
+          
+          <select #rolSelect 
+                  class="form-select form-select-sm border-0 bg-transparent text-white fw-medium focus-ring focus-ring-dark" 
+                  style="width: 140px; box-shadow: none;"
+                  (change)="cambiarRolDev(rolSelect.value)">
+                  
+            @for (id of rolesIds; track id) {
+              <option [value]="id" 
+                      [selected]="authService.usuarioAutenticado()?.rol === id"
+                      class="text-dark">
+                {{ RolSistema[id] }} <!-- Magia del mapeo inverso -->
+              </option>
+            }
+            
+          </select>
+        </div>
         
         <!-- Perfil de Usuario -->
         <div class="d-flex align-items-center gap-2">

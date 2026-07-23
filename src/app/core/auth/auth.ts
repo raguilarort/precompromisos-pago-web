@@ -206,4 +206,12 @@ export class Auth {
     };
     console.info(`[SECURITY LOG] ${tipoEvento}:`, JSON.stringify(auditEvent, null, 2));
   }
+
+  
+  // MÉTODO DE APOYO: Para facilitar tus pruebas de UI sin tener que recargar
+  // (PARA LA HERRAMIENTA DEV)
+  simularCambioDeRol(nuevoRol: RolSistema) {
+    this.usuarioAutenticado.update(user => user ? { ...user, rol: nuevoRol } : null);
+    console.warn(`[DEV] Rol cambiado dinámicamente al ID: ${nuevoRol}`);
+  }
 }

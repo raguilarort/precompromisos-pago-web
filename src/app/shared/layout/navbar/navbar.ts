@@ -27,4 +27,10 @@ export class Navbar {
     const usuario = this.authService.usuarioAutenticado();
     return usuario ? RolSistema[usuario.rol] : 'Cargando...';
   });
+
+  // Ahora recibe directamente el valor del select, ya no el evento completo
+  cambiarRolDev(valorSeleccionado: string) {
+    const nuevoRol = Number(valorSeleccionado) as RolSistema;
+    this.authService.simularCambioDeRol(nuevoRol);
+  }
 }
