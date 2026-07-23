@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { MsalService, MsalBroadcastService } from '@azure/msal-angular';
 import { AuthenticationResult, InteractionStatus, AccountInfo } from '@azure/msal-browser';
 import { catchError, map, of } from 'rxjs';
+import { RolSistema, UsuarioSession } from './models/auth.model'; //Se importan modelos utilizados para la autentificación
 
 @Injectable({
   providedIn: 'root'
@@ -21,6 +22,7 @@ export class Auth {
   isAutenticando = signal<boolean>(true);
   // Inicia asumiendo que venimos de una redirección para proteger el parpadeo inicial
   mensajeCarga = signal<string | null>('Init...');
+  usuarioAutenticado = signal<UsuarioSession | null>(null); // NUEVO: Señal que almacena el Rol y Permisos de Negocio
 
   // Señal computada: se recalcula sola cuando userName cambia
   userInitials = computed(() => {
@@ -48,6 +50,10 @@ export class Auth {
     if (cuentaActiva) {
       this.generarLogAuditoria('AUTH_LOGOUT', cuentaActiva);
     }
+    
+    // NUEVO: Limpiamos la sesión de negocio al salir
+    this.usuarioAutenticado.set(null);
+
     
     this.msalService.logoutRedirect({
       postLogoutRedirectUri: window.location.origin
@@ -134,8 +140,9 @@ export class Auth {
     import('rxjs').then(({ of, delay }) => {
       of(esValido).pipe(delay(500)).subscribe(autorizado => {
         if (autorizado) {
-          this.router.navigate(['/home']);
+          this.cargarPerfilUsuario(email);
         } else {
+          this.usuarioAutenticado.set(null);
           this.router.navigate(['/unauthorized']);
         }
       });
@@ -160,6 +167,29 @@ export class Auth {
       )
       .subscribe(fotoUrl => {
         if (fotoUrl) this.userPhoto.set(fotoUrl);
+      });
+  }
+
+  private cargarPerfilUsuario(email: string) {
+    this.mensajeCarga.set('Cargando perfil del usuario...');
+
+    // SIMULACIÓN 2: El backend devuelve la estructura del negocio
+    const mockPerfilNegocio: UsuarioSession = {
+      id: 101,
+      email: email,
+      // Asignamos el rol inicial utilizando el Enum
+      rol: RolSistema.Revisor, 
+      unidadesPermitidas: [1, 2, 3] 
+    };
+
+    import('rxjs').then(({ of, delay }) => {
+      of(mockPerfilNegocio).pipe(delay(400)).subscribe(perfil => {
+        // 1. Guardamos el perfil en la Signal
+        this.usuarioAutenticado.set(perfil);
+        
+        // 2. NAVEGAMOS AL HOME SOLO HASTA TENER EL PERFIL LISTO
+        this.router.navigate(['/home']);
+      });
       });
   }
 
