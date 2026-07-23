@@ -1,4 +1,6 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
+// Importamos la clase con su nuevo nombre exacto
+import { ContextoGlobal } from '../../../core/services/contexto-global';
 
 @Component({
   selector: 'app-selector-ejercicio',
@@ -8,8 +10,11 @@ import { Component, OnInit, signal } from '@angular/core';
   styleUrl: './selector-ejercicio.css',
 })
 export class SelectorEjercicio implements OnInit {
- ejercicioEnCurso = new Date().getFullYear(); 
-  ejercicioSeleccionado = this.ejercicioEnCurso;
+  // Usamos la función inject() respetando las reglas de Angular 22
+  private contextoGlobal = inject(ContextoGlobal);
+
+  ejercicioEnCurso = new Date().getFullYear(); 
+  ejercicioSeleccionado = this.contextoGlobal.ejercicioFiscal(); //Consumimos el signal
   ejerciciosPermitidos: number[] = [];
 
   // Controla el estado visual del componente
@@ -36,5 +41,8 @@ export class SelectorEjercicio implements OnInit {
     this.ejercicioSeleccionado = anio;
     this.estaDesbloqueado.set(false); // Se vuelve a bloquear automáticamente al elegir
     console.log('Ejercicio seleccionado y bloqueado:', this.ejercicioSeleccionado);
+
+    // ¡LA MAGIA OCURRE AQUÍ! Emitimos el cambio a toda la aplicación
+    this.contextoGlobal.cambiarEjercicio(anio);
   }
 }

@@ -6,6 +6,9 @@ import { Precompromiso } from '../../models/precompromiso.model';
 })
 export class PrecompromisoService {
   private compromisos = signal<Precompromiso[]>([
+    // ==========================================
+    // EJERCICIO 2026 (Actual)
+    // ==========================================
     {
       id: 1, ejercicio: 2026, unidad: 1, consecutivo: 1, folio: '26-101091PRE00001', estatus: 'Comprometido', activo: true,
       requisicion: {
@@ -82,6 +85,48 @@ export class PrecompromisoService {
         numeroRequisicion: '135/26', tipoContratacion: 'Licitación Pública', tipo: 'Servicio', importeTotalRequisicion: 144000,
         conceptos: [{ idCvePresupuestaria: 33801, descripcion: 'Servicio de vigilancia y seguridad perimetral.', importeEnero: 12000, importeFebrero: 12000, importeMarzo: 12000, importeAbril: 12000, importeMayo: 12000, importeJunio: 12000, importeJulio: 12000, importeAgosto: 12000, importeSeptiembre: 12000, importeOctubre: 12000, importeNoviembre: 12000, importeDiciembre: 12000, importeTotal: 144000 }]
       }
+    },
+    // ==========================================
+    // EJERCICIO 2025 (Histórico)
+    // ==========================================
+    {
+      id: 11, ejercicio: 2025, unidad: 1, consecutivo: 10, folio: '25-101091PRE00010', estatus: 'Comprometido', activo: true,
+      requisicion: {
+        numeroRequisicion: '088/25', tipoContratacion: 'Licitación Pública', tipo: 'Servicio', importeTotalRequisicion: 300000,
+        conceptos: [{ idCvePresupuestaria: 33101, descripcion: 'Servicios de asesoría legal e impuestos.', importeEnero: 25000, importeFebrero: 25000, importeMarzo: 25000, importeAbril: 25000, importeMayo: 25000, importeJunio: 25000, importeJulio: 25000, importeAgosto: 25000, importeSeptiembre: 25000, importeOctubre: 25000, importeNoviembre: 25000, importeDiciembre: 25000, importeTotal: 300000 }]
+      }
+    },
+    {
+      id: 12, ejercicio: 2025, unidad: 2, consecutivo: 15, folio: '25-102091PRE00015', estatus: 'Comprometido', activo: true,
+      requisicion: {
+        numeroRequisicion: '095/25', tipoContratacion: 'Adjudicación Directa', tipo: 'Bien', importeTotalRequisicion: 96000,
+        conceptos: [{ idCvePresupuestaria: 51501, descripcion: 'Computadoras de escritorio para personal administrativo.', importeEnero: 96000, importeFebrero: 0, importeMarzo: 0, importeAbril: 0, importeMayo: 0, importeJunio: 0, importeJulio: 0, importeAgosto: 0, importeSeptiembre: 0, importeOctubre: 0, importeNoviembre: 0, importeDiciembre: 0, importeTotal: 96000 }]
+      }
+    },
+    {
+      id: 13, ejercicio: 2025, unidad: 3, consecutivo: 20, folio: '25-103091PRE00020', estatus: 'Cancelado', activo: true,
+      requisicion: {
+        numeroRequisicion: '101/25', tipoContratacion: 'Invitación a tres personas', tipo: 'Servicio', importeTotalRequisicion: 50000,
+        conceptos: [{ idCvePresupuestaria: 36101, descripcion: 'Campañas de difusión institucional.', importeEnero: 0, importeFebrero: 50000, importeMarzo: 0, importeAbril: 0, importeMayo: 0, importeJunio: 0, importeJulio: 0, importeAgosto: 0, importeSeptiembre: 0, importeOctubre: 0, importeNoviembre: 0, importeDiciembre: 0, importeTotal: 50000 }]
+      }
+    },
+
+    // ==========================================
+    // EJERCICIO 2024 (Histórico)
+    // ==========================================
+    {
+      id: 14, ejercicio: 2024, unidad: 1, consecutivo: 101, folio: '24-101091PRE00101', estatus: 'Comprometido', activo: true,
+      requisicion: {
+        numeroRequisicion: '200/24', tipoContratacion: 'Licitación Pública', tipo: 'Bien', importeTotalRequisicion: 500000,
+        conceptos: [{ idCvePresupuestaria: 53101, descripcion: 'Equipamiento médico e instrumental especializado.', importeEnero: 500000, importeFebrero: 0, importeMarzo: 0, importeAbril: 0, importeMayo: 0, importeJunio: 0, importeJulio: 0, importeAgosto: 0, importeSeptiembre: 0, importeOctubre: 0, importeNoviembre: 0, importeDiciembre: 0, importeTotal: 500000 }]
+      }
+    },
+    {
+      id: 15, ejercicio: 2024, unidad: 4, consecutivo: 105, folio: '24-104091PRE00105', estatus: 'Comprometido', activo: true,
+      requisicion: {
+        numeroRequisicion: '205/24', tipoContratacion: 'Adjudicación Directa', tipo: 'Servicio', importeTotalRequisicion: 36000,
+        conceptos: [{ idCvePresupuestaria: 31101, descripcion: 'Servicio de energía eléctrica.', importeEnero: 3000, importeFebrero: 3000, importeMarzo: 3000, importeAbril: 3000, importeMayo: 3000, importeJunio: 3000, importeJulio: 3000, importeAgosto: 3000, importeSeptiembre: 3000, importeOctubre: 3000, importeNoviembre: 3000, importeDiciembre: 3000, importeTotal: 36000 }]
+      }
     }
   ]);
 
@@ -89,6 +134,11 @@ export class PrecompromisoService {
 
   obtenerPorId(id: number): Precompromiso | undefined {
     return this.compromisos().find(c => c.id === id && c.activo);
+  }
+
+  // NUEVO MÉTODO: Filtra los registros por ejercicio fiscal y que estén activos
+  obtenerPorEjercicio(ejercicioFiscal: number): Precompromiso[] {
+    return this.compromisos().filter(c => c.ejercicio === ejercicioFiscal && c.activo);
   }
 
   guardar(compromiso: Precompromiso) {
