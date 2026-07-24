@@ -16,28 +16,69 @@ export const routes: Routes = [
   },
   {
     path: 'home',
-    canActivate: [authGuard], // <--- ESTE ES EL BLINDAJE
+    canActivate: [authGuard], // BLINDAJE NIVEL 1: Sesión activa de Microsoft
     // Ajustado a home.ts y la clase Home
     loadComponent: () => import('./features/home/home').then(m => m.Home),
     children: [
       {
         // Ruta para visualizar el listado de precompromisos
         path: 'precompromisos/list',
+        // BLINDAJE NIVEL 2: Todos los perfiles del negocio pueden ver la lista
+        canActivate: [roleGuard],
+        data: { 
+          rolesPermitidos: [
+            RolSistema.Consultor, 
+            RolSistema.Capturista, 
+            RolSistema.Revisor, 
+            RolSistema.Validador, 
+            RolSistema.Administrador
+          ] 
+        },
         loadComponent: () => import('./features/precompromisos/list/list').then(m => m.List)
       },
       {
         // Ruta para visualizar el formulario para el registro
         path: 'precompromisos/register',
+        canActivate: [roleGuard],
+        data: { 
+          // El Consultor queda excluido de esta ruta
+          rolesPermitidos: [
+            RolSistema.Capturista, 
+            RolSistema.Revisor, 
+            RolSistema.Validador, 
+            RolSistema.Administrador
+          ] 
+        },
         loadComponent: () => import('./features/precompromisos/register/register').then(m => m.Register)
       },
       {
         // Ruta para visualizar el detalle
         path: 'precompromisos/detail/:id',
+        canActivate: [roleGuard],
+        data: { 
+          rolesPermitidos: [
+            RolSistema.Consultor, 
+            RolSistema.Capturista, 
+            RolSistema.Revisor, 
+            RolSistema.Validador, 
+            RolSistema.Administrador
+          ] 
+        },
         loadComponent: () => import('./features/precompromisos/detail/detail').then(m => m.Detail)
       },
       {
         // Ruta para editar
         path: 'precompromisos/edit/:id',
+        canActivate: [roleGuard],
+        data: { 
+          // El Consultor queda excluido de esta ruta
+          rolesPermitidos: [
+            RolSistema.Capturista, 
+            RolSistema.Revisor, 
+            RolSistema.Validador, 
+            RolSistema.Administrador
+          ] 
+        },
         loadComponent: () => import('./features/precompromisos/edit/edit').then(m => m.Edit)
       },
       {
