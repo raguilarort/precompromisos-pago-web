@@ -7,6 +7,14 @@ export const roleGuard: CanActivateFn = (route, state) => {
   const authService = inject(Auth);
   const router = inject(Router);
 
+   // HIDRATACIÓN SÍNCRONA: Si hubo un F5 y la Signal está vacía, la rellenamos del caché
+  if (!authService.usuarioAutenticado()) {
+    const sesionGuardada = sessionStorage.getItem('sesion_negocio');
+    if (sesionGuardada) {
+      authService.usuarioAutenticado.set(JSON.parse(sesionGuardada));
+    }
+  }
+
   // 1. Obtenemos el usuario de nuestra Signal reactiva
   const usuario = authService.usuarioAutenticado();
 

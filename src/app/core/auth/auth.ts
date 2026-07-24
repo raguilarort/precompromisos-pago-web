@@ -50,7 +50,7 @@ export class Auth {
     if (cuentaActiva) {
       this.generarLogAuditoria('AUTH_LOGOUT', cuentaActiva);
     }
-    
+
     // NUEVO: Limpiamos la sesión de negocio al salir
     this.usuarioAutenticado.set(null);
 
@@ -184,13 +184,16 @@ export class Auth {
 
     import('rxjs').then(({ of, delay }) => {
       of(mockPerfilNegocio).pipe(delay(400)).subscribe(perfil => {
-        // 1. Guardamos el perfil en la Signal
+        // 1. Guardamos el perfil en la Signal (Guardamos en la memoria RAM (Signal))
         this.usuarioAutenticado.set(perfil);
         
-        // 2. NAVEGAMOS AL HOME SOLO HASTA TENER EL PERFIL LISTO
+        // 2. NUEVO: Guardamos en el navegador para resistir el F5
+        sessionStorage.setItem('sesion_negocio', JSON.stringify(perfil));
+        
+        // 3. Redirigimos al home
         this.router.navigate(['/home']);
       });
-      });
+    });
   }
 
   // Método ajustado para recibir el tipo de evento y la cuenta dinámicamente
@@ -211,7 +214,12 @@ export class Auth {
   // MÉTODO DE APOYO: Para facilitar tus pruebas de UI sin tener que recargar
   // (PARA LA HERRAMIENTA DEV)
   simularCambioDeRol(nuevoRol: RolSistema) {
-    this.usuarioAutenticado.update(user => user ? { ...user, rol: nuevoRol } : null);
+    this.usuarioAutenticado.update(user => {
+      const actualizado = user ? { ...user, rol: nuevoRol } : null;
+      // Guardamos en caché para que sobreviva el F5
+      if (actualizado) sessionStorage.setItem('sesion_negocio', JSON.stringify(actualizado));
+      return actualizado;
+    });
     console.warn(`[DEV] Rol cambiado dinámicamente al ID: ${nuevoRol}`);
   }
 }
