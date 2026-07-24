@@ -9,6 +9,19 @@ export class Permisos {
   // --------------------------------------------------------
   // 1. REGLAS BÁSICAS (CRUD)
   // --------------------------------------------------------
+  puedeGestionarPrecompromisos(): boolean {
+    const user = this.auth.usuarioAutenticado();
+    if (!user) return false;
+    
+    const rolesPermitidos = [
+      RolSistema.Capturista, 
+      RolSistema.Revisor, 
+      RolSistema.Validador, 
+      RolSistema.Administrador
+    ];
+
+    return rolesPermitidos.includes(user.rol);
+  }
   
   puedeCrearNuevoPrecompromiso(): boolean {
     const user = this.auth.usuarioAutenticado();
