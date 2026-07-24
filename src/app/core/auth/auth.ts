@@ -54,6 +54,8 @@ export class Auth {
     // NUEVO: Limpiamos la sesión de negocio al salir
     this.usuarioAutenticado.set(null);
 
+    // NUEVO: Destruimos la sesión del negocio en el navegador
+    sessionStorage.removeItem('sesion_negocio');
     
     this.msalService.logoutRedirect({
       postLogoutRedirectUri: window.location.origin
@@ -135,7 +137,7 @@ export class Auth {
     // return this.http.get<boolean>(`${environment.apiUrl}/usuarios/validar?email=${email}`);
     
     // Por ahora, simulamos que responde "true" o "false" de forma aleatoria para que lo pruebes:
-    const esValido = false; // Cambia esto a false para probar la pantalla de error
+    const esValido = true; // Cambia esto a false para probar la pantalla de error
     
     import('rxjs').then(({ of, delay }) => {
       of(esValido).pipe(delay(500)).subscribe(autorizado => {
