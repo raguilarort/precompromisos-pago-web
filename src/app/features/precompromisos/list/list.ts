@@ -1,6 +1,7 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CurrencyPipe } from '@angular/common';
+import { Permisos } from '../../../core/auth/permisos';
 import { ContextoGlobal } from '../../../core/services/contexto-global';
 import { PrecompromisoService } from '../services/precompromisos/precompromisos';
 
@@ -14,6 +15,10 @@ export class List {
   // 1. INYECCIONES (Privadas: Solo el archivo .ts las consume)
   private contextoGlobal = inject(ContextoGlobal);
   private precompromisoService = inject(PrecompromisoService);
+
+  // 2. Inyectamos el servicio de Permisos. 
+  // Al no poner 'private', queda expuesto al list.html
+  permisos = inject(Permisos);
   
   // 2. ESTADO DEL COMPONENTE (Públicas por defecto: Expuestas al list.html)
   terminoBusqueda = signal<string>('');

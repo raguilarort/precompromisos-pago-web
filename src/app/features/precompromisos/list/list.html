@@ -1,8 +1,12 @@
 <div class="d-flex justify-content-between align-items-center mb-4 mt-3">
-  <h2 class="mb-0 fw-bold text-dark">Estructura de Precompromisos</h2>
-  <a routerLink="/home/precompromisos/register" class="btn btn-success fw-bold shadow-sm">
-    <i class="bi bi-plus-circle me-1"></i> Nuevo Registro
-  </a>
+  <h2 class="mb-0 fw-bold text-dark">Listado de Precompromisos</h2>
+  <!-- Solo los roles autorizados (Capturista, Revisor, Validador, Admin) renderizan este botón.
+       El Consultor simplemente no verá esta sección del código HTML. -->
+  @if (permisos.puedeCrearNuevoPrecompromiso()) {
+    <a routerLink="/home/precompromisos/register" class="btn btn-success fw-bold shadow-sm">
+      <i class="bi bi-plus-circle me-1"></i> Nuevo Registro
+    </a>
+  }
 </div>
 
 <div class="row mb-3">
@@ -64,18 +68,22 @@
                   {{ item.estatus }}
                 </span>
               </td>
-              <td class="text-center pe-3">
-                <div class="btn-group btn-group-sm" role="group">
-                  <a [routerLink]="['/home/precompromisos/detail', item.id]" class="btn btn-outline-secondary" title="Ver">
-                    <i class="bi bi-eye"></i> Ver
-                  </a>
-                  <a [routerLink]="['/home/precompromisos/edit', item.id]" class="btn btn-outline-primary" title="Editar">
+              <td class="text-center pe-0">
+                <a [routerLink]="['/home/precompromisos/detail', item.id]" class="btn btn-sm btn-outline-secondary me-2" title="Ver">
+                  <i class="bi bi-eye"></i> Ver
+                </a>
+                @if (permisos.puedeGestionarPrecompromisos()) {
+                  <a [routerLink]="['/home/precompromisos/edit', item.id]" class="btn btn-sm btn-outline-primary  me-2" title="Editar"
+                      [class.disabled]="!permisos.puedeEditarPrecompromiso(item.estatus)"
+                      [attr.title]="!permisos.puedeEditarPrecompromiso(item.estatus) ? 'Solo editable en estatus Capturado' : 'Editar Registro'">
                     <i class="bi bi-pencil-square"></i> Editar
                   </a>
-                  <button type="button" class="btn btn-outline-danger" (click)="eliminar(item.id)" title="Eliminar">
-                    <i class="bi bi-trash"></i> Borrar
+                  <button type="button" class="btn btn-sm btn-outline-danger" (click)="eliminar(item.id)" title="Eliminar"
+                      [disabled]="!permisos.puedeEliminarPrecompromiso(item.estatus)"
+                      [attr.title]="!permisos.puedeEliminarPrecompromiso(item.estatus) ? 'Solo eliminable en estatus Capturado' : 'Eliminar Registro'">
+                    <i class="bi bi-trash"></i> Eliminar
                   </button>
-                </div>
+                }
               </td>
             </tr>
           } @empty {
