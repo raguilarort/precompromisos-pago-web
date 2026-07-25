@@ -93,4 +93,27 @@ export class Permisos {
 
     return user.rol === RolSistema.Validador && estatusActual === 'Autorizado';
   }
+
+  // --------------------------------------------------------
+  // 3. REGLAS DE BANDEJA DE TAREAS (INBOX)
+  // --------------------------------------------------------
+
+  tieneBandejaPendientes(): boolean {
+    const user = this.auth.usuarioAutenticado();
+    if (!user) return false;
+    
+    // Por ahora, Revisor y Validador tienen bandeja de entrada. 
+    // (Podemos incluir al Capturista después para folios 'Rechazados')
+    return [RolSistema.Revisor, RolSistema.Validador].includes(user.rol);
+  }
+
+  esPendienteParaMi(estatusActual: string): boolean {
+    const user = this.auth.usuarioAutenticado();
+    if (!user) return false;
+
+    if (user.rol === RolSistema.Revisor) return estatusActual === 'Capturado';
+    if (user.rol === RolSistema.Validador) return estatusActual === 'Revisado';
+
+    return false;
+  }
 }
