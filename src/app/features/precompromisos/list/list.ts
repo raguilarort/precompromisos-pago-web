@@ -27,17 +27,40 @@ export class List {
   // que albergará la respuesta del backend para el ejercicio seleccionado
   listaCompromisos = signal<any[]>([]);
 
+  // 1. Estado de la pestaña ('pendientes' por defecto)
+  tabActiva = signal<'pendientes' | 'todos'>('pendientes');
+
+  // 2. Señal computada para el contador del Badge (Lógica de 99+)
+  conteoPendientes = computed(() => {
+    const total = this.listaCompromisos().filter(c => this.permisos.esPendienteParaMi(c.estatus)).length;
+    return total > 99 ? '99+' : total.toString();
+  });
+
   compromisosFiltrados = computed(() => {
     const termino = this.terminoBusqueda().toLowerCase().trim();
-    const compromisos = this.listaCompromisos();
+    let precompromisos = this.listaCompromisos();
 
-    if (!termino) return compromisos;
+    if (this.permisos.tieneBandejaPendientes() && this.tabActiva() === 'pendientes') {
+      precompromisos = precompromisos.filter(c => this.permisos.esPendienteParaMi(c.estatus));
+    }
 
-    return compromisos.filter(c => 
-      c.folio.toLowerCase().includes(termino) ||
-      c.requisicion.numeroRequisicion.toLowerCase().includes(termino)
-    );
+    if (termino) {
+      precompromisos = precompromisos.filter(c => 
+        c.folio.toLowerCase().includes(termino) ||
+        c.estatus.toLowerCase().includes(termino) ||
+        c.requisicion.numeroRequisicion.toLowerCase().includes(termino) ||
+        c.requisicion.tipoContratacion.toLowerCase().includes(termino) ||
+        c.requisicion.tipo.toLowerCase().includes(termino)
+      );
+    }
+
+    return precompromisos;
   });
+
+  // Método para cambiar entre pestañas
+  cambiarTab(tab: 'pendientes' | 'todos') {
+    this.tabActiva.set(tab);
+  }
 
   // 3. EFECTOS REACTIVOS
   // Al asignarlo como propiedad, el effect() obtiene el contexto de inyección 
