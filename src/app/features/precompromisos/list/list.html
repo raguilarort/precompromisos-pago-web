@@ -1,16 +1,18 @@
-<div class="d-flex justify-content-between align-items-end mb-3 border-bottom pb-2">
+<div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end mb-3 border-bottom pb-3 gap-3">
   <!-- Contenedor Izquierdo: Título y Pestañas -->
-  <div>
+  <div class="w-100">
     <h4 class="mb-3">Listado de Precompromisos</h4>
 
     <!-- Renderizado reactivo de Pestañas (Solo si el rol lo amerita) -->
     @if (permisos.tieneBandejaPendientes()) {
-      <ul class="nav nav-tabs border-bottom-0 mb-n2">
+      <!-- Agregamos flex-nowrap y overflow-x-auto para que hagan scroll horizontal en móviles muy pequeños si es necesario -->
+      <ul class="nav nav-tabs nav-fill border-bottom-0 mb-n3 " style="white-space: nowrap;">
         <li class="nav-item">
           <!-- Pestaña: Mis Pendientes -->
           <button class="nav-link border-bottom-0 fw-medium text-dark"
                   [class.active]="tabActiva() === 'pendientes'"
                   [class.bg-light]="tabActiva() === 'pendientes'"
+                  (click)="cambiarTab('pendientes')"
                   style="cursor: pointer;">
             Mis Pendientes
             
@@ -26,6 +28,7 @@
                   [class.active]="tabActiva() === 'todos'"
                   [class.bg-light]="tabActiva() === 'todos'"
                   [class.text-dark]="tabActiva() === 'todos'"
+                  (click)="cambiarTab('todos')"
                   style="cursor: pointer;">
             Todos los Registros
           </button>
@@ -35,26 +38,10 @@
   </div>
 
   <!-- Contenedor Derecho: Buscador y Botón Nuevo -->
-  <div class="d-flex gap-3 align-items-center mb-2">
-    <!-- Buscador (Ajusta esto si ya lo tenías maquetado de otra forma) -->
-    <div class="input-group input-group-sm" style="width: 250px;">
-      <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
-      <input type="text" class="form-control" placeholder="Buscar por folio o requisición..."
-             (input)="terminoBusqueda.set($any($event.target).value)">
-    </div>
-
-    <!-- Botón Nuevo (Condicionado) -->
-    @if (permisos.puedeGestionarPrecompromisos()) {
-      <a routerLink="/home/precompromisos/register" class="btn btn-sm btn-primary shadow-sm">
-        <i class="bi bi-plus-circle me-1"></i> Nuevo Registro
-      </a>
-    }
-  </div>
-</div>
-
-<div class="row mb-3">
-  <div class="col-md-5 col-lg-4">
-    <div class="input-group shadow-sm">
+  <div class="d-flex flex-column flex-sm-row gap-3 align-items-sm-center w-100 justify-content-lg-end">
+    
+    <!-- Buscador (Versión preferida, ahora integrado y fluido) -->
+    <div class="input-group shadow-sm flex-grow-1">
       <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
       <input 
         type="text" 
@@ -62,6 +49,13 @@
         placeholder="Buscar por folio o requisición..." 
         (input)="terminoBusqueda.set($any($event.target).value)">
     </div>
+
+    <!-- Botón Nuevo (Condicionado y sin saltos de línea) -->
+    @if (permisos.puedeGestionarPrecompromisos()) {
+      <a routerLink="/home/precompromisos/register" class="btn btn-primary shadow-sm text-nowrap flex-shrink-0">
+        <i class="bi bi-plus-circle me-1"></i> Nuevo Registro
+      </a>
+    }
   </div>
 </div>
 
@@ -111,22 +105,29 @@
                   {{ item.estatus }}
                 </span>
               </td>
-              <td class="text-center pe-0">
-                <a [routerLink]="['/home/precompromisos/detail', item.id]" class="btn btn-sm btn-outline-secondary me-2" title="Ver">
-                  <i class="bi bi-eye"></i> Ver
-                </a>
-                @if (permisos.puedeGestionarPrecompromisos()) {
-                  <a [routerLink]="['/home/precompromisos/edit', item.id]" class="btn btn-sm btn-outline-primary  me-2" title="Editar"
-                      [class.disabled]="!permisos.puedeEditarPrecompromiso(item.estatus)"
-                      [attr.title]="!permisos.puedeEditarPrecompromiso(item.estatus) ? 'Solo editable en estatus Capturado' : 'Editar Registro'">
-                    <i class="bi bi-pencil-square"></i> Editar
+              <td class="text-center pe-3">
+                <!-- flex-nowrap evita el apilamiento vertical. gap-1 separa los botones sutilmente -->
+                <div class="d-flex justify-content-center gap-1 flex-nowrap">
+                  <a [routerLink]="['/home/precompromisos/detail', item.id]" class="btn btn-sm btn-outline-secondary" title="Ver detalle">
+                    <i class="bi bi-eye"></i>
+                    <!-- El texto solo aparece en pantallas lg (grandes) en adelante -->
+                    <span class="d-none d-lg-inline ms-1">Ver</span>
                   </a>
-                  <button type="button" class="btn btn-sm btn-outline-danger" (click)="eliminar(item.id)" title="Eliminar"
-                      [disabled]="!permisos.puedeEliminarPrecompromiso(item.estatus)"
-                      [attr.title]="!permisos.puedeEliminarPrecompromiso(item.estatus) ? 'Solo eliminable en estatus Capturado' : 'Eliminar Registro'">
-                    <i class="bi bi-trash"></i> Eliminar
-                  </button>
-                }
+                  @if (permisos.puedeGestionarPrecompromisos()) {
+                    <a [routerLink]="['/home/precompromisos/edit', item.id]" class="btn btn-sm btn-outline-primary" title="Editar"
+                        [class.disabled]="!permisos.puedeEditarPrecompromiso(item.estatus)"
+                        [attr.title]="!permisos.puedeEditarPrecompromiso(item.estatus) ? 'Solo editable en estatus Capturado' : 'Editar Registro'">
+                      <i class="bi bi-pencil-square"></i>
+                      <span class="d-none d-lg-inline ms-1">Editar</span>
+                    </a>
+                    <button type="button" class="btn btn-sm btn-outline-danger" (click)="eliminar(item.id)" title="Eliminar"
+                        [disabled]="!permisos.puedeEliminarPrecompromiso(item.estatus)"
+                        [attr.title]="!permisos.puedeEliminarPrecompromiso(item.estatus) ? 'Solo eliminable en estatus Capturado' : 'Eliminar Registro'">
+                      <i class="bi bi-trash"></i>
+                      <span class="d-none d-lg-inline ms-1">Eliminar</span>
+                    </button>
+                  }
+                </div>
               </td>
             </tr>
           } @empty {
