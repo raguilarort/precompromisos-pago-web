@@ -1,46 +1,15 @@
-<div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end mb-3 border-bottom pb-3 gap-3">
-  <!-- Contenedor Izquierdo: Título y Pestañas -->
-  <div class="w-100">
-    <h4 class="mb-3">Listado de Precompromisos</h4>
-
-    <!-- Renderizado reactivo de Pestañas (Solo si el rol lo amerita) -->
-    @if (permisos.tieneBandejaPendientes()) {
-      <!-- Agregamos flex-nowrap y overflow-x-auto para que hagan scroll horizontal en móviles muy pequeños si es necesario -->
-      <ul class="nav nav-tabs nav-fill border-bottom-0 mb-n3 " style="white-space: nowrap;">
-        <li class="nav-item">
-          <!-- Pestaña: Mis Pendientes -->
-          <button class="nav-link border-bottom-0 fw-medium text-dark"
-                  [class.active]="tabActiva() === 'pendientes'"
-                  [class.bg-light]="tabActiva() === 'pendientes'"
-                  (click)="cambiarTab('pendientes')"
-                  style="cursor: pointer;">
-            Mis Pendientes
-            
-            <!-- Badge rojo llamativo, se oculta si es 0 -->
-            @if (conteoPendientes() !== '0') {
-              <span class="badge bg-danger ms-2 rounded-pill shadow-sm">{{ conteoPendientes() }}</span>
-            }
-          </button>
-        </li>
-        <li class="nav-item">
-          <!-- Pestaña: Todos -->
-          <button class="nav-link border-bottom-0 fw-medium text-secondary"
-                  [class.active]="tabActiva() === 'todos'"
-                  [class.bg-light]="tabActiva() === 'todos'"
-                  [class.text-dark]="tabActiva() === 'todos'"
-                  (click)="cambiarTab('todos')"
-                  style="cursor: pointer;">
-            Todos los Registros
-          </button>
-        </li>
-      </ul>
-    }
+<!-- 1. HEADER PRINCIPAL: Título, Buscador y Botón -->
+<div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mb-4 gap-3">
+  
+  <!-- Título -->
+  <div>
+    <h4 class="mb-0">Listado de Precompromisos</h4>
   </div>
 
-  <!-- Contenedor Derecho: Buscador y Botón Nuevo -->
-  <div class="d-flex flex-column flex-sm-row gap-3 align-items-sm-center w-100 justify-content-lg-end">
+  <!-- Buscador y Botón -->
+  <div class="d-flex flex-column flex-sm-row gap-3 align-items-sm-center flex-grow-1 justify-content-lg-end" style="max-width: 650px;">
     
-    <!-- Buscador (Versión preferida, ahora integrado y fluido) -->
+    <!-- Buscador -->
     <div class="input-group shadow-sm flex-grow-1">
       <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
       <input 
@@ -50,7 +19,7 @@
         (input)="terminoBusqueda.set($any($event.target).value)">
     </div>
 
-    <!-- Botón Nuevo (Condicionado y sin saltos de línea) -->
+    <!-- Botón Nuevo -->
     @if (permisos.puedeGestionarPrecompromisos()) {
       <a routerLink="/home/precompromisos/register" class="btn btn-primary shadow-sm text-nowrap flex-shrink-0">
         <i class="bi bi-plus-circle me-1"></i> Nuevo Registro
@@ -59,11 +28,49 @@
   </div>
 </div>
 
-<div class="card shadow-sm border-0">
+<!-- 2. PESTAÑAS Y TABLA (Agrupadas visualmente) -->
+@if (permisos.tieneBandejaPendientes()) {
+  <!-- Tus pestañas optimizadas, ajustamos el margin-bottom (mb-0) para que se peguen a la tabla -->
+  <ul class="nav nav-tabs nav-fill border-bottom-0 mb-0">
+    <li class="nav-item">
+      <button class="nav-link fw-medium rounded-top"
+              [class.active]="tabActiva() === 'pendientes'"
+              [class.bg-white]="tabActiva() === 'pendientes'"
+              [class.text-dark]="tabActiva() === 'pendientes'"
+              [class.bg-light]="tabActiva() !== 'pendientes'"
+              [class.text-secondary]="tabActiva() !== 'pendientes'"
+              [class.border-bottom-0]="tabActiva() === 'pendientes'"
+              (click)="cambiarTab('pendientes')"
+              style="cursor: pointer;">
+        Mis Pendientes
+        @if (conteoPendientes() !== '0') {
+          <span class="badge bg-danger ms-2 rounded-pill shadow-sm">{{ conteoPendientes() }}</span>
+        }
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link fw-medium rounded-top"
+              [class.active]="tabActiva() === 'todos'"
+              [class.bg-white]="tabActiva() === 'todos'"
+              [class.text-dark]="tabActiva() === 'todos'"
+              [class.bg-light]="tabActiva() !== 'todos'"
+              [class.text-secondary]="tabActiva() !== 'todos'"
+              [class.border-bottom-0]="tabActiva() === 'todos'"
+              (click)="cambiarTab('todos')"
+              style="cursor: pointer;">
+        Todos los Registros
+      </button>
+    </li>
+  </ul>
+}
+
+<!-- Contenedor de la Tabla -->
+<!-- Si hay pestañas, le quitamos el borde superior izquierdo para que se fusione con el tab activo -->
+<div class="card shadow-sm border-0" >
   <div class="card-body p-0">
     <div class="table-responsive">
       <table class="table table-hover mb-0 align-middle">
-        <thead class="table-light text-secondary uppercase border-bottom">
+        <thead class="bg-white text-secondary uppercase border-bottom">
           <tr>
             <th class="ps-3 py-3">Folio Precompromiso</th>
             <th>Ejercicio / Unidad</th>
@@ -72,7 +79,7 @@
             <th class="text-center">Partidas</th>
             <th class="text-end">Importe Total</th>
             <th class="text-center">Estatus</th>
-            <th class="text-center pe-3">Acciones</th>
+            <th class="text-center">Acciones</th>
           </tr>
         </thead>
         <tbody>
