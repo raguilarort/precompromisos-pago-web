@@ -1,12 +1,55 @@
-<div class="d-flex justify-content-between align-items-center mb-4 mt-3">
-  <h2 class="mb-0 fw-bold text-dark">Listado de Precompromisos</h2>
-  <!-- Solo los roles autorizados (Capturista, Revisor, Validador, Admin) renderizan este botón.
-       El Consultor simplemente no verá esta sección del código HTML. -->
-  @if (permisos.puedeCrearNuevoPrecompromiso()) {
-    <a routerLink="/home/precompromisos/register" class="btn btn-success fw-bold shadow-sm">
-      <i class="bi bi-plus-circle me-1"></i> Nuevo Registro
-    </a>
-  }
+<div class="d-flex justify-content-between align-items-end mb-3 border-bottom pb-2">
+  <!-- Contenedor Izquierdo: Título y Pestañas -->
+  <div>
+    <h4 class="mb-3">Listado de Precompromisos</h4>
+
+    <!-- Renderizado reactivo de Pestañas (Solo si el rol lo amerita) -->
+    @if (permisos.tieneBandejaPendientes()) {
+      <ul class="nav nav-tabs border-bottom-0 mb-n2">
+        <li class="nav-item">
+          <!-- Pestaña: Mis Pendientes -->
+          <button class="nav-link border-bottom-0 fw-medium text-dark"
+                  [class.active]="tabActiva() === 'pendientes'"
+                  [class.bg-light]="tabActiva() === 'pendientes'"
+                  style="cursor: pointer;">
+            Mis Pendientes
+            
+            <!-- Badge rojo llamativo, se oculta si es 0 -->
+            @if (conteoPendientes() !== '0') {
+              <span class="badge bg-danger ms-2 rounded-pill shadow-sm">{{ conteoPendientes() }}</span>
+            }
+          </button>
+        </li>
+        <li class="nav-item">
+          <!-- Pestaña: Todos -->
+          <button class="nav-link border-bottom-0 fw-medium text-secondary"
+                  [class.active]="tabActiva() === 'todos'"
+                  [class.bg-light]="tabActiva() === 'todos'"
+                  [class.text-dark]="tabActiva() === 'todos'"
+                  style="cursor: pointer;">
+            Todos los Registros
+          </button>
+        </li>
+      </ul>
+    }
+  </div>
+
+  <!-- Contenedor Derecho: Buscador y Botón Nuevo -->
+  <div class="d-flex gap-3 align-items-center mb-2">
+    <!-- Buscador (Ajusta esto si ya lo tenías maquetado de otra forma) -->
+    <div class="input-group input-group-sm" style="width: 250px;">
+      <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+      <input type="text" class="form-control" placeholder="Buscar por folio o requisición..."
+             (input)="terminoBusqueda.set($any($event.target).value)">
+    </div>
+
+    <!-- Botón Nuevo (Condicionado) -->
+    @if (permisos.puedeGestionarPrecompromisos()) {
+      <a routerLink="/home/precompromisos/register" class="btn btn-sm btn-primary shadow-sm">
+        <i class="bi bi-plus-circle me-1"></i> Nuevo Registro
+      </a>
+    }
+  </div>
 </div>
 
 <div class="row mb-3">
