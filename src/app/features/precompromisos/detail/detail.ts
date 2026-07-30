@@ -15,10 +15,12 @@ export class Detail implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private precompromisoService = inject(PrecompromisoService);
-  permisos = inject(Permisos);
 
+  permisos = inject(Permisos);
   // Signal para almacenar los datos del precompromiso
   registro = signal<Precompromiso | undefined>(undefined);
+  // NUEVO: Señal para el botón de refresco
+  actualizandoPresupuesto = signal<boolean>(false);
 
    // NUEVO: Signals para manejar el estado de carga
   cargando = signal<boolean>(true);
@@ -42,22 +44,24 @@ export class Detail implements OnInit {
             { estatus: 'Capturado', fecha: '2026-07-28T09:15:00', usuario: 'Usuario Sistema' }
           ];
 
+          // 3. MAPEO PARA LA VISTA: Convertimos las propiedades planas en el arreglo "meses"
           data.requisicion.conceptos.forEach(concepto => {
             concepto.meses = [
               // Para pruebas, forzamos haySuficiencia a true. 
               // Más adelante, aquí cruzarás el dato con tu consulta de presupuesto disponible.
-              { nombre: 'Ene', importe: concepto.importeEnero, haySuficiencia: true },
-              { nombre: 'Feb', importe: concepto.importeFebrero, haySuficiencia: true },
-              { nombre: 'Mar', importe: concepto.importeMarzo, haySuficiencia: true },
-              { nombre: 'Abr', importe: concepto.importeAbril, haySuficiencia: true },
-              { nombre: 'May', importe: concepto.importeMayo, haySuficiencia: true },
-              { nombre: 'Jun', importe: concepto.importeJunio, haySuficiencia: true },
-              { nombre: 'Jul', importe: concepto.importeJulio, haySuficiencia: true },
-              { nombre: 'Ago', importe: concepto.importeAgosto, haySuficiencia: true },
-              { nombre: 'Sep', importe: concepto.importeSeptiembre, haySuficiencia: true },
-              { nombre: 'Oct', importe: concepto.importeOctubre, haySuficiencia: true },
-              { nombre: 'Nov', importe: concepto.importeNoviembre, haySuficiencia: true },
-              { nombre: 'Dic', importe: concepto.importeDiciembre, haySuficiencia: true },
+              // Agregamos el nombre completo y una propiedad 'disponible' simulada para evaluar colores
+              { nombre: 'Enero', importe: concepto.importeEnero, disponible: 0, haySuficiencia: true },
+              { nombre: 'Febrero', importe: concepto.importeFebrero, disponible: 0, haySuficiencia: true },
+              { nombre: 'Marzo', importe: concepto.importeMarzo, disponible: 0, haySuficiencia: true },
+              { nombre: 'Abril', importe: concepto.importeAbril, disponible: 0, haySuficiencia: true },
+              { nombre: 'Mayo', importe: concepto.importeMayo, disponible: 0, haySuficiencia: true },
+              { nombre: 'Junio', importe: concepto.importeJunio, disponible: 0, haySuficiencia: true },
+              { nombre: 'Julio', importe: concepto.importeJulio, disponible: 0, haySuficiencia: true },
+              { nombre: 'Agosto', importe: concepto.importeAgosto, disponible: 0, haySuficiencia: true },
+              { nombre: 'Septiembre', importe: concepto.importeSeptiembre, disponible: 0, haySuficiencia: true },
+              { nombre: 'Octubre', importe: concepto.importeOctubre, disponible: 0, haySuficiencia: true },
+              { nombre: 'Noviembre', importe: concepto.importeNoviembre, disponible: 0, haySuficiencia: true },
+              { nombre: 'Diciembre', importe: concepto.importeDiciembre, disponible: 0, haySuficiencia: true },
             ];
           });
         }
@@ -81,6 +85,31 @@ export class Detail implements OnInit {
       concepto.meses ? concepto.meses.every(mes => mes.haySuficiencia !== false) : true
     );
   });
+
+  refrescarSuficiencia(concepto: any, event: Event) {
+    // Evitamos que el clic en el botón expanda/colapse el acordeón
+    event.stopPropagation(); 
+    
+    this.actualizandoPresupuesto.set(true);
+
+    // Simulamos la llamada a la API que consulta el saldo real
+    setTimeout(() => {
+      // Aquí iría tu servicio: this.presupuestoService.consultarDisponible(concepto.idCvePresupuestaria)
+      if (concepto.meses) {
+        concepto.meses.forEach((mes: any) => {
+          // Simulamos que el presupuesto disponible bajó o se actualizó
+          mes.disponible = Math.floor(Math.random() * 60000) + 10000; 
+          // Re-evaluamos la bandera
+          mes.haySuficiencia = mes.disponible >= mes.importe;
+        });
+      }
+      
+      // Forzamos la actualización de la señal principal para que Angular detecte el cambio profundo
+      this.registro.set({ ...this.registro()! });
+      
+      this.actualizandoPresupuesto.set(false);
+    }, 600);
+  }
 
   // ==========================================
   // WORKFLOW (MÁQUINA DE ESTADOS)

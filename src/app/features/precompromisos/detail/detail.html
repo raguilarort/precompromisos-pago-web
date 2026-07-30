@@ -46,8 +46,13 @@
       <!-- Tarjeta: Datos Generales (Tu diseño original) -->
       <div class="col-lg-5">
         <div class="card shadow-sm border-0 h-100">
-          <div class="card-header bg-light border-bottom text-secondary fw-bold text-uppercase small">
-            Datos Generales
+          <div class="card-header bg-light border-bottom text-secondary fw-bold text-uppercase small d-flex justify-content-between align-items-center">
+            <span>Datos Generales</span>
+            <!-- Botón que dispara el MODAL -->
+            <button class="btn btn-sm btn-outline-secondary py-0 shadow-sm bg-white" 
+                    data-bs-toggle="modal" data-bs-target="#modalHistorial">
+              <i class="bi bi-clock-history me-1"></i> Ver Bitácora
+            </button>
           </div>
           <div class="card-body">
             <dl class="row mb-0">
@@ -113,43 +118,75 @@
                             {{ concepto.idCvePresupuestaria || 'Estructura-N/A' }}
                           </span>
                         </div>
-                        <div class="text-end fw-bold fs-6 text-success">
-                          {{ concepto.importeTotal | currency }}
+                        <div class="d-flex align-items-center gap-4">
+                          <div class="text-end fw-bold fs-6 text-success">
+                            {{ concepto.importeTotal | currency }}
+                          </div>
+                        
+                          <!-- BOTÓN DE ACTUALIZACIÓN EN TIEMPO REAL -->
+                          @if (item.estatus === 'Capturado' || item.estatus === 'Revisado') {
+                            <button class="btn btn-sm btn-outline-primary shadow-sm" 
+                                    (click)="refrescarSuficiencia(concepto, $event)"
+                                    [disabled]="actualizandoPresupuesto()"
+                                    title="Actualizar saldo disponible">
+                              <i class="bi bi-arrow-clockwise" [class.spinner-border]="actualizandoPresupuesto()" [class.spinner-border-sm]="actualizandoPresupuesto()"></i>
+                            </button>
+                          }
                         </div>
                       </div>
                     </button>
                   </h2>
                   
-                  <!-- Cuerpo del Acordeón: Cuadrícula de Meses -->
+                  <!-- Cuerpo del Acordeón: Cuadrícula de Meses (Estilo Formulario) -->
                   <div [id]="'collapse' + $index" class="accordion-collapse collapse" data-bs-parent="#acordeonConceptos">
                     <div class="accordion-body bg-light p-4">
-                      <h6 class="text-muted small fw-bold mb-3 text-uppercase">Programación Mensual (Calendario)</h6>
                       
-                      <div class="row g-2">
+                      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-6 g-3">
                         @for (mes of concepto.meses; track mes.nombre) {
-                          <div class="col-6 col-md-3 col-lg-2">
-                            <div class="card border h-100 shadow-none text-center" 
-                                [class.border-danger]="!mes.haySuficiencia"
-                                [class.bg-danger-subtle]="!mes.haySuficiencia">
-                              <div class="card-header py-1 small fw-bold" 
-                                  [class.bg-white]="mes.haySuficiencia"
-                                  [class.text-danger]="!mes.haySuficiencia">
-                                {{ mes.nombre }}
-                              </div>
-                              <div class="card-body py-2 px-1">
-                                <span class="small fw-medium d-block" [class.text-danger]="!mes.haySuficiencia">
-                                  {{ mes.importe | currency }}
-                                </span>
-                                @if (!mes.haySuficiencia) {
-                                  <i class="bi bi-exclamation-triangle-fill text-danger small mt-1" title="Sin suficiencia"></i>
+                          <div class="col">
+                            <div class="card h-100 shadow-sm border" [class.border-danger]="!mes.haySuficiencia">
+                              
+                              <!-- 1. HEADER: Nombre del Mes (Izquierda) y Badge Disponible (Derecha) -->
+                              <div class="card-header py-2 px-2 d-flex justify-content-between align-items-center bg-white border-bottom"
+                                   [class.bg-danger-subtle]="!mes.haySuficiencia">
+                                
+                                <span class="small fw-bold mb-0 text-dark">{{ mes.nombre }}</span>
+                                
+                                <!-- Se muestra solo en estados iniciales de revisión -->
+                                @if (item.estatus === 'Capturado' || item.estatus === 'Revisado') {
+                                  <span class="badge" style="font-size: 0.7rem;"
+                                        [class.bg-success]="mes.disponible >= mes.importe"
+                                        [class.bg-danger]="mes.disponible < mes.importe">
+                                    Disp: {{ mes.disponible | currency }}
+                                  </span>
                                 }
                               </div>
+                              
+                              <!-- 2. BODY: Importe Capturado (Centrado vertical, Alineado derecha) -->
+                              <div class="card-body py-3 px-3 d-flex flex-column justify-content-center align-items-end">
+                                <span class="fs-6 fw-bold font-monospace" 
+                                      [class.text-danger]="!mes.haySuficiencia"
+                                      [class.text-secondary]="mes.haySuficiencia">
+                                  {{ mes.importe | currency }}
+                                </span>
+                                
+                                <!-- Mensaje de error emulando el invalid-feedback del formulario -->
+                                @if (!mes.haySuficiencia) {
+                                  <div class="d-block small fw-bold mt-1 text-danger text-end" style="font-size: 0.75rem;">
+                                    <i class="bi bi-exclamation-triangle-fill"></i> Sin disponibilidad
+                                  </div>
+                                }
+                              </div>
+
                             </div>
                           </div>
                         } @empty {
-                          <div class="col-12 text-center text-muted small">Sin desglose mensual registrado.</div>
+                          <div class="col-12 text-center text-muted small py-3">
+                            Sin desglose mensual registrado.
+                          </div>
                         }
                       </div>
+
                     </div>
                   </div>
 
@@ -237,6 +274,53 @@
             </button>
           </span>
         }
+      </div>
+    </div>
+
+    <!-- COMPONENTE MODAL: Historial de Seguimiento -->
+    <div class="modal fade" id="modalHistorial" tabindex="-1" aria-labelledby="modalHistorialLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content shadow">
+          
+          <div class="modal-header bg-light">
+            <h5 class="modal-title fw-bold text-dark d-flex align-items-center" id="modalHistorialLabel">
+              <i class="bi bi-clock-history me-2 text-primary"></i> Bitácora del Folio
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          
+          <div class="modal-body p-0">
+            <div class="p-3 bg-white border-bottom text-center">
+              <span class="small text-muted fw-bold text-uppercase d-block mb-1">Precompromiso Actual</span>
+              <span class="fs-5 fw-bold text-primary">{{ item.folio }}</span>
+            </div>
+            
+            <ul class="list-group list-group-flush">
+              @for (log of item.historial; track log.fecha) {
+                <li class="list-group-item px-4 py-3 border-bottom bg-light">
+                  <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="badge rounded-pill bg-secondary bg-opacity-10 text-dark border font-monospace">
+                      {{ log.estatus | uppercase }}
+                    </span>
+                    <span class="small text-muted"><i class="bi bi-calendar-event me-1"></i> {{ log.fecha | date:'short' }}</span>
+                  </div>
+                  <div class="fw-medium text-dark mt-2">
+                    <i class="bi bi-person-circle me-1 text-secondary"></i> {{ log.usuario }}
+                  </div>
+                </li>
+              } @empty {
+                <li class="list-group-item text-center text-muted py-5 small bg-white">
+                  <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                  No hay registros de seguimiento.
+                </li>
+              }
+            </ul>
+          </div>
+          
+          <div class="modal-footer bg-light">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          </div>
+        </div>
       </div>
     </div>
   } @else {
