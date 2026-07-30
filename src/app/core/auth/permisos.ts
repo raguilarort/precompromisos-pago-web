@@ -46,13 +46,16 @@ export class Permisos {
     return rolesPermitidos.includes(user.rol) && estatusActual === 'Capturado';
   }
 
+  // ELIMINACIÓN (Ampliación de Regla)
   puedeEliminarPrecompromiso(estatusActual: string): boolean {
     const user = this.auth.usuarioAutenticado();
     if (!user) return false;
-    if (user.rol === RolSistema.Administrador) return true;
-
+    
+    // El Capturista y Revisor pueden eliminar si aún está en etapa inicial o fue rechazado
     const rolesPermitidos = [RolSistema.Capturista, RolSistema.Revisor];
-    return rolesPermitidos.includes(user.rol) && estatusActual === 'Capturado';
+    const estatusPermitidos = ['Capturado', 'Rechazado'];
+    
+    return rolesPermitidos.includes(user.rol) && estatusPermitidos.includes(estatusActual);
   }
 
   // --------------------------------------------------------
@@ -93,6 +96,31 @@ export class Permisos {
 
     return user.rol === RolSistema.Validador && estatusActual === 'Autorizado';
   }
+
+
+  
+  // REVISOR
+  puedeDarVistoBueno(estatusActual: string): boolean {
+    const user = this.auth.usuarioAutenticado();
+    return user ? user.rol === RolSistema.Revisor && estatusActual === 'Capturado' : false;
+  }
+
+  // VALIDADOR
+  puedeAutorizar(estatusActual: string): boolean {
+    const user = this.auth.usuarioAutenticado();
+    return user ? user.rol === RolSistema.Validador && estatusActual === 'Revisado' : false;
+  }
+
+  // AMBOS (Rechazo)
+  puedeRechazar(estatusActual: string): boolean {
+    const user = this.auth.usuarioAutenticado();
+    if (!user) return false;
+    
+    if (user.rol === RolSistema.Revisor && estatusActual === 'Capturado') return true;
+    if (user.rol === RolSistema.Validador && estatusActual === 'Revisado') return true;
+    return false;
+  }
+
 
   // --------------------------------------------------------
   // 3. REGLAS DE BANDEJA DE TAREAS (INBOX)
