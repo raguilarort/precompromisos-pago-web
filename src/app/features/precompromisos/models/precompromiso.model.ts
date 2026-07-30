@@ -2,6 +2,7 @@
 export interface MesDesglose {
   nombre: string;
   importe: number;
+  disponible: number;
   haySuficiencia?: boolean; // Para evaluar disponibilidad presupuestal
 }
 
