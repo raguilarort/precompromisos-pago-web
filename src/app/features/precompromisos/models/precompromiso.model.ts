@@ -1,3 +1,16 @@
+// 1. Nuevas interfaces de soporte para la UI y la Bitácora
+export interface MesDesglose {
+  nombre: string;
+  importe: number;
+  haySuficiencia?: boolean; // Para evaluar disponibilidad presupuestal
+}
+
+export interface HistorialSeguimiento {
+  estatus: string;
+  fecha: string;
+  usuario: string;
+}
+
 export interface ConceptoPresupuestal {
   idCvePresupuestaria: number;
   descripcion: string;
@@ -14,6 +27,9 @@ export interface ConceptoPresupuestal {
   importeNoviembre: number;
   importeDiciembre: number;
   importeTotal: number;
+
+  // Propiedad opcional para iterar en el acordeón del HTML
+  meses?: MesDesglose[];
 }
 
 export interface Requisicion {
@@ -30,7 +46,9 @@ export interface Precompromiso {
   unidad: number;
   consecutivo: number;
   folio: string;
-  estatus: 'Capturado' | 'Comprometido' | 'Cancelado';
+  estatus: 'Capturado' | 'Comprometido' | 'Cancelado' | 'Revisado' | 'Autorizado' | 'Rechazado';
   requisicion: Requisicion;
   activo: boolean; // Para borrado lógico en frontend
+  // Propiedad opcional para la bitácora de seguimiento
+  historial?: HistorialSeguimiento[];
 }
