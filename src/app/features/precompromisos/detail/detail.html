@@ -205,34 +205,6 @@
           </div>
         </div>
       </div>
-
-      <!-- Bitácora / Seguimiento del Precompromiso -->
-      <div class="col-12">
-        <div class="card shadow-sm border-0">
-          <div class="card-header bg-light border-bottom text-secondary fw-bold text-uppercase small">
-            <i class="bi bi-clock-history me-1"></i> Historial de Seguimiento
-          </div>
-          <div class="card-body p-0">
-            <ul class="list-group list-group-flush">
-              @for (log of item.historial; track log.fecha) {
-                <li class="list-group-item d-flex justify-content-between align-items-start px-4 py-3">
-                  <div class="ms-2 me-auto">
-                    <div class="fw-bold text-dark">{{ log.usuario }}</div>
-                    <span class="small text-muted">{{ log.fecha | date:'medium' }}</span>
-                  </div>
-                  <span class="badge rounded-pill bg-secondary bg-opacity-10 text-dark border">
-                    Pasó a estatus: {{ log.estatus }}
-                  </span>
-                </li>
-              } @empty {
-                <li class="list-group-item text-center text-muted py-3 small">
-                  No hay registros de seguimiento disponibles.
-                </li>
-              }
-            </ul>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- PANEL DE FLUJO DE TRABAJO (Revisor / Validador) -->
