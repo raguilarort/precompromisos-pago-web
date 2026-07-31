@@ -1,13 +1,14 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe, UpperCasePipe } from '@angular/common';
+import { ReactiveFormsModule, FormControl, Validators } from '@angular/forms';
 import { Permisos } from '../../../core/auth/permisos';
 import { PrecompromisoService } from '../services/precompromisos/precompromisos';
 import { Precompromiso } from '../models/precompromiso.model';
 
 @Component({
   selector: 'app-detail',
-  imports: [RouterLink, CurrencyPipe, DatePipe, UpperCasePipe],
+  imports: [RouterLink, CurrencyPipe, DatePipe, UpperCasePipe, ReactiveFormsModule],
   templateUrl: './detail.html',
   styleUrl: './detail.css',
 })
@@ -26,6 +27,13 @@ export class Detail implements OnInit {
    // NUEVO: Signals para manejar el estado de carga
   cargando = signal<boolean>(true);
   mensajeCarga = signal<string>('Inicializando...');
+
+  // 3. CONTROL REACTIVO PARA EL RECHAZO
+  // Exigimos que sea obligatorio y tenga al menos 15 caracteres de longitud
+  motivoRechazo = new FormControl('', [
+    Validators.required, 
+    Validators.minLength(15)
+  ]);
 
   ngOnInit() {
     const idParam = this.route.snapshot.paramMap.get('id');
@@ -144,5 +152,28 @@ export class Detail implements OnInit {
       console.log('Registro eliminado.');
       this.router.navigate(['/home/precompromisos/list']);
     }
+  }
+
+  // 4. MÉTODOS PARA EL MODAL DE RECHAZO
+  abrirModalRechazo() {
+    // Limpiamos controles y errores previos cada vez que se abre el modal
+    this.motivoRechazo.reset();
+  }
+
+  confirmarRechazo() {
+    if (this.motivoRechazo.invalid) {
+      // Forzamos que se muestren los errores visuales si el usuario intenta saltar la validación
+      this.motivoRechazo.markAsTouched();
+      return;
+    }
+
+    const motivo = this.motivoRechazo.value;
+    console.log('Precompromiso rechazado. Motivo capturado:', motivo);
+    
+    // Aquí conectarás con tu servicio: this.precompromisoService.rechazar(id, motivo).subscribe(...)
+    
+    // IMPORTANTE: Como usamos el atributo 'data-bs-dismiss' de Bootstrap en el HTML 
+    // para cerrar el modal automáticamente si es válido, aquí solo hacemos la redirección.
+    this.router.navigate(['/home/precompromisos/list']);
   }
 }

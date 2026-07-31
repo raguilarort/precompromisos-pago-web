@@ -256,7 +256,10 @@
 
         <!-- RECHAZAR -->
         @if (permisos.puedeRechazar(item.estatus)) {
-          <button class="btn btn-danger shadow-sm px-4" (click)="rechazar()">
+          <button class="btn btn-danger shadow-sm px-4" 
+                  data-bs-toggle="modal" 
+                  data-bs-target="#modalRechazo"
+                  (click)="abrirModalRechazo()">
             <i class="bi bi-hand-thumbs-down"></i> Rechazar
           </button>
         }
@@ -328,6 +331,63 @@
           <div class="modal-footer bg-light">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMPONENTE MODAL: Justificación de Rechazo -->
+    <div class="modal fade" id="modalRechazo" tabindex="-1" aria-labelledby="modalRechazoLabel" aria-hidden="true" data-bs-backdrop="static">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0">
+          
+          <div class="modal-header bg-danger text-white border-0">
+            <h5 class="modal-title fw-bold d-flex align-items-center" id="modalRechazoLabel">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i> Confirmar Rechazo
+            </h5>
+            <!-- Botón de cierre en blanco nativo de Bootstrap -->
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          
+          <div class="modal-body p-4 bg-light">
+            <p class="text-muted small mb-3">
+              Estás a punto de rechazar el precompromiso <strong>{{ item.folio }}</strong>. Esta acción no podrá revertirse.
+            </p>
+
+            <div class="mb-3">
+              <label for="motivoRechazoInput" class="form-label fw-bold text-dark small mb-1">
+                Justificación obligatoria <span class="text-danger">*</span>
+              </label>
+              <textarea id="motivoRechazoInput" 
+                        class="form-control shadow-sm" 
+                        rows="4" 
+                        placeholder="Explica detalladamente por qué se rechaza este presupuesto..."
+                        [formControl]="motivoRechazo"
+                        [class.is-invalid]="motivoRechazo.invalid && motivoRechazo.touched"></textarea>
+              
+              <!-- Validaciones Reactivas -->
+              @if (motivoRechazo.invalid && motivoRechazo.touched) {
+                <div class="invalid-feedback d-block fw-medium mt-1">
+                  @if (motivoRechazo.hasError('required')) {
+                    <i class="bi bi-info-circle-fill me-1"></i> El motivo es obligatorio.
+                  } @else if (motivoRechazo.hasError('minlength')) {
+                    <i class="bi bi-info-circle-fill me-1"></i> La justificación debe ser breve (mínimo 15 caracteres).
+                  }
+                </div>
+              }
+            </div>
+          </div>
+          
+          <div class="modal-footer bg-white border-top">
+            <button type="button" class="btn btn-outline-secondary fw-medium" data-bs-dismiss="modal">Cancelar</button>
+            
+            <!-- El botón aplica data-bs-dismiss SOLO si el formulario es válido -->
+            <button type="button" class="btn btn-danger fw-bold shadow-sm" 
+                    (click)="confirmarRechazo()"
+                    [attr.data-bs-dismiss]="motivoRechazo.valid ? 'modal' : null">
+              <i class="bi bi-send-fill me-1"></i> Confirmar Rechazo
+            </button>
+          </div>
+          
         </div>
       </div>
     </div>
