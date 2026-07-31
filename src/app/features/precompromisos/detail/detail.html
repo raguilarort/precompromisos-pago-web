@@ -102,12 +102,10 @@
             <span class="fw-medium">Desglose Presupuestal Mensualizado</span>
             <span class="badge bg-light text-dark">{{ item.requisicion.conceptos.length }} Partida(s)</span>
           </div>
-          <div class="card-body p-0">
-            
+          <div class="card-body p-0">            
             <div class="accordion accordion-flush" id="acordeonConceptos">
               @for (concepto of item.requisicion.conceptos; track $index) {
-                <div class="accordion-item border-bottom">
-                  
+                <div class="accordion-item border-bottom">                  
                   <h2 class="accordion-header">
                     <!-- Botón del acordeón: Resumen del Concepto -->
                     <button class="accordion-button collapsed px-4 py-3" type="button" data-bs-toggle="collapse" [attr.data-bs-target]="'#collapse' + $index">
@@ -118,20 +116,9 @@
                             {{ concepto.idCvePresupuestaria || 'Estructura-N/A' }}
                           </span>
                         </div>
-                        <div class="d-flex align-items-center gap-4">
-                          <div class="text-end fw-bold fs-6 text-success">
-                            {{ concepto.importeTotal | currency }}
-                          </div>
                         
-                          <!-- BOTÓN DE ACTUALIZACIÓN EN TIEMPO REAL -->
-                          @if (item.estatus === 'Capturado' || item.estatus === 'Revisado') {
-                            <button class="btn btn-sm btn-outline-primary shadow-sm" 
-                                    (click)="refrescarSuficiencia(concepto, $event)"
-                                    [disabled]="actualizandoPresupuesto()"
-                                    title="Actualizar saldo disponible">
-                              <i class="bi bi-arrow-clockwise" [class.spinner-border]="actualizandoPresupuesto()" [class.spinner-border-sm]="actualizandoPresupuesto()"></i>
-                            </button>
-                          }
+                        <div class="text-end fw-bold fs-6 text-success">
+                          {{ concepto.importeTotal | currency }}
                         </div>
                       </div>
                     </button>
@@ -140,29 +127,52 @@
                   <!-- Cuerpo del Acordeón: Cuadrícula de Meses (Estilo Formulario) -->
                   <div [id]="'collapse' + $index" class="accordion-collapse collapse" data-bs-parent="#acordeonConceptos">
                     <div class="accordion-body bg-light p-4">
+
+                      <!-- BARRA DE HERRAMIENTAS DEL CONCEPTO (Botón reubicado) -->
+                      @if (item.estatus === 'Capturado' || item.estatus === 'Revisado') {
+                        <div class="d-flex justify-content-end mb-3">
+                          <button class="btn btn-sm btn-outline-primary shadow-sm" 
+                                  (click)="refrescarSuficiencia(concepto, $event, $index)"
+                                  [disabled]="actualizandoConcepto() === $index">
+                            <i class="bi bi-arrow-clockwise me-1" 
+                              [class.spinner-border]="actualizandoConcepto() === $index" 
+                              [class.spinner-border-sm]="actualizandoConcepto() === $index"></i>
+                            Actualizar Saldos
+                          </button>
+                        </div>
+                      }
                       
                       <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-6 g-3">
                         @for (mes of concepto.meses; track mes.nombre) {
                           <div class="col">
-                            <div class="card h-100 shadow-sm border" [class.border-danger]="!mes.haySuficiencia">
+                            <!-- TARJETA: Aplicamos border-danger general si no hay suficiencia -->
+                            <div class="card h-100 shadow-sm" 
+                                [class.border]="mes.haySuficiencia" 
+                                [class.border-danger]="!mes.haySuficiencia">
                               
-                              <!-- 1. HEADER: Nombre del Mes (Izquierda) y Badge Disponible (Derecha) -->
-                              <div class="card-header py-2 px-2 d-flex justify-content-between align-items-center bg-white border-bottom"
-                                   [class.bg-danger-subtle]="!mes.haySuficiencia">
+                              <!-- HEADER: Aplicamos bg-transparent y border-danger si no hay suficiencia -->
+                              <div class="card-header py-2 px-2 d-flex justify-content-between align-items-center"
+                                  [class.bg-white]="mes.haySuficiencia"
+                                  [class.border-bottom]="mes.haySuficiencia"
+                                  [class.bg-transparent]="!mes.haySuficiencia"
+                                  [class.border-danger]="!mes.haySuficiencia">
                                 
-                                <span class="small fw-bold mb-0 text-dark">{{ mes.nombre }}</span>
+                                <span class="small fw-bold mb-0" 
+                                      [class.text-dark]="mes.haySuficiencia"
+                                      [class.text-danger]="!mes.haySuficiencia">{{ mes.nombre }}</span>
                                 
-                                <!-- Se muestra solo en estados iniciales de revisión -->
                                 @if (item.estatus === 'Capturado' || item.estatus === 'Revisado') {
                                   <span class="badge" style="font-size: 0.7rem;"
-                                        [class.bg-success]="mes.disponible >= mes.importe"
-                                        [class.bg-danger]="mes.disponible < mes.importe">
+                                        [class.bg-secondary]="mes.disponible === 0 && mes.importe === 0"
+                                        [class.bg-warning]="mes.disponible < 0"
+                                        [class.bg-success]="mes.disponible > 0 && mes.disponible >= mes.importe"
+                                        [class.bg-danger]="mes.disponible >= 0 && mes.disponible < mes.importe">
                                     Disp: {{ mes.disponible | currency }}
                                   </span>
                                 }
                               </div>
                               
-                              <!-- 2. BODY: Importe Capturado (Centrado vertical, Alineado derecha) -->
+                              <!-- BODY: Mantenemos el texto rojo si hay error -->
                               <div class="card-body py-3 px-3 d-flex flex-column justify-content-center align-items-end">
                                 <span class="fs-6 fw-bold font-monospace" 
                                       [class.text-danger]="!mes.haySuficiencia"
@@ -170,14 +180,12 @@
                                   {{ mes.importe | currency }}
                                 </span>
                                 
-                                <!-- Mensaje de error emulando el invalid-feedback del formulario -->
                                 @if (!mes.haySuficiencia) {
                                   <div class="d-block small fw-bold mt-1 text-danger text-end" style="font-size: 0.75rem;">
                                     <i class="bi bi-exclamation-triangle-fill"></i> Sin disponibilidad
                                   </div>
                                 }
                               </div>
-
                             </div>
                           </div>
                         } @empty {
