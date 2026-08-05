@@ -49,7 +49,7 @@ export const routes: Routes = [
             RolSistema.Administrador
           ] 
         },
-        loadComponent: () => import('./features/precompromisos/register/register').then(m => m.Register)
+        loadComponent: () => import('./features/precompromisos/form/form').then(m => m.Form)
       },
       {
         // Ruta para visualizar el detalle
@@ -79,7 +79,7 @@ export const routes: Routes = [
             RolSistema.Administrador
           ] 
         },
-        loadComponent: () => import('./features/precompromisos/edit/edit').then(m => m.Edit)
+        loadComponent: () => import('./features/precompromisos/form/form').then(m => m.Form)
       },
       {
         path: 'precompromisos',
