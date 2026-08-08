@@ -1,14 +1,13 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
+import { Service, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { MsalService, MsalBroadcastService } from '@azure/msal-angular';
 import { AuthenticationResult, InteractionStatus, AccountInfo } from '@azure/msal-browser';
 import { catchError, map, of } from 'rxjs';
-import { RolSistema, UsuarioSession } from './models/auth.model'; //Se importan modelos utilizados para la autentificación
+import { RolSistema, UsuarioSession, BackendAuthResponse } from '../models/auth.model'; 
+import { environment } from '../../../../environments/environment.development';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class Auth {
   private msalService = inject(MsalService);
   private broadcastService = inject(MsalBroadcastService); // Inyectamos el servicio
@@ -53,9 +52,9 @@ export class Auth {
 
     // NUEVO: Limpiamos la sesión de negocio al salir
     this.usuarioAutenticado.set(null);
-
-    // NUEVO: Destruimos la sesión del negocio en el navegador
-    sessionStorage.removeItem('sesion_negocio');
+    
+    sessionStorage.removeItem('sesion_negocio'); // NUEVO: Destruimos la sesión del negocio en el navegador
+    sessionStorage.removeItem('accessToken'); // Limpiamos el JWT de Spring Boot
     
     this.msalService.logoutRedirect({
       postLogoutRedirectUri: window.location.origin
@@ -88,8 +87,8 @@ export class Auth {
           this.generarLogAuditoria('AUTH_LOGIN_SUCCESS', resultado.account);
           this.cargarDatosCuentaInstitucional();
           
-          // Aquí ejecutamos la validación de la cuenta
-          this.validarCuentaInstitucionalAutorizada(resultado.account.username);
+          // REFACTOR: Pasamos el idToken de Microsoft en lugar del email
+          this.validarCuentaInstitucionalAutorizada(resultado.idToken);
         } else {
           // El usuario recargó la página (F5) o abrió una pestaña nueva
           this.restaurarSesionActiva();
@@ -123,32 +122,32 @@ export class Auth {
       // 2. Renderizado Secundario: Disparamos la petición a Graph de todos modos 
       // para obtener la fotografía (que no viene en el token) y afinar los apellidos.
       this.cargarDatosCuentaInstitucional();
-
-      // Bloqueamos al usuario que presiona F5 si le quitaron los permisos
-      this.validarCuentaInstitucionalAutorizada(cuentaActiva.username);
+      
+      // Si el usuario recarga la página, recuperamos la sesión de negocio de la RAM/Storage
+      const sesionGuardada = sessionStorage.getItem('sesion_negocio');
+      if (sesionGuardada) {
+          this.usuarioAutenticado.set(JSON.parse(sesionGuardada));
+      } else {
+          this.router.navigate(['/unauthorized']);
+      }
     }
   }
 
   // Agrega este método dentro de tu clase Auth
-  private validarCuentaInstitucionalAutorizada(email: string) {
+  private validarCuentaInstitucionalAutorizada(microsoftToken: string) {
     this.mensajeCarga.set('Verificando permisos de acceso...');
     
-    // SIMULACIÓN: Aquí irá tu llamada HTTP real:
-    // return this.http.get<boolean>(`${environment.apiUrl}/usuarios/validar?email=${email}`);
-    
-    // Por ahora, simulamos que responde "true" o "false" de forma aleatoria para que lo pruebes:
-    const esValido = true; // Cambia esto a false para probar la pantalla de error
-    
-    import('rxjs').then(({ of, delay }) => {
-      of(esValido).pipe(delay(500)).subscribe(autorizado => {
-        if (autorizado) {
-          this.cargarPerfilUsuario(email);
-        } else {
+    this.http.post<BackendAuthResponse>(`${environment.apiUrl}/auth/login-microsoft`, { microsoftToken })
+      .subscribe({
+        next: (perfilRegistradoBD) => {
+          this.cargarPerfilUsuario(perfilRegistradoBD);
+        },
+        error: (err) => {
+          console.error('Acceso denegado por el backend:', err);
           this.usuarioAutenticado.set(null);
           this.router.navigate(['/unauthorized']);
         }
       });
-    });
   }
 
   private cargarDatosCuentaInstitucional() {
@@ -172,30 +171,38 @@ export class Auth {
       });
   }
 
-  private cargarPerfilUsuario(email: string) {
+  private cargarPerfilUsuario(perfilRegistradoBD: BackendAuthResponse) {
     this.mensajeCarga.set('Cargando perfil del usuario...');
 
-    // SIMULACIÓN 2: El backend devuelve la estructura del negocio
-    const mockPerfilNegocio: UsuarioSession = {
-      id: 101,
-      email: email,
-      // Asignamos el rol inicial utilizando el Enum
-      rol: RolSistema.Revisor, 
-      unidadesPermitidas: [1, 2, 3] 
+    // 1. Guardamos el JWT de Spring Boot para que el Interceptor lo inyecte
+    sessionStorage.setItem('accessToken', perfilRegistradoBD.accessToken);
+
+    // 2. Mapeamos la respuesta al modelo Frontend (UsuarioSession)
+    const perfilNegocio: UsuarioSession = {
+      id: perfilRegistradoBD.idUsuario,
+      email: perfilRegistradoBD.correo,
+      
+      // Asumimos el primer rol del arreglo (Se requiere ajuste si un usuario tiene múltiples roles)
+      rol: this.mapearRolBackendAFrontend(perfilRegistradoBD.roles[0]), 
+      
+      unidadesPermitidas: perfilRegistradoBD.unidades.map(u => Number(u)) 
     };
 
-    import('rxjs').then(({ of, delay }) => {
-      of(mockPerfilNegocio).pipe(delay(400)).subscribe(perfil => {
-        // 1. Guardamos el perfil en la Signal (Guardamos en la memoria RAM (Signal))
-        this.usuarioAutenticado.set(perfil);
-        
-        // 2. NUEVO: Guardamos en el navegador para resistir el F5
-        sessionStorage.setItem('sesion_negocio', JSON.stringify(perfil));
-        
-        // 3. Redirigimos al home
-        this.router.navigate(['/home']);
-      });
-    });
+    this.usuarioAutenticado.set(perfilNegocio);
+    sessionStorage.setItem('sesion_negocio', JSON.stringify(perfilNegocio));
+    this.router.navigate(['/home']);
+  }
+
+  // MÉTODO AUXILIAR: Para traducir el string de BD al Enum de TypeScript
+  private mapearRolBackendAFrontend(rolBd: string): RolSistema {
+    switch (rolBd) {
+      case 'ROLE_ADMINISTRADOR': return RolSistema.Administrador;
+      case 'ROLE_CONSULTOR': return RolSistema.Consultor;
+      case 'ROLE_CAPTURISTA': return RolSistema.Capturista;
+      case 'ROLE_REVISOR': return RolSistema.Revisor;
+      case 'ROLE_VALIDADOR': return RolSistema.Validador;
+      default: return RolSistema.Consultor; // Rol de menor privilegio por defecto
+    }
   }
 
   // Método ajustado para recibir el tipo de evento y la cuenta dinámicamente

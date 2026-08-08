@@ -1,6 +1,6 @@
 import { Component, inject, computed } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router'; // Nuevas importaciones
-import { Auth } from '../../../core/auth/auth';
+import { Auth } from '../../../core/auth/services/auth';
 import { RolSistema } from '../../../core/auth/models/auth.model'
 // Importamos el nuevo componente aislado para la seleccion de ejercicios
 import { SelectorEjercicio } from '../../components/selector-ejercicio/selector-ejercicio';

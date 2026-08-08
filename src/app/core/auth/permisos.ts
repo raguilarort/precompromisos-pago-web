@@ -1,5 +1,5 @@
 import { Service, inject } from '@angular/core';
-import { Auth } from './auth'
+import { Auth } from './services/auth'
 import { RolSistema } from './models/auth.model';
 
 @Service()

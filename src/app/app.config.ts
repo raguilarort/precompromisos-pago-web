@@ -1,9 +1,10 @@
 // 1. Cambiamos la importación superior para usar provideBrowserGlobalErrorListeners
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS, withInterceptors } from '@angular/common/http';
 import { routes } from './app.routes';
 import { environment } from '../environments/environment.development';
+import { authInterceptor } from './core/auth/interceptors/auth-interceptor';
 
 import { 
   MsalService, 
@@ -54,7 +55,11 @@ export const appConfig: ApplicationConfig = {
     // ¡Restauramos tu configuración original sin Zone.js!
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
-    provideHttpClient(withInterceptorsFromDi()),
+    // CAMBIO 3: Configuramos el HttpClient para que acepte tanto el interceptor funcional como el de MSAL
+    provideHttpClient(
+      withInterceptors([authInterceptor]), // Registra nuestro interceptor para el JWT del backend
+      withInterceptorsFromDi()             // Mantiene vivo el MsalInterceptor basado en clases
+    ),
     
     // Proveedores obligatorios de MSAL
     {

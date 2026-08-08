@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { Auth } from '../../core/auth/auth';
+import { Auth } from '../../core/auth/services/auth';
 
 @Component({
   selector: 'app-portal',

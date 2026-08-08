@@ -18,7 +18,22 @@
         <li class="nav-item">
           <a class="nav-link px-0 px-lg-2" aria-current="page" routerLink="/home/precompromisos/list" routerLinkActive="active">Mis Precompromisos</a>
         </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="menuAdministracion" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-gear-fill"></i> Administración
+          </a>
+          
+          <ul class="dropdown-menu shadow-sm" aria-labelledby="menuAdministracion">
+            <li>
+              <!-- routerLinkActive="active" ilumina la opción cuando estás en esa ruta -->
+              <a class="dropdown-item py-2" routerLink="/home/admin/usuarios" routerLinkActive="active">
+                <i class="bi bi-people-fill me-2"></i> Usuarios
+              </a>
+            </li>
+          </ul>
+        </li>
       </ul>
+      
 
       <!-- 2. SECCIÓN CENTRAL: Selector de Ejercicio -->
       <!-- Vista Móvil: Flujo normal con un buen margen vertical (my-3) -->

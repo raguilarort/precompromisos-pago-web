@@ -1,9 +1,9 @@
 export enum RolSistema {
-  Consultor = 1,
-  Capturista = 2,
+  Administrador = 1,
+  Validador = 2,
   Revisor = 3,
-  Validador = 4,
-  Administrador = 5
+  Capturista = 4,
+  Consultor = 5
 }
 
 export interface UsuarioSession {
@@ -11,4 +11,14 @@ export interface UsuarioSession {
   email: string;
   rol: RolSistema; 
   unidadesPermitidas: number[]; 
+}
+
+export interface BackendAuthResponse {
+  idUsuario: number;
+  numEmpleado: number;
+  correo: string;
+  roles: string[];
+  unidades: string[];
+  accessToken: string;
+  tokenType: string;
 }

@@ -1,0 +1,197 @@
+<div class="container-fluid mt-4 px-4">
+  <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+    <h3 class="text-primary fw-bold"><i class="bi bi-people-fill"></i> Administración de Usuarios</h3>
+    @if (vistaActual() === 'LISTA') {
+      <button class="btn btn-success fw-bold" (click)="nuevoUsuario()">
+        <i class="bi bi-person-plus-fill"></i> Nuevo Usuario
+      </button>
+    } @else {
+      <button class="btn btn-outline-secondary" (click)="volverLista()">
+        <i class="bi bi-arrow-left"></i> Volver a la Lista
+      </button>
+    }
+  </div>
+
+  @if (vistaActual() === 'LISTA') {
+    <!-- VISTA 1: TABLA PRINCIPAL DE USUARIOS -->
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover table-striped align-middle mb-0">
+            <thead class="table-dark">
+              <tr>
+                <th>ID</th>
+                <th>Núm. Empleado</th>
+                <th>Correo Institucional</th>
+                <th>Fecha Registro</th>
+                <th>Estatus</th>
+                <th class="text-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (user of usuarios(); track user.idUsuario) {
+                <tr>
+                  <td class="fw-bold">{{ user.idUsuario }}</td>
+                  <td>{{ user.numEmpleado }}</td>
+                  <td>{{ user.correo }}</td>
+                  <td>{{ user.fechaAlta | date:'dd/MM/yyyy HH:mm' }}</td>
+                  <td>
+                    <span class="badge" [class.bg-success]="user.activo === 1" [class.bg-danger]="user.activo === 0">
+                      {{ user.activo === 1 ? 'Activo' : 'Baja' }}
+                    </span>
+                  </td>
+                  <td class="text-center">
+                    <button class="btn btn-sm btn-primary" (click)="editarUsuario(user)">
+                      <i class="bi bi-pencil-square"></i> Gestionar
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="6" class="text-center text-muted py-4">No hay usuarios registrados.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <!-- VISTA 2: FORMULARIOS DE EDICIÓN Y PERMISOS -->
+    <div class="row g-4">
+      
+      <!-- COLUMNA IZQUIERDA: DATOS GENERALES DEL USUARIO -->
+      <div class="col-lg-4">
+        <div class="card shadow-sm border-0 border-top border-primary border-4">
+          <div class="card-header bg-white fw-bold">Información del Usuario</div>
+          <div class="card-body">
+            <form [formGroup]="formUsuario" (ngSubmit)="guardarUsuario()">
+              <div class="mb-3">
+                <label class="form-label small fw-bold">Correo Institucional</label>
+                <input type="email" class="form-control" formControlName="correo">
+              </div>
+              <div class="mb-3">
+                <label class="form-label small fw-bold">Núm. Empleado</label>
+                <input type="number" class="form-control" formControlName="numEmpleado">
+              </div>
+              <div class="mb-4">
+                <label class="form-label small fw-bold">Estatus Operativo</label>
+                <select class="form-select" formControlName="activo">
+                  <option [ngValue]="1">Activo - Permite Acceso</option>
+                  <option [ngValue]="0">Inactivo - Bloqueado</option>
+                </select>
+              </div>
+              <button type="submit" class="btn btn-primary w-100 fw-bold" [disabled]="formUsuario.invalid">
+                <i class="bi bi-floppy"></i> Guardar Cambios
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- COLUMNA DERECHA: PERMISOS (Solo visible si el usuario ya existe en BD) -->
+      @if (usuarioSeleccionado()?.idUsuario) {
+        <div class="col-lg-8">
+          
+          <!-- SECCIÓN DE ROLES -->
+          <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+              <span class="fw-bold">Roles Asignados</span>
+            </div>
+            <div class="card-body">
+              <form [formGroup]="formRol" (ngSubmit)="asignarRol()" class="d-flex gap-2 mb-3">
+                <select class="form-select form-select-sm" formControlName="idRol">
+                  <option [ngValue]="null">Seleccione un rol...</option>
+                  @for (rol of catalogoRoles(); track rol.idRol) {
+                    <option [ngValue]="rol.idRol">{{ rol.clave }} - {{ rol.descripcion }}</option>
+                  }
+                </select>
+                <button type="submit" class="btn btn-sm btn-success text-nowrap" [disabled]="formRol.invalid">
+                  <i class="bi bi-plus-circle"></i> Agregar
+                </button>
+              </form>
+
+              <table class="table table-sm table-bordered">
+                <thead class="table-light">
+                  <tr><th>Rol</th><th>Fecha Asignación</th><th>Estatus</th><th>Acción</th></tr>
+                </thead>
+                <tbody>
+                  @for (r of rolesUsuario(); track r.idAsignacion) {
+                    <tr [class.opacity-50]="r.activo === 0">
+                      <td>{{ r.descripcion }}</td>
+                      <td>{{ r.fechaAsignacion | date:'dd/MM/yyyy' }}</td>
+                      <td>
+                        <span class="badge" [class.bg-success]="r.activo === 1" [class.bg-secondary]="r.activo === 0">
+                          {{ r.activo === 1 ? 'Vigente' : 'Revocado' }}
+                        </span>
+                      </td>
+                      <td>
+                        @if (r.activo === 1) {
+                          <button class="btn btn-sm btn-outline-danger py-0" (click)="revocarRol(r.idAsignacion)">Revocar</button>
+                        }
+                      </td>
+                    </tr>
+                  } @empty { <tr><td colspan="4" class="text-center text-muted">Sin roles.</td></tr> }
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- SECCIÓN DE UNIDADES EJECUTORAS -->
+          <div class="card shadow-sm border-0">
+            <div class="card-header bg-info text-dark d-flex justify-content-between align-items-center">
+              <span class="fw-bold">Unidades Ejecutoras Permitidas</span>
+            </div>
+            <div class="card-body">
+              <form [formGroup]="formUnidad" (ngSubmit)="asignarUnidad()" class="d-flex gap-2 mb-3">
+                <input type="text" class="form-control form-control-sm" formControlName="unidad" placeholder="Clave Unidad (Ej. 101)">
+                <button type="submit" class="btn btn-sm btn-primary text-nowrap" [disabled]="formUnidad.invalid">
+                  <i class="bi bi-plus-circle"></i> Otorgar Acceso
+                </button>
+              </form>
+
+              <table class="table table-sm table-bordered">
+                <thead class="table-light">
+                  <tr><th>Unidad</th><th>Otorgado Por</th><th>Fecha Asignación</th><th>Estatus</th><th>Acción</th></tr>
+                </thead>
+                <tbody>
+                  @for (u of unidadesUsuario(); track u.idAsignacion) {
+                    <tr [class.opacity-50]="u.activo === 0">
+                      <td class="fw-bold">{{ u.unidadEjecutora }}</td>
+                      <td>{{ u.fechaAsignacion | date:'dd/MM/yyyy' }}</td>
+                      <td>
+                        <span class="badge" [class.bg-success]="u.activo === 1" [class.bg-secondary]="u.activo === 0">
+                          {{ u.activo === 1 ? 'Vigente' : 'Revocado' }}
+                        </span>
+                      </td>
+                      <td>
+                        @if (u.activo === 1) {
+                          <button class="btn btn-sm btn-outline-danger py-0" (click)="revocarUnidad(u.idAsignacion)">Revocar</button>
+                        }
+                      </td>
+                    </tr>
+                  } @empty { <tr><td colspan="5" class="text-center text-muted">Sin acceso a unidades.</td></tr> }
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- TOASTS DE NOTIFICACIÓN -->
+@if (mensajeAlerta()) {
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1080;">
+    <div class="toast show align-items-center text-white border-0 shadow-lg" 
+         [class.bg-success]="mensajeAlerta()?.tipo === 'success'"
+         [class.bg-danger]="mensajeAlerta()?.tipo === 'danger'" role="alert">
+      <div class="d-flex p-2">
+        <div class="toast-body fs-6 fw-medium">{{ mensajeAlerta()?.texto }}</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="mensajeAlerta.set(null)"></button>
+      </div>
+    </div>
+  </div>
+}

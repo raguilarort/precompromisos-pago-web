@@ -85,6 +85,16 @@ export const routes: Routes = [
         path: 'precompromisos',
         redirectTo: 'precompromisos/list',
         pathMatch: 'full'
+      },
+      {
+        path: 'admin/usuarios',
+        canActivate: [roleGuard],
+        data: { 
+          rolesPermitidos: [
+            RolSistema.Administrador
+          ] 
+        },
+        loadComponent: () => import('./features/admin/usuarios/panel/panel').then(m => m.Panel)
       }
     ]
   },
