@@ -6,8 +6,7 @@ import { environment } from '../../../../../environments/environment.development
 import { 
   UsuarioResponseDTO, 
   UsuarioRolResponseDTO, 
-  UsuarioUnidadResponseDTO, 
-  RolCatalogoDTO, 
+  UsuarioUnidadResponseDTO,  
   AdminResponseDTO 
 } from '../model/admin-usuarios.dto';
 
@@ -27,10 +26,7 @@ export class AdminUsuarios {
   getUnidadesUsuario(idUsuario: number): Observable<UsuarioUnidadResponseDTO[]> {
     return this.http.get<UsuarioUnidadResponseDTO[]>(`${this.baseUrl}/${idUsuario}/unidades`);
   }
-  getCatalogoRoles(): Observable<RolCatalogoDTO[]> {
-    return this.http.get<RolCatalogoDTO[]>(`${this.baseUrl}/catalogos/roles`);
-  }
-
+  
   // --- MUTACIONES (POST/PUT) ---
   upsertUsuario(data: any): Observable<AdminResponseDTO> {
     return this.http.post<AdminResponseDTO>(`${this.baseUrl}/upsert`, data);

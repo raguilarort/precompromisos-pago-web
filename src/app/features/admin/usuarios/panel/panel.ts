@@ -2,14 +2,16 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
+import { RolCatalogoDTO } from '../../catalogos/roles/model/rol.dto';
 import { 
   UsuarioResponseDTO, 
   UsuarioRolResponseDTO, 
   UsuarioUnidadResponseDTO, 
-  RolCatalogoDTO, 
   AdminResponseDTO 
 } from '../model/admin-usuarios.dto';
 import { AdminUsuarios } from '../services/admin-usuarios';
+import { Rol } from '../../catalogos/roles/services/rol';
+
 
 @Component({
   selector: 'app-admin-usuarios-panel',
@@ -20,6 +22,7 @@ import { AdminUsuarios } from '../services/admin-usuarios';
 export class Panel implements OnInit {
   private fb = inject(FormBuilder);
   private adminService = inject(AdminUsuarios);
+  private rolService = inject(Rol)
 
   // Estados Reactivos
   usuarios = signal<UsuarioResponseDTO[]>([]);
@@ -59,7 +62,7 @@ export class Panel implements OnInit {
   }
 
   cargarCatalogoRoles() {
-    this.adminService.getCatalogoRoles().subscribe(data => this.catalogoRoles.set(data));
+    this.rolService.getCatalogoRoles().subscribe(data => this.catalogoRoles.set(data));
   }
 
   cargarDetalleHijos(idUsuario: number) {
