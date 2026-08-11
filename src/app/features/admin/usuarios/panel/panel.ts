@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
@@ -32,6 +32,7 @@ export class Panel implements OnInit {
   // Listas hijas del usuario seleccionado
   rolesUsuario = signal<UsuarioRolResponseDTO[]>([]);
   unidadesUsuario = signal<UsuarioUnidadResponseDTO[]>([]);
+  tieneRolActivo = computed(() => this.rolesUsuario().some(rol => rol.activo === 1));
 
   // UI State
   vistaActual = signal<'LISTA' | 'DETALLE'>('LISTA');

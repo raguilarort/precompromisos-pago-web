@@ -99,14 +99,22 @@
               <span class="fw-bold">Roles Asignados</span>
             </div>
             <div class="card-body">
+              <!-- Mensaje informativo si el control está bloqueado -->
+              @if (tieneRolActivo()) {
+                <div class="alert alert-warning py-2 mb-3 small border-0 d-flex align-items-center">
+                  <i class="bi bi-info-circle-fill me-2"></i>
+                  El usuario ya cuenta con un rol vigente. Debe revocarlo antes de asignar uno nuevo.
+                </div>
+              }
               <form [formGroup]="formRol" (ngSubmit)="asignarRol()" class="d-flex gap-2 mb-3">
-                <select class="form-select form-select-sm" formControlName="idRol">
+                <!-- Usamos [attr.disabled] para bloquear el select sin causar advertencias en Formularios Reactivos -->
+                <select class="form-select form-select-sm" formControlName="idRol" [attr.disabled]="tieneRolActivo() ? true : null">
                   <option [ngValue]="null">Seleccione un rol...</option>
                   @for (rol of catalogoRoles(); track rol.idRol) {
                     <option [ngValue]="rol.idRol">{{ rol.clave }} - {{ rol.descripcion }}</option>
                   }
                 </select>
-                <button type="submit" class="btn btn-sm btn-success text-nowrap" [disabled]="formRol.invalid">
+                <button type="submit" class="btn btn-sm btn-success text-nowrap" [disabled]="formRol.invalid || tieneRolActivo()">
                   <i class="bi bi-plus-circle"></i> Agregar
                 </button>
               </form>
@@ -131,7 +139,9 @@
                         }
                       </td>
                     </tr>
-                  } @empty { <tr><td colspan="4" class="text-center text-muted">Sin roles.</td></tr> }
+                  } @empty {
+                    <tr><td colspan="4" class="text-center text-muted">Sin roles.</td></tr>
+                  }
                 </tbody>
               </table>
             </div>
