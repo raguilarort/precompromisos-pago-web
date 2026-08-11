@@ -1,8 +1,9 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, effect } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { RolCatalogoDTO } from '../../catalogos/roles/model/rol.dto';
+import { UnidadEjecutoraCatalogoDTO } from '../../catalogos/unidadesejecutoras/model/unidad-ejecutora.dto';
 import { 
   UsuarioResponseDTO, 
   UsuarioRolResponseDTO, 
@@ -11,6 +12,7 @@ import {
 } from '../model/admin-usuarios.dto';
 import { AdminUsuarios } from '../services/admin-usuarios';
 import { Rol } from '../../catalogos/roles/services/rol';
+import { UnidadEjecutora } from '../../catalogos/unidadesejecutoras/services/unidad-ejecutora';
 
 
 @Component({
@@ -22,21 +24,39 @@ import { Rol } from '../../catalogos/roles/services/rol';
 export class Panel implements OnInit {
   private fb = inject(FormBuilder);
   private adminService = inject(AdminUsuarios);
-  private rolService = inject(Rol)
+  private rolService = inject(Rol);
+  private unidadEjecutoraService = inject(UnidadEjecutora);
 
   // Estados Reactivos
   usuarios = signal<UsuarioResponseDTO[]>([]);
   catalogoRoles = signal<RolCatalogoDTO[]>([]);
+  catalogoUnidadesEjecutoras = signal<UnidadEjecutoraCatalogoDTO[]>([]);
   usuarioSeleccionado = signal<UsuarioResponseDTO | null>(null);
   
   // Listas hijas del usuario seleccionado
   rolesUsuario = signal<UsuarioRolResponseDTO[]>([]);
   unidadesUsuario = signal<UsuarioUnidadResponseDTO[]>([]);
-  tieneRolActivo = computed(() => this.rolesUsuario().some(rol => rol.activo === 1));
+  
 
   // UI State
   vistaActual = signal<'LISTA' | 'DETALLE'>('LISTA');
   mensajeAlerta = signal<{ texto: string, tipo: 'success' | 'danger' } | null>(null);
+
+
+  tieneRolActivo = computed(() => this.rolesUsuario().some(rol => rol.activo === 1));
+
+  // 2. MAGIA REACTIVA: El Catálogo Inteligente
+  unidadesDisponibles = computed(() => {
+    // a) Obtenemos solo las claves de las unidades que están ACTIVAS (1) para este usuario
+    const clavesAsignadasActivas = this.unidadesUsuario()
+      .filter(u => u.activo === 1)
+      .map(u => u.unidadEjecutora);
+    
+    // b) Retornamos del catálogo maestro solo las que NO están en la lista de activas
+    return this.catalogoUnidadesEjecutoras().filter(unidadCat => 
+      !clavesAsignadasActivas.includes(unidadCat.unidadEjecutora)
+    );
+  });
 
   // Formularios
   formUsuario: FormGroup = this.fb.group({
@@ -49,9 +69,34 @@ export class Panel implements OnInit {
   formRol: FormGroup = this.fb.group({ idRol: [null, Validators.required] });
   formUnidad: FormGroup = this.fb.group({ unidad: ['', Validators.required] });
 
+  constructor() {
+    // Efecto para bloquear/desbloquear el select de ROLES
+    effect(() => {
+      const controlRol = this.formRol.get('idRol');
+      if (this.tieneRolActivo()) {
+        controlRol?.disable({ emitEvent: false }); // Bloquea el select en el TS
+        controlRol?.reset(null, { emitEvent: false }); // Lo limpia por seguridad
+      } else {
+        controlRol?.enable({ emitEvent: false }); // Lo habilita
+      }
+    });
+
+    // Efecto para bloquear/desbloquear el select de UNIDADES
+    effect(() => {
+      const controlUnidad = this.formUnidad.get('unidad');
+      if (this.unidadesDisponibles().length === 0) {
+        controlUnidad?.disable({ emitEvent: false });
+        controlUnidad?.reset('', { emitEvent: false });
+      } else {
+        controlUnidad?.enable({ emitEvent: false });
+      }
+    });
+  }
+
   ngOnInit() {
     this.cargarUsuarios();
     this.cargarCatalogoRoles();
+    this.cargarCatalogoUnidades();
   }
 
   // --- CARGAS DE DATOS ---
@@ -64,6 +109,12 @@ export class Panel implements OnInit {
 
   cargarCatalogoRoles() {
     this.rolService.getCatalogoRoles().subscribe(data => this.catalogoRoles.set(data));
+  }
+
+  cargarCatalogoUnidades() {
+    this.unidadEjecutoraService.getCatalogoUnidadesEjecutoras().subscribe(data => {
+      this.catalogoUnidadesEjecutoras.set(data);
+    });
   }
 
   cargarDetalleHijos(idUsuario: number) {

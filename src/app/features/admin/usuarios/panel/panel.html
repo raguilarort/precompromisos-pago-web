@@ -108,7 +108,7 @@
               }
               <form [formGroup]="formRol" (ngSubmit)="asignarRol()" class="d-flex gap-2 mb-3">
                 <!-- Usamos [attr.disabled] para bloquear el select sin causar advertencias en Formularios Reactivos -->
-                <select class="form-select form-select-sm" formControlName="idRol" [attr.disabled]="tieneRolActivo() ? true : null">
+                <select class="form-select form-select-sm" formControlName="idRol">
                   <option [ngValue]="null">Seleccione un rol...</option>
                   @for (rol of catalogoRoles(); track rol.idRol) {
                     <option [ngValue]="rol.idRol">{{ rol.clave }} - {{ rol.descripcion }}</option>
@@ -153,16 +153,34 @@
               <span class="fw-bold">Unidades Ejecutoras Permitidas</span>
             </div>
             <div class="card-body">
+              <!-- Mensaje si ya tiene todas las unidades asignadas -->
+              @if (unidadesDisponibles().length === 0 && catalogoUnidadesEjecutoras().length > 0) {
+                <div class="alert alert-warning py-2 mb-3 small border-0 d-flex align-items-center">
+                  <i class="bi bi-check-circle-fill me-2"></i>
+                  El usuario ya tiene acceso a todas las unidades ejecutoras disponibles en el catálogo.
+                </div>
+              }  
               <form [formGroup]="formUnidad" (ngSubmit)="asignarUnidad()" class="d-flex gap-2 mb-3">
-                <input type="text" class="form-control form-control-sm" formControlName="unidad" placeholder="Clave Unidad (Ej. 101)">
-                <button type="submit" class="btn btn-sm btn-primary text-nowrap" [disabled]="formUnidad.invalid">
+                <select class="form-select form-select-sm" formControlName="unidad">
+                  <option value="" disabled selected>Seleccione una unidad...</option>
+                    
+                  <!-- Iteramos sobre la lista ya filtrada -->
+                  @for (unidad of unidadesDisponibles(); track unidad.unidadEjecutora) {
+                    <option [value]="unidad.unidadEjecutora">
+                      {{ unidad.unidadEjecutora }} - {{ unidad.descripcion }}
+                    </option>
+                  }
+                </select>
+                <button type="submit" 
+                        class="btn btn-sm btn-primary text-nowrap" 
+                        [disabled]="formUnidad.invalid || unidadesDisponibles().length === 0">
                   <i class="bi bi-plus-circle"></i> Otorgar Acceso
                 </button>
               </form>
 
               <table class="table table-sm table-bordered">
                 <thead class="table-light">
-                  <tr><th>Unidad</th><th>Otorgado Por</th><th>Fecha Asignación</th><th>Estatus</th><th>Acción</th></tr>
+                  <tr><th>Unidad</th><th>Fecha Asignación</th><th>Estatus</th><th>Acción</th></tr>
                 </thead>
                 <tbody>
                   @for (u of unidadesUsuario(); track u.idAsignacion) {
@@ -180,7 +198,9 @@
                         }
                       </td>
                     </tr>
-                  } @empty { <tr><td colspan="5" class="text-center text-muted">Sin acceso a unidades.</td></tr> }
+                  } @empty { 
+                    <tr><td colspan="5" class="text-center text-muted">Sin acceso a unidades.</td></tr> 
+                  }
                 </tbody>
               </table>
             </div>
