@@ -3,7 +3,7 @@ import { DatePipe } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { RolCatalogoDTO } from '../../catalogos/roles/model/rol.dto';
-import { UnidadEjecutoraCatalogoDTO } from '../../catalogos/unidadesejecutoras/model/unidad-ejecutora.dto';
+import { UnidadEjecutoraCatalogoDTO } from '../../catalogos/unidades-ejecutoras/model/unidad-ejecutora.dto';
 import { 
   UsuarioResponseDTO, 
   UsuarioRolResponseDTO, 
@@ -12,7 +12,7 @@ import {
 } from '../model/admin-usuarios.dto';
 import { AdminUsuarios } from '../services/admin-usuarios';
 import { Rol } from '../../catalogos/roles/services/rol';
-import { UnidadEjecutora } from '../../catalogos/unidadesejecutoras/services/unidad-ejecutora';
+import { UnidadEjecutora } from '../../catalogos/unidades-ejecutoras/services/unidad-ejecutora';
 
 
 @Component({

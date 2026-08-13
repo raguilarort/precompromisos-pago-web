@@ -3,16 +3,15 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../../../environments/environment.development';
 
-import { 
-  UnidadEjecutoraCatalogoDTO
-} from '../model/unidad-ejecutora.dto';
+import { PartidaDTO } from '../model/partida.dto';
+
 
 @Service()
-export class UnidadEjecutora {
+export class Partida {
     private http = inject(HttpClient);
     private baseUrl = `${environment.apiUrl}`;
 
-    getCatalogoUnidadesEjecutoras(): Observable<UnidadEjecutoraCatalogoDTO[]> {
-        return this.http.get<UnidadEjecutoraCatalogoDTO[]>(`${this.baseUrl}/catalogos/unidadesejecutoras`);
+    getCatalogoPartidas(): Observable<PartidaDTO[]> {
+        return this.http.get<PartidaDTO[]>(`${this.baseUrl}/catalogos/partidas`);
     }
 }
