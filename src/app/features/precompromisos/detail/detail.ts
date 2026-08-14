@@ -2,9 +2,11 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe, UpperCasePipe } from '@angular/common';
 import { ReactiveFormsModule, FormControl, Validators } from '@angular/forms';
+import { ESTATUS_PRECOMPROMISO } from '../../../shared/constants/precompromiso-estatus.constants';
 import { Permisos } from '../../../core/auth/permisos';
 import { PrecompromisoService } from '../services/precompromisos/precompromisos';
 import { Precompromiso } from '../models/precompromiso.model';
+import { Estatus } from '../../admin/catalogos/estatus/services/estatus';
 
 @Component({
   selector: 'app-detail',
@@ -16,6 +18,12 @@ export class Detail implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private precompromisoService = inject(PrecompromisoService);
+  private estatusService = inject(Estatus);
+
+  // 1. Exponemos la constante importada para que el HTML pueda leerla
+  readonly ESTATUS = ESTATUS_PRECOMPROMISO;
+
+  catalogoEstatus = signal<any[]>([]);
 
   permisos = inject(Permisos);
   // Signal para almacenar los datos del precompromiso
@@ -78,12 +86,21 @@ export class Detail implements OnInit {
 
         this.registro.set(data);
 
-        // Finalizamos la carga
-        this.cargando.set(false);
+        
+
       }, 800);
     } else {
-      this.cargando.set(false);
-    }
+    }   
+
+    this.estatusService.getCatalogoEstatus().subscribe(data => this.catalogoEstatus.set(data)); 
+    
+    this.cargando.set(false);
+  }
+
+  // 4. FUNCIÓN TRADUCTORA PARA EL HTML
+  obtenerNombreEstatus(idEstatus: number): string {
+    const estatus = this.catalogoEstatus().find(e => e.id === idEstatus);
+    return estatus ? estatus.descripcion : 'DESCONOCIDO';
   }
 
   suficienciaPresupuestal = computed(() => {

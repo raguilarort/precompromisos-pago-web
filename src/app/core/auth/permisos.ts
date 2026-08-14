@@ -43,7 +43,7 @@ export class Permisos {
     if (user.rol === RolSistema.Administrador) return true;
 
     const rolesPermitidos = [RolSistema.Capturista, RolSistema.Revisor];
-    return rolesPermitidos.includes(user.rol) && estatusActual === 'Capturado';
+    return rolesPermitidos.includes(user.rol) && estatusActual === 'CAPTURADO';
   }
 
   // ELIMINACIÓN (Ampliación de Regla)
@@ -53,7 +53,7 @@ export class Permisos {
     
     // El Capturista y Revisor pueden eliminar si aún está en etapa inicial o fue rechazado
     const rolesPermitidos = [RolSistema.Capturista, RolSistema.Revisor];
-    const estatusPermitidos = ['Capturado', 'Rechazado'];
+    const estatusPermitidos = ['CAPTURADO', 'RECHAZADO'];
     
     return rolesPermitidos.includes(user.rol) && estatusPermitidos.includes(estatusActual);
   }
@@ -67,7 +67,7 @@ export class Permisos {
     if (!user) return false;
     if (user.rol === RolSistema.Administrador) return true;
 
-    return user.rol === RolSistema.Revisor && estatusActual === 'Capturado';
+    return user.rol === RolSistema.Revisor && estatusActual === 'CAPTURADO';
   }
 
   puedeAutorizarPrecompromiso(estatusActual: string): boolean {
@@ -75,7 +75,7 @@ export class Permisos {
     if (!user) return false;
     if (user.rol === RolSistema.Administrador) return true;
 
-    return user.rol === RolSistema.Validador && estatusActual === 'Revisado';
+    return user.rol === RolSistema.Validador && estatusActual === 'REVISADO';
   }
 
   puedeLiberarPrecompromiso(estatusActual: string): boolean {
@@ -83,8 +83,8 @@ export class Permisos {
     if (!user) return false;
     if (user.rol === RolSistema.Administrador) return true;
 
-    if (user.rol === RolSistema.Revisor && estatusActual === 'Revisado') return true;
-    if (user.rol === RolSistema.Validador && estatusActual === 'Revisado') return true;
+    if (user.rol === RolSistema.Revisor && estatusActual === 'REVISADO') return true;
+    if (user.rol === RolSistema.Validador && estatusActual === 'REVISADO') return true;
 
     return false;
   }
@@ -94,7 +94,7 @@ export class Permisos {
     if (!user) return false;
     if (user.rol === RolSistema.Administrador) return true;
 
-    return user.rol === RolSistema.Validador && estatusActual === 'Autorizado';
+    return user.rol === RolSistema.Validador && estatusActual === 'AUTORIZADO';
   }
 
 
@@ -102,13 +102,13 @@ export class Permisos {
   // REVISOR
   puedeDarVistoBueno(estatusActual: string): boolean {
     const user = this.auth.usuarioAutenticado();
-    return user ? user.rol === RolSistema.Revisor && estatusActual === 'Capturado' : false;
+    return user ? user.rol === RolSistema.Revisor && estatusActual === 'CAPTURADO' : false;
   }
 
   // VALIDADOR
   puedeAutorizar(estatusActual: string): boolean {
     const user = this.auth.usuarioAutenticado();
-    return user ? user.rol === RolSistema.Validador && estatusActual === 'Revisado' : false;
+    return user ? user.rol === RolSistema.Validador && estatusActual === 'REVISADO' : false;
   }
 
   // AMBOS (Rechazo)
@@ -116,8 +116,8 @@ export class Permisos {
     const user = this.auth.usuarioAutenticado();
     if (!user) return false;
     
-    if (user.rol === RolSistema.Revisor && estatusActual === 'Capturado') return true;
-    if (user.rol === RolSistema.Validador && estatusActual === 'Revisado') return true;
+    if (user.rol === RolSistema.Revisor && estatusActual === 'CAPTURADO') return true;
+    if (user.rol === RolSistema.Validador && estatusActual === 'REVISADO') return true;
     return false;
   }
 
@@ -139,8 +139,8 @@ export class Permisos {
     const user = this.auth.usuarioAutenticado();
     if (!user) return false;
 
-    if (user.rol === RolSistema.Revisor) return estatusActual === 'Capturado';
-    if (user.rol === RolSistema.Validador) return estatusActual === 'Revisado';
+    if (user.rol === RolSistema.Revisor) return estatusActual === 'CAPTURADO';
+    if (user.rol === RolSistema.Validador) return estatusActual === 'REVISADO';
 
     return false;
   }

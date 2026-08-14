@@ -17,15 +17,15 @@
         <h3 class="mb-0 fw-bold text-dark d-flex align-items-center">
           Folio: {{ item.folio }}
           <span class="badge ms-3 fs-6 rounded-pill"
-                [class.bg-warning-subtle]="item.estatus === 'Capturado'"
-                [class.text-warning]="item.estatus === 'Capturado'"
-                [class.bg-info-subtle]="item.estatus === 'Revisado'"
-                [class.text-info]="item.estatus === 'Revisado'"
-                [class.bg-success-subtle]="item.estatus === 'Comprometido' || item.estatus === 'Autorizado'"
-                [class.text-success]="item.estatus === 'Comprometido' || item.estatus === 'Autorizado'"
-                [class.bg-danger-subtle]="item.estatus === 'Cancelado' || item.estatus === 'Rechazado'"
-                [class.text-danger]="item.estatus === 'Cancelado' || item.estatus === 'Rechazado'">
-            {{ item.estatus | uppercase }}
+                [class.bg-warning-subtle]="item.estatus === ESTATUS.CAPTURADO"
+                [class.text-warning]="item.estatus === ESTATUS.CAPTURADO"
+                [class.bg-info-subtle]="item.estatus === ESTATUS.REVISADO"
+                [class.text-info]="item.estatus === ESTATUS.REVISADO"
+                [class.bg-success-subtle]="item.estatus === ESTATUS.COMPROMETIDO || item.estatus === ESTATUS.AUTORIZADO"
+                [class.text-success]="item.estatus === ESTATUS.COMPROMETIDO || item.estatus === ESTATUS.AUTORIZADO"
+                [class.bg-danger-subtle]="item.estatus === ESTATUS.CANCELADO || item.estatus === ESTATUS.RECHAZADO"
+                [class.text-danger]="item.estatus === ESTATUS.CANCELADO || item.estatus === ESTATUS.RECHAZADO">
+            {{ obtenerNombreEstatus(item.estatus) | uppercase }}
           </span>
         </h3>
       </div>
@@ -34,7 +34,7 @@
           <i class="bi bi-arrow-left"></i> Volver a la Lista
         </a>
         <!-- REGLA: Solo se puede editar si está en estatus Capturado -->
-        @if (item.estatus === 'Capturado' && permisos.puedeGestionarPrecompromisos()) {
+        @if (item.estatus === ESTATUS.CAPTURADO && permisos.puedeGestionarPrecompromisos()) {
           <a [routerLink]="['/home/precompromisos/edit', item.id]" class="btn btn-primary fw-bold">
             <i class="bi bi-pencil-square"></i> Editar Registro
           </a>
@@ -129,7 +129,7 @@
                     <div class="accordion-body bg-light p-4">
 
                       <!-- BARRA DE HERRAMIENTAS DEL CONCEPTO (Botón reubicado) -->
-                      @if (item.estatus === 'Capturado' || item.estatus === 'Revisado') {
+                      @if (item.estatus === ESTATUS.CAPTURADO || item.estatus === ESTATUS.REVISADO) {
                         <div class="d-flex justify-content-end mb-3">
                           <button class="btn btn-sm btn-outline-primary shadow-sm" 
                                   (click)="refrescarSuficiencia(concepto, $event, $index)"
@@ -161,7 +161,7 @@
                                       [class.text-dark]="mes.haySuficiencia"
                                       [class.text-danger]="!mes.haySuficiencia">{{ mes.nombre }}</span>
                                 
-                                @if (item.estatus === 'Capturado' || item.estatus === 'Revisado') {
+                                @if (item.estatus === ESTATUS.CAPTURADO || item.estatus === ESTATUS.REVISADO) {
                                   <span class="badge" style="font-size: 0.7rem;"
                                         [class.bg-secondary]="mes.disponible === 0 && mes.importe === 0"
                                         [class.bg-warning]="mes.disponible < 0"
@@ -212,22 +212,22 @@
       
       <div class="d-flex gap-2 flex-wrap justify-content-end w-100">
         
-        <!-- ELIMINAR: Solo si está en 'Capturado' -->
-        @if (item.estatus === 'Capturado' && permisos.puedeEliminarPrecompromiso(item.estatus)) {
+        <!-- ELIMINAR: Solo si está en ESTATUS.CAPTURADO -->
+        @if (item.estatus === ESTATUS.CAPTURADO && permisos.puedeEliminarPrecompromiso(obtenerNombreEstatus(item.estatus))) {
           <button class="btn btn-outline-danger me-auto" (click)="eliminar()">
             <i class="bi bi-trash"></i> Eliminar Registro
           </button>
         }
 
-        <!-- CANCELAR: Solo si está en 'Autorizado' -->
-        @if (item.estatus === 'Autorizado' && permisos.puedeCancelarPrecompromiso(item.estatus)) {
+        <!-- CANCELAR: Solo si está en ESTATUS.AUTORIZADO -->
+        @if (item.estatus === ESTATUS.AUTORIZADO && permisos.puedeCancelarPrecompromiso(obtenerNombreEstatus(item.estatus))) {
           <button class="btn btn-warning me-auto" (click)="cancelar()">
             <i class="bi bi-x-circle"></i> Cancelar Precompromiso
           </button>
         }
 
         <!-- RECHAZAR -->
-        @if (permisos.puedeRechazar(item.estatus)) {
+        @if (permisos.puedeRechazar(obtenerNombreEstatus(item.estatus))) {
           <button class="btn btn-danger shadow-sm px-4" 
                   data-bs-toggle="modal" 
                   data-bs-target="#modalRechazo"
@@ -237,7 +237,7 @@
         }
 
         <!-- DAR VISTO BUENO -->
-        @if (permisos.puedeDarVistoBueno(item.estatus)) {
+        @if (permisos.puedeDarVistoBueno(obtenerNombreEstatus(item.estatus))) {
           <span [attr.title]="!suficienciaPresupuestal() ? 'No cuenta con suficiencia presupuestal completa' : ''">
             <button class="btn btn-success shadow-sm px-4" 
                     (click)="darVistoBueno()" 
@@ -248,7 +248,7 @@
         }
 
         <!-- AUTORIZAR PRESUPUESTO -->
-        @if (permisos.puedeAutorizar(item.estatus)) {
+        @if (permisos.puedeAutorizar(obtenerNombreEstatus(item.estatus))) {
           <span [attr.title]="!suficienciaPresupuestal() ? 'No cuenta con suficiencia presupuestal completa' : ''">
             <button class="btn btn-success shadow-sm px-4" 
                     (click)="autorizar()" 

@@ -2,11 +2,19 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CurrencyPipe } from '@angular/common';
-import { NgSelectModule } from '@ng-select/ng-select'; // <-- Importación necesaria
+import { NgSelectModule } from '@ng-select/ng-select';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { PrecompromisoService } from '../services/precompromisos/precompromisos';
 import { Precompromiso } from '../models/precompromiso.model';
-import { FiltrarCatalogoPipe } from '../../../shared/pipes/filtrar-catalogo-pipe'; // Ajusta la ruta si es necesario
+import { FiltrarCatalogoPipe } from '../../../shared/pipes/filtrar-catalogo-pipe';
+
+import { Estatus } from '../../admin/catalogos/estatus/services/estatus';
+import { UnidadEjecutora } from '../../admin/catalogos/unidades-ejecutoras/services/unidad-ejecutora';
+import { TipoAdquisicion } from '../../admin/catalogos/tipos/adquisiciones/services/tipo-adquisicion';
+import { TipoRequerimiento } from '../../admin/catalogos/tipos/requerimientos/services/tipo-requerimiento';
+import { ClaveProgramatica } from '../../admin/catalogos/claves-programaticas/services/clave-programatica';
+import { Partida } from '../../admin/catalogos/partidas/services/partida';
+import { FuenteFinanciamiento } from '../../admin/catalogos/fuentes-financiamiento/services/fuente-financiamiento';
 
 @Component({
   selector: 'app-form',
@@ -20,54 +28,50 @@ export class Form implements OnInit {
   private precompromisoService = inject(PrecompromisoService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  
+  //#region Inyección de servicios de catálogos
+  private estatusService = inject(Estatus);
+  private unidadEjecutoraService = inject(UnidadEjecutora);
+  private tipoContratacionService = inject(TipoAdquisicion);
+  private tipoRequerimientoService = inject(TipoRequerimiento);
+  private claveProgramaticaService = inject(ClaveProgramatica);
+  private partidaService = inject(Partida);
+  private fuenteService = inject(FuenteFinanciamiento);
+  //#endregion
 
   esEdicion = false;
-  idCompromiso?: number;
+  idPrecompromiso?: number;
   activeTab = 'generales'; // Control del formulario dividido
 
   // NUEVO: Signals para manejar el estado de carga
   cargando = signal<boolean>(true);
   mensajeAlerta = signal<string | null>(null);
+  mensajeExito = signal<string | null>(null);
 
-  //BORRAR AL HACER LA INTEGRACIÓN CON EL SERVICIO
-  // 1. Catálogos simulados (En el futuro, esto vendrá de tu backend)
-  catalogoClaves = [
-    { id: 15009, descripcion: '04R01-09-40-01 M01-ACTIVIDADES Y SERVICIOS DE APOYO ADMINISTRATIVO' },
-    { id: 15010, descripcion: '04R01-09-40-02 M01-ACTIVIDADES Y SERVICIOS DE APOYO ADMINISTRATIVO' },
-    { id: 15012, descripcion: '04R01-09-41-01 M02-MODERNIZACIÓN Y GOBIERNO DIGITAL' }
-  ];
-
-  catalogoPartidas = [
-    { id: 57, idClave: 15009, descripcion: '21101 Materiales y utiles de oficina' },
-    { id: 86, idClave: 15010, descripcion: '24601 Material electrico y electronico' },
-    { id: 63, idClave: 15010, descripcion: '21401 Materiales y utiles consumibles para el procesamiento en equipos y bienes informaticos' },
-    { id: 200, idClave: 15012, descripcion: '51101 - Muebles de oficina' }
-  ];
-
-  catalogoFuentes = [
-    { id: 1, idPartida: 57, descripcion: 'Recursos Financieros' },
-    { id: 3, idPartida: 57, descripcion: 'Aprovechamientos' },
-    { id: 1, idPartida: 86, descripcion: 'Recursos Financieros' },
-    { id: 3, idPartida: 86, descripcion: 'Aprovechamientos' },
-    { id: 1, idPartida: 63, descripcion: 'Recursos Financieros' },
-    { id: 1, idPartida: 200, descripcion: 'Recursos Financieros' },
-    { id: 3, idPartida: 200, descripcion: 'Aprovechamientos' }
-  ];
-  //BORRAR AL HACER LA INTEGRACIÓN CON EL SERVICIO
+  //#region Signals para los catálogos
+  catalogoEstatus = signal<any[]>([]);
+  catalogoUnidadesEjecutoras = signal<any[]>([]);
+  catalogoTiposContratacion = signal<any[]>([]);
+  catalogoTiposRequerimiento = signal<any[]>([]);
+  catalogoPartidas = signal<any[]>([]);
+  catalogoFuentes = signal<any[]>([]);
+  catalogoClaves = signal<any[]>([]); //Depende de la Unidad Seleccionada
+  //#endregion
+  
 
   formulario = this.fb.group({
-    ejercicio: [2026, [Validators.required, Validators.min(2000)]],
-    unidad: [1, [Validators.required, Validators.min(1)]],
+    ejercicio: [{ value: 2026, disabled: true }, [Validators.required, Validators.min(2000)]], // Siempre bloqueado
+    unidad: [null as any, [Validators.required, Validators.min(1)]],
     consecutivo: [null],
     folio: [{ value: 'AUTO-GENERADO', disabled: true }],
-    estatus: ['Capturado', Validators.required],
+    estatus: [{ value: 1, disabled: true }, Validators.required], // ID 1 = Capturado. Siempre bloqueado.
     requisicion: this.fb.group({
       numeroRequisicion: ['', Validators.required],
-      tipoContratacion: ['Adjudicación Directa', Validators.required],
-      tipo: ['Bien', Validators.required],
+      tipoContratacion: [null as any, Validators.required],
+      tipo: [null as any, Validators.required],
       importeTotalRequisicion: [{ value: 0, disabled: true }]
     }),
-    conceptos: this.fb.array([]) // Array de conceptos dinámicos
+    conceptos: this.fb.array([])
   });
 
   get conceptosFormArray() {
@@ -75,41 +79,134 @@ export class Form implements OnInit {
   }
 
   ngOnInit() {
+    this.cargando.set(true);
+
     const idParam = this.route.snapshot.paramMap.get('id');
 
-    // Iniciamos el estado de carga
-    this.cargando.set(true);
+    this.cargarCatalogosGlobales();
+
+    this.configurarListenerUnidad();
 
     if (idParam) {
       this.esEdicion = true;
-      this.idCompromiso = Number(idParam);
-      const registro = this.precompromisoService.obtenerPorId(this.idCompromiso);
+      this.idPrecompromiso = Number(idParam);
+      
+      //QUITAR CUANDO SE TENGA EL SERVICIO PARA CONSULTAR UN PRECOMPROMISOS POR ID
+      const registro = this.precompromisoService.obtenerPorId(this.idPrecompromiso);
       if (registro) {
         this.cargarDatosFormulario(registro);
       }
+
+      /*DESCOMENTAR CUANDO SE TENGA EL SERVICIO PARA CONSULTAR UN PRECOMPROMISO POR ID
+      // Llamada real para obtener los datos de la BD
+      this.precompromisoService.obtenerPorId(this.idPrecompromiso).subscribe({
+        next: (registro) => {
+          this.cargarDatosFormulario(registro);
+        },
+        error: (err) => {
+          this.mostrarAlerta('Error al recuperar el precompromiso', 'danger');
+        }
+      });*/
     } else {
-      this.agregarConcepto(); // Inicializa con un renglón vacío si es creación
+      // MODO REGISTRO
+      this.evaluarReglaUnidadEjecutora();
+      this.agregarConcepto();
     }
 
     this.cargando.set(false);
   }
 
+  // ==========================================
+  // CONSUMO DE APIS: CATÁLOGOS
+  // ==========================================
+
+  cargarCatalogosGlobales() {
+    // Nota: Sustituye getCatalogo() por el nombre real de tu método (ej. obtenerTodos, listar...)
+    
+    this.estatusService.getCatalogoEstatus().subscribe(data => this.catalogoEstatus.set(data));
+    
+    this.tipoContratacionService.getCatalogoTiposAdquisiciones().subscribe(data => this.catalogoTiposContratacion.set(data));
+    
+    this.tipoRequerimientoService.getCatalogoTiposRequerimientos().subscribe(data => this.catalogoTiposRequerimiento.set(data));
+    
+    // Cargamos catálogo general de partidas y fuentes para que el pipe FiltrarCatalogo haga su magia
+    this.partidaService.getCatalogoPartidas().subscribe(data => this.catalogoPartidas.set(data));
+    this.fuenteService.getCatalogoFuentesFinanciamiento().subscribe(data => this.catalogoFuentes.set(data));
+
+    // Para la unidad ejecutora evaluamos la regla de negocio al obtener la respuesta
+    this.unidadEjecutoraService.getCatalogoUnidadesEjecutoras().subscribe(data => {
+      const unidadesTransformadas = data.map(unidad => ({
+        ...unidad, // Conservamos todas las propiedades originales (ambito, iniciales, etc)
+        // 2. Creamos la nueva propiedad concatenada
+        textoVisible: `${unidad.unidadEjecutora} - ${unidad.nombreCorto}` 
+      }));
+
+      // 3. Guardamos el arreglo transformado en la señal
+      this.catalogoUnidadesEjecutoras.set(unidadesTransformadas);
+
+      if (!this.esEdicion) {
+        this.evaluarReglaUnidadEjecutora();
+      }
+    });
+  }
+
+  configurarListenerUnidad() {
+    // Al cambiar la unidad, cargamos las claves programáticas reales permitidas
+    this.formulario.get('unidad')?.valueChanges.subscribe(idUnidad => {
+      if (idUnidad) {
+        const ejercicio = this.formulario.get('ejercicio')?.value;
+
+        if (ejercicio) {
+          // CONSUMO REAL DEL ENDPOINT CON QUERY PARAMETERS (ejercicio, unidad)
+          this.claveProgramaticaService.getClavesProgramaticas(ejercicio, idUnidad).subscribe({
+            next: (claves) => this.catalogoClaves.set(claves),
+            error: () => this.mostrarAlerta('Error al cargar las claves programáticas', 'danger')
+          });
+
+          // Si el usuario cambia la unidad, las claves seleccionadas en los conceptos ya no son válidas
+          if (!this.esEdicion) {
+            this.conceptosFormArray.clear();
+            this.agregarConcepto();
+          }
+        } else {
+          console.error("Error: No se encuentra el ejercicio.");
+        }
+      }
+    });
+  }
+
+  evaluarReglaUnidadEjecutora() {
+    // Regla: Si el usuario solo tiene acceso a 1 unidad, seleccionarla y bloquearla
+    if (this.catalogoUnidadesEjecutoras().length === 1) {
+      const unicaUnidad = this.catalogoUnidadesEjecutoras()[0].id || this.catalogoUnidadesEjecutoras()[0].clave; // Ajusta según tu DTO
+      this.formulario.get('unidad')?.setValue(unicaUnidad);
+      this.formulario.get('unidad')?.disable();
+    }
+  }
+
   // Crea la sub-estructura de controles para un concepto nuevo con sus 12 meses
   crearConceptoFormGroup(datosPrevios?: any): FormGroup {
+    const vieneConClave = !!datosPrevios?.claveProgramatica;
+
     const grupo = this.fb.group({
       descripcion: [datosPrevios?.descripcion || '', Validators.required],
+      // Control clave oculto: Indica si el candado está cerrado (true) o abierto (false)
+      combinacionValidada: [vieneConClave],
       // 1. Los 3 nuevos campos en lugar del idCvePresupuestaria
       // 1. Inicializamos con el valor previo si existe, si no, null
-      claveProgramatica: [datosPrevios?.claveProgramatica || null, Validators.required],
+      claveProgramatica: [{ 
+        value: datosPrevios?.claveProgramatica || null, 
+        disabled: vieneConClave 
+      }, Validators.required],
       // 2. Si trae claveProgramatica previa, la partida nace habilitada
       partidaPresupuestal: [{ 
         value: datosPrevios?.partidaPresupuestal || null, 
-        disabled: !datosPrevios?.claveProgramatica 
+        disabled: !vieneConClave && !datosPrevios?.claveProgramatica  
       }, Validators.required],
       // 3. Si trae partida previa, la fuente nace habilitada
       fuenteFinanciamiento: [{ 
         value: datosPrevios?.fuenteFinanciamiento || null, 
-        disabled: !datosPrevios?.partidaPresupuestal 
+        disabled: !vieneConClave && !datosPrevios?.partidaPresupuestal 
       }, Validators.required],     
       
       // 2. Controles ocultos o de solo lectura para almacenar el saldo disponible
@@ -138,11 +235,14 @@ export class Form implements OnInit {
       importeOctubre: [{ value: datosPrevios?.importeOctubre || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Octubre')]],
       importeNoviembre: [{ value: datosPrevios?.importeNoviembre || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Noviembre')]],
       importeDiciembre: [{ value: datosPrevios?.importeDiciembre || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Diciembre')]],
-      importeTotal: [{ value: 0, disabled: true }]
+      importeTotal: [{ value: datosPrevios?.importeTotal || 0, disabled: true }]
     });
 
     // Escucha cambios en Clave Programática
+    // Lógica en cascada (Solo aplica cuando la combinación NO está validada)
     grupo.get('claveProgramatica')?.valueChanges.subscribe(idClave => {
+      if (grupo.get('combinacionValidada')?.value) return; // Si está bloqueado, no hacer nada
+
       const controlPartida = grupo.get('partidaPresupuestal');
       const controlFuente = grupo.get('fuenteFinanciamiento');
       
@@ -162,6 +262,8 @@ export class Form implements OnInit {
 
     // Escucha cambios en Partida Presupuestal
     grupo.get('partidaPresupuestal')?.valueChanges.subscribe(idPartida => {
+      if (grupo.get('combinacionValidada')?.value) return;
+      
       const controlFuente = grupo.get('fuenteFinanciamiento');
       controlFuente?.setValue(null, { emitEvent: false });
 
@@ -175,21 +277,143 @@ export class Form implements OnInit {
     // Escucha cambios en los meses de este concepto específico para recalcular totales
     grupo.valueChanges.subscribe(() => this.calcularTotales());
 
-    // LÓGICA DE CASCADA (Puntos 4, 5 y 6)
-    grupo.get('claveProgramatica')?.valueChanges.subscribe(valor => {
-      if (valor) {
-        // Habilitamos la partida y llamamos al backend simulado
-        grupo.get('partidaPresupuestal')?.enable();
-        // Aquí iría tu: this.catalogosService.obtenerPartidas(valor).subscribe(...)
-      } else {
-        grupo.get('partidaPresupuestal')?.disable();
-        grupo.get('fuenteFinanciamiento')?.disable();
-      }
-    });
+    // Si es edición y ya venía con datos, habilitamos los meses según el saldo
+    if (vieneConClave) {
+      this.evaluarEstadoMeses(grupo);
+    }
 
     return grupo;
   }
 
+  // ==========================================
+  // EL "CANDADO": VERIFICAR Y DESBLOQUEAR
+  // ==========================================
+  
+  verificarCombinacion(index: number) {
+    const concepto = this.conceptosFormArray.at(index) as FormGroup;
+    const rawValues = concepto.getRawValue();
+    const unidadId = this.formulario.get('unidad')?.value;
+
+    // Medida de seguridad
+    if (!rawValues.claveProgramatica || !rawValues.partidaPresupuestal || !rawValues.fuenteFinanciamiento) {
+      this.mostrarAlerta('Debe seleccionar la combinación completa antes de verificar.', 'danger');
+      return;
+    }
+
+    // SIMULACIÓN DE LA LLAMADA AL BACKEND PARA VALIDAR COMBINACIÓN Y TRAER SALDOS
+    // this.precompromisoService.buscarClave(rawValues.claveProgramatica, ...).subscribe({ ... })
+    import('rxjs').then(({ of, delay }) => {
+      // Generamos saldos simulados (Aquí vendría la respuesta real de tu backend)
+      const saldosActualizados = {
+        disponibleEnero: Math.floor(Math.random() * 15000),
+        disponibleFebrero: 0,
+        disponibleMarzo: -500,
+        disponibleAbril: Math.floor(Math.random() * 15000),
+        disponibleMayo: Math.floor(Math.random() * 15000),
+        disponibleJunio: Math.floor(Math.random() * 15000),
+        disponibleJulio: Math.floor(Math.random() * 15000),
+        disponibleAgosto: Math.floor(Math.random() * 15000),
+        disponibleSeptiembre: Math.floor(Math.random() * 15000),
+        disponibleOctubre: Math.floor(Math.random() * 15000),
+        disponibleNoviembre: Math.floor(Math.random() * 15000),
+        disponibleDiciembre: Math.floor(Math.random() * 15000)
+      };
+
+      of(saldosActualizados).pipe(delay(400)).subscribe(saldos => {
+        // 1. Inyectamos los saldos
+        concepto.patchValue(saldos);
+        
+        // 2. CERRAMOS EL CANDADO
+        concepto.get('combinacionValidada')?.setValue(true);
+        concepto.get('claveProgramatica')?.disable({ emitEvent: false });
+        concepto.get('partidaPresupuestal')?.disable({ emitEvent: false });
+        concepto.get('fuenteFinanciamiento')?.disable({ emitEvent: false });
+
+        // 3. Habilitamos los inputs de meses según el saldo
+        this.evaluarEstadoMeses(concepto);
+        
+        this.mostrarAlerta('Combinación validada correctamente. Ya puede capturar los importes.', 'success');
+      });
+    });
+/*
+    //Esto activarlo cuando se tenga el consumo del servicio para verificar la disponibilidad
+    // Armamos el objeto con lo necesario para validar e hidratar saldos
+    const requestDisponibilidad = {
+      unidad: unidadId,
+      claveProgramatica: rawValues.claveProgramatica,
+      partida: rawValues.partidaPresupuestal,
+      fuente: rawValues.fuenteFinanciamiento
+    };
+
+    // CONSUMO REAL DEL ENDPOINT DE DISPONIBILIDAD
+    this.precompromisoService.consultarDisponibilidadCombinacion(requestDisponibilidad).subscribe({
+      next: (saldosReales) => {
+        // 1. Inyectamos los saldos reales provenientes de Oracle
+        // Se espera que 'saldosReales' contenga propiedades como { disponibleEnero: 1500, ... }
+        concepto.patchValue(saldosReales);
+        
+        // 2. CERRAMOS EL CANDADO
+        concepto.get('combinacionValidada')?.setValue(true);
+        concepto.get('claveProgramatica')?.disable({ emitEvent: false });
+        concepto.get('partidaPresupuestal')?.disable({ emitEvent: false });
+        concepto.get('fuenteFinanciamiento')?.disable({ emitEvent: false });
+
+        // 3. Habilitamos los inputs de meses según el saldo
+        this.evaluarEstadoMeses(concepto);
+        
+        this.mostrarAlerta('Combinación validada correctamente. Ya puede capturar los importes.', 'success');
+      },
+      error: (err) => {
+        const msjError = err.error?.error || err.error?.mensaje || 'Combinación presupuestal no válida o no registrada.';
+        this.mostrarAlerta(msjError, 'danger');
+      }
+    });
+    */
+  }
+
+  desbloquearCombinacion(index: number) {
+    const concepto = this.conceptosFormArray.at(index) as FormGroup;
+    
+    // 1. ABRIMOS EL CANDADO
+    concepto.get('combinacionValidada')?.setValue(false);
+    
+    // 2. Habilitamos los selectores
+    concepto.get('claveProgramatica')?.enable({ emitEvent: false });
+    concepto.get('partidaPresupuestal')?.enable({ emitEvent: false });
+    concepto.get('fuenteFinanciamiento')?.enable({ emitEvent: false });
+
+    // 3. Reseteamos los saldos y los importes a 0, y los bloqueamos
+    const reseteo = {
+      disponibleEnero: 0, importeEnero: 0,
+      disponibleFebrero: 0, importeFebrero: 0,
+      disponibleMarzo: 0, importeMarzo: 0,
+      disponibleAbril: 0, importeAbril: 0,
+      disponibleMayo: 0, importeMayo: 0,
+      disponibleJunio: 0, importeJunio: 0,
+      disponibleJulio: 0, importeJulio: 0,
+      disponibleAgosto: 0, importeAgosto: 0,
+      disponibleSeptiembre: 0, importeSeptiembre: 0,
+      disponibleOctubre: 0, importeOctubre: 0,
+      disponibleNoviembre: 0, importeNoviembre: 0,
+      disponibleDiciembre: 0, importeDiciembre: 0,
+      importeTotal: 0
+    };
+    
+    concepto.patchValue(reseteo, { emitEvent: false });
+    
+    // Forzamos el bloqueo visual de los inputs
+    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    meses.forEach(mes => {
+      concepto.get(`importe${mes}`)?.disable({ emitEvent: false });
+    });
+    
+    this.calcularTotales();
+  }
+
+
+  // ==========================================
+  // OPERACIONES ESTÁNDAR
+  // ==========================================
   agregarConcepto() {
     this.conceptosFormArray.push(this.crearConceptoFormGroup());
   }
@@ -237,22 +461,24 @@ export class Form implements OnInit {
       estatus: registro.estatus
     });
 
+    this.formulario.get('unidad')?.disable();
+
     this.formulario.get('requisicion')?.patchValue(registro.requisicion);
 
     // Limpiamos e hidratamos el FormArray dinámicamente
     this.conceptosFormArray.clear();
 
-    registro.requisicion.conceptos.forEach((concepto) => {
-      const fg = this.crearConceptoFormGroup();
-
-      fg.patchValue(concepto);
-
+    registro.requisicion.conceptos.forEach((concepto: any) => {
+      const fg = this.crearConceptoFormGroup(concepto);
       this.conceptosFormArray.push(fg);
     });
 
     this.calcularTotales();
   }
 
+  // ==========================================
+  // REFRESCO DE SALDOS EN TIEMPO REAL
+  // ==========================================
   refrescarSaldos(index: number) {
     const concepto = this.conceptosFormArray.at(index) as FormGroup;
     
@@ -322,7 +548,7 @@ export class Form implements OnInit {
       const rawValues = this.formulario.getRawValue(); // Obtiene incluso valores deshabilitados
       
       const objetoGuardar: Precompromiso = {
-        id: this.esEdicion ? this.idCompromiso! : 0,
+        id: this.esEdicion ? this.idPrecompromiso! : 0,
         ejercicio: Number(rawValues.ejercicio),
         unidad: Number(rawValues.unidad),
         consecutivo: Number(rawValues.consecutivo || 1),
@@ -338,10 +564,24 @@ export class Form implements OnInit {
         }
       };
 
+      /*DESCOMENTAR CUANDO SE TENGA LISTO EL SERVICIO PARA GUARDA PRECOMPROMISOS
+      // CONSUMO REAL DEL ENDPOINT DE GUARDADO
+      this.precompromisoService.guardar(objetoGuardar).subscribe({
+        next: (res) => {
+          this.mostrarAlerta(res.mensaje || 'Precompromiso guardado exitosamente', 'success');
+          setTimeout(() => this.router.navigate(['/home/precompromisos/list']), 1500);
+        },
+        error: (err) => {
+          this.mostrarAlerta(err.error?.error || 'Error al intentar guardar el precompromiso', 'danger');
+        }
+      });
+      */
+
       this.precompromisoService.guardar(objetoGuardar);
-      this.router.navigate(['/home/commitments/list']);
+      this.router.navigate(['/home/precompromisos/list']);
     } else {
       this.formulario.markAllAsTouched();
+      this.mostrarAlerta('Existen errores o combinaciones sin validar en el formulario.', 'danger');
     }
   }
 
@@ -370,10 +610,19 @@ export class Form implements OnInit {
     if (!esNumeroOPunto) {
       event.preventDefault(); // Detiene la pulsación de la tecla
       
-      // Lanzamos el regaño amistoso
-      this.mensajeAlerta.set('Solo se aceptan cifras mayores que cero');
+      this.mostrarAlerta('Solo se aceptan cifras mayores que cero', 'danger');
       
       // Ocultamos el mensaje después de 3.5 segundos
+      setTimeout(() => this.mensajeAlerta.set(null), 3000);
+    }
+  }
+
+  mostrarAlerta(mensaje: string, tipo: 'success'|'danger') {
+    if (tipo === 'success') {
+      this.mensajeExito.set(mensaje);
+      setTimeout(() => this.mensajeExito.set(null), 3000);
+    } else {
+      this.mensajeAlerta.set(mensaje);
       setTimeout(() => this.mensajeAlerta.set(null), 3000);
     }
   }

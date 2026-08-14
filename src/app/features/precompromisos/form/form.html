@@ -5,11 +5,10 @@
       <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
         <span class="visually-hidden">Cargando...</span>
       </div>
-      <h5 class="text-muted fw-light">Recuperando información del precompromiso...</h5>
+      <h5 class="text-muted fw-light">Cargando información del precompromiso...</h5>
     </div>
   </div>
 } @else {
-
   <div class="card shadow-sm mt-4">
     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
       <h5 class="mb-0">{{ esEdicion ? 'Modificar' : 'Registrar' }} Precompromiso</h5>
@@ -48,19 +47,25 @@
               </div>
               <div class="col-md-3">
                 <label class="form-label fw-bold">Unidad Ejecutora</label>
-                <select class="form-select" formControlName="unidad">
-                  <option value="1">Recursos Humanos</option>
-                  <option value="2">Comprometido</option>
-                  <option value="3">Cancelado</option>
-                </select>
+                <ng-select 
+                  [items]="catalogoUnidadesEjecutoras()" 
+                  bindLabel="textoVisible" 
+                  bindValue="unidadEjecutora" 
+                  formControlName="unidad" 
+                  placeholder="Seleccione una opción"
+                  [clearable]="false">
+                </ng-select>
               </div>
               <div class="col-md-3">
                 <label class="form-label fw-bold">Estatus</label>
-                <select class="form-select" formControlName="estatus">
-                  <option value="Capturado">Capturado</option>
-                  <option value="Comprometido">Comprometido</option>
-                  <option value="Cancelado">Cancelado</option>
-                </select>
+                <ng-select 
+                  [items]="catalogoEstatus()" 
+                  bindLabel="descripcion" 
+                  bindValue="id" 
+                  formControlName="estatus" 
+                  placeholder="Seleccione una opción"
+                  [clearable]="false">
+                </ng-select>
               </div>
             </div>
 
@@ -72,18 +77,23 @@
               </div>
               <div class="col-md-4">
                 <label class="form-label fw-bold">Tipo de Contratación</label>
-                <select class="form-select" formControlName="tipoContratacion">
-                  <option value="Licitación Pública">Licitación Pública</option>
-                  <option value="Adjudicación Directa">Adjudicación Directa</option>
-                  <option value="Invitación a tres personas">Invitación a tres personas</option>
-                </select>
+                <ng-select 
+                  [items]="catalogoTiposContratacion()" 
+                  bindLabel="descripcion" 
+                  bindValue="id" 
+                  formControlName="tipoContratacion" 
+                  placeholder="Seleccione una opción">
+                </ng-select>
               </div>
               <div class="col-md-4">
                 <label class="form-label fw-bold">Tipo de Requerimiento</label>
-                <select class="form-select" formControlName="tipo">
-                  <option value="Bien">Bien</option>
-                  <option value="Servicio">Servicio</option>
-                </select>
+                <ng-select 
+                  [items]="catalogoTiposRequerimiento()" 
+                  bindLabel="descripcion" 
+                  bindValue="id" 
+                  formControlName="tipo" 
+                  placeholder="Seleccione una opción">
+                </ng-select>
               </div>
             </div>
             
@@ -104,18 +114,37 @@
 
             <div formArrayName="conceptos">
               @for (concepto of conceptosFormArray.controls; track $index) {
-                <div [formGroupName]="$index" class="card border-secondary mb-4 bg-white shadow-sm">
-                  <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-2">
+                <div [formGroupName]="$index" class="card border-secondary mb-4 bg-white shadow-sm"
+                    [class.border-success]="concepto.get('combinacionValidada')?.value"
+                    [class.shadow-lg]="concepto.get('combinacionValidada')?.value">
+                  <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-2"
+                      [class.bg-success]="concepto.get('combinacionValidada')?.value"></div>
                     <span class="fw-medium">Concepto #{{ $index + 1 }}</span>
                     <div class="d-flex gap-2">
-                      <!-- Botón de Refrescar Saldos -->
-                      <button type="button" class="btn btn-sm btn-outline-light py-0 d-flex align-items-center"
-                              (click)="refrescarSaldos($index)"
-                              [disabled]="!concepto.get('fuenteFinanciamiento')?.value">
-                        <i class="bi bi-arrow-clockwise me-1"></i>
-                        <span class="d-none d-sm-inline ms-1">Refrescar Saldos</span> 
-                      </button>
-                      
+                      <!-- BOTONES DEL CANDADO -->
+                      @if (!concepto.get('combinacionValidada')?.value) {
+                        <button type="button" class="btn btn-sm btn-light py-0 d-flex align-items-center text-primary fw-bold"
+                                (click)="verificarCombinacion($index)"
+                                [disabled]="!concepto.get('fuenteFinanciamiento')?.value">
+                          <i class="bi bi-lock-fill me-1"></i>
+                          <span class="d-none d-sm-inline ms-1">Validar Combinación</span> 
+                        </button>
+                      } @else {
+                        <!-- Si YA está validado: Botones para Refrescar Saldos y Modificar (Desbloquear) -->
+                        <!-- Botón de Refrescar Saldos -->
+                        <button type="button" class="btn btn-sm btn-outline-light py-0 d-flex align-items-center"
+                                (click)="refrescarSaldos($index)"
+                                [disabled]="!concepto.get('fuenteFinanciamiento')?.value">
+                          <i class="bi bi-arrow-clockwise me-1"></i>
+                          <span class="d-none d-sm-inline ms-1">Refrescar Saldos</span> 
+                        </button>
+                        <button type="button" class="btn btn-sm btn-warning py-0 d-flex align-items-center text-dark fw-bold"
+                                (click)="desbloquearCombinacion($index)">
+                          <i class="bi bi-unlock-fill me-1"></i>
+                          <span class="d-none d-sm-inline ms-1">Modificar</span> 
+                        </button>
+                      }
+                                            
                       <!-- Botón Quitar -->
                       <button type="button" class="btn btn-sm btn-danger py-0" 
                               (click)="eliminarConcepto($index)" 
@@ -136,7 +165,7 @@
                       <div class="col-md-5 col-xxl-5">
                         <label class="form-label small fw-bold text-muted">Clave Programática</label>
                           <ng-select 
-                            [items]="catalogoClaves" 
+                            [items]="catalogoClaves()" 
                             bindLabel="descripcion" 
                             bindValue="id" 
                             formControlName="claveProgramatica" 
@@ -146,7 +175,7 @@
                       <div class="col-md-4 col-xxl-5">
                         <label class="form-label small fw-bold">Partida Presupuestal</label>
                         <ng-select 
-                          [items]="catalogoPartidas | filtrarCatalogo:'idClave':concepto.get('claveProgramatica')?.value"
+                          [items]="catalogoPartidas() | filtrarCatalogo:'idClave':concepto.get('claveProgramatica')?.value"
                           bindLabel="descripcion" 
                           bindValue="id" 
                           formControlName="partidaPresupuestal" 
@@ -157,7 +186,7 @@
                       <div class="col-md-3 col-xxl-2">
                         <label class="form-label small fw-bold">Fuente de Financiamiento</label>
                         <ng-select 
-                          [items]="catalogoFuentes | filtrarCatalogo:'idPartida':concepto.get('partidaPresupuestal')?.value"
+                          [items]="catalogoFuentes() | filtrarCatalogo:'idPartida':concepto.get('partidaPresupuestal')?.value"
                           bindLabel="descripcion" 
                           bindValue="id" 
                           formControlName="fuenteFinanciamiento" 
@@ -166,9 +195,18 @@
                         </ng-select>
                       </div>
                     </div>
+
+                    <!-- CAPA DE BLOQUEO VISUAL SI NO SE HA VALIDADO LA COMBINACIÓN -->
+                    <div class="position-relative">
+                      @if (!concepto.get('combinacionValidada')?.value) {
+                        <div class="position-absolute w-100 h-100 bg-white" style="opacity: 0.6; z-index: 5;"></div>
+                        <div class="position-absolute w-100 h-100 d-flex justify-content-center align-items-center" style="z-index: 10;">
+                          <span class="badge bg-dark fs-6 py-2 px-3 shadow"><i class="bi bi-lock-fill"></i> Valide la combinación para capturar importes</span>
+                        </div>
+                      }
                     
-                    <label class="form-label small fw-bold text-muted mb-2">Montos Distribuidos por Mes ($)</label>
-                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-6 g-3">  
+                      <label class="form-label small fw-bold text-muted mb-2">Montos Distribuidos por Mes ($)</label>
+                      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-6 g-3">  
                       
                       <!-- ENERO -->
                       <div class="col">
@@ -535,15 +573,20 @@
     </div>
   </div>
   
-  @if (mensajeAlerta()) {
+  <!-- TOASTS DE NOTIFICACIÓN -->
+  @if (mensajeAlerta() || mensajeExito()) {
     <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1080;">
-      <div class="toast show align-items-center text-white bg-danger border-0 shadow-lg" role="alert">
+      <div class="toast show align-items-center text-white border-0 shadow-lg" 
+           [class.bg-danger]="mensajeAlerta()" 
+           [class.bg-success]="mensajeExito()" 
+           role="alert">
         <div class="d-flex p-1">
-          <div class="toast-body fs-6">
-            <i class="bi bi-exclamation-triangle"></i>
-            {{ mensajeAlerta() }}
+          <div class="toast-body fs-6 fw-medium">
+            <i class="bi" [class.bi-exclamation-triangle]="mensajeAlerta()" [class.bi-check-circle]="mensajeExito()"></i>
+            {{ mensajeAlerta() || mensajeExito() }}
           </div>
-          <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="mensajeAlerta.set(null)" aria-label="Close"></button>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" 
+                  (click)="mensajeAlerta() ? mensajeAlerta.set(null) : mensajeExito.set(null)"></button>
         </div>
       </div>
     </div>

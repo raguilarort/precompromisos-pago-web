@@ -47,7 +47,7 @@ export interface Precompromiso {
   unidad: number;
   consecutivo: number;
   folio: string;
-  estatus: 'Capturado' | 'Comprometido' | 'Cancelado' | 'Revisado' | 'Autorizado' | 'Rechazado';
+  estatus: number;
   requisicion: Requisicion;
   activo: boolean; // Para borrado lógico en frontend
   // Propiedad opcional para la bitácora de seguimiento
