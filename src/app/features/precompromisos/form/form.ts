@@ -68,7 +68,7 @@ export class Form implements OnInit {
     requisicion: this.fb.group({
       numeroRequisicion: ['', Validators.required],
       tipoContratacion: [null as any, Validators.required],
-      tipo: [null as any, Validators.required],
+      tipoRequerimiento: [null as any, Validators.required],
       importeTotalRequisicion: [{ value: 0, disabled: true }]
     }),
     conceptos: this.fb.array([])
@@ -82,7 +82,7 @@ export class Form implements OnInit {
     this.cargando.set(true);
 
     const idParam = this.route.snapshot.paramMap.get('id');
-
+    console.log("A punto de cargar catálogos");
     this.cargarCatalogosGlobales();
 
     this.configurarListenerUnidad();
@@ -121,19 +121,6 @@ export class Form implements OnInit {
   // ==========================================
 
   cargarCatalogosGlobales() {
-    // Nota: Sustituye getCatalogo() por el nombre real de tu método (ej. obtenerTodos, listar...)
-    
-    this.estatusService.getCatalogoEstatus().subscribe(data => this.catalogoEstatus.set(data));
-    
-    this.tipoContratacionService.getCatalogoTiposAdquisiciones().subscribe(data => this.catalogoTiposContratacion.set(data));
-    
-    this.tipoRequerimientoService.getCatalogoTiposRequerimientos().subscribe(data => this.catalogoTiposRequerimiento.set(data));
-    
-    // Cargamos catálogo general de partidas y fuentes para que el pipe FiltrarCatalogo haga su magia
-    this.partidaService.getCatalogoPartidas().subscribe(data => this.catalogoPartidas.set(data));
-    this.fuenteService.getCatalogoFuentesFinanciamiento().subscribe(data => this.catalogoFuentes.set(data));
-
-    // Para la unidad ejecutora evaluamos la regla de negocio al obtener la respuesta
     this.unidadEjecutoraService.getCatalogoUnidadesEjecutoras().subscribe(data => {
       const unidadesTransformadas = data.map(unidad => ({
         ...unidad, // Conservamos todas las propiedades originales (ambito, iniciales, etc)
@@ -148,6 +135,17 @@ export class Form implements OnInit {
         this.evaluarReglaUnidadEjecutora();
       }
     });
+
+    this.estatusService.getCatalogoEstatus().subscribe(data => this.catalogoEstatus.set(data));
+    
+    this.tipoContratacionService.getCatalogoTiposAdquisiciones().subscribe(data => this.catalogoTiposContratacion.set(data));
+    
+    this.tipoRequerimientoService.getCatalogoTiposRequerimientos().subscribe(data => this.catalogoTiposRequerimiento.set(data));
+    
+    // Cargamos catálogo general de partidas y fuentes para que el pipe FiltrarCatalogo haga su magia
+    this.partidaService.getCatalogoPartidas().subscribe(data => this.catalogoPartidas.set(data));
+
+    this.fuenteService.getCatalogoFuentesFinanciamiento().subscribe(data => this.catalogoFuentes.set(data));
   }
 
   configurarListenerUnidad() {
@@ -558,7 +556,7 @@ export class Form implements OnInit {
         requisicion: {
           numeroRequisicion: rawValues.requisicion.numeroRequisicion!,
           tipoContratacion: rawValues.requisicion.tipoContratacion as any,
-          tipo: rawValues.requisicion.tipo as any,
+          tipoRequerimiento: rawValues.requisicion.tipoRequerimiento as any,
           importeTotalRequisicion: rawValues.requisicion.importeTotalRequisicion!,
           conceptos: rawValues.conceptos.map((c: any) => ({ ...c, importeTotal: c.importeTotal! }))
         }

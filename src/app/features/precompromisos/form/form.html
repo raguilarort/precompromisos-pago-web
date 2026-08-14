@@ -61,7 +61,7 @@
                 <ng-select 
                   [items]="catalogoEstatus()" 
                   bindLabel="descripcion" 
-                  bindValue="id" 
+                  bindValue="idEstatus" 
                   formControlName="estatus" 
                   placeholder="Seleccione una opción"
                   [clearable]="false">
@@ -79,8 +79,8 @@
                 <label class="form-label fw-bold">Tipo de Contratación</label>
                 <ng-select 
                   [items]="catalogoTiposContratacion()" 
-                  bindLabel="descripcion" 
-                  bindValue="id" 
+                  bindLabel="nombre" 
+                  bindValue="idTipoAdquisicion" 
                   formControlName="tipoContratacion" 
                   placeholder="Seleccione una opción">
                 </ng-select>
@@ -89,9 +89,9 @@
                 <label class="form-label fw-bold">Tipo de Requerimiento</label>
                 <ng-select 
                   [items]="catalogoTiposRequerimiento()" 
-                  bindLabel="descripcion" 
-                  bindValue="id" 
-                  formControlName="tipo" 
+                  bindLabel="nombre" 
+                  bindValue="idTipoRequerimiento" 
+                  formControlName="tipoRequerimiento" 
                   placeholder="Seleccione una opción">
                 </ng-select>
               </div>

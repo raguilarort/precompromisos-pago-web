@@ -35,8 +35,8 @@ export interface ConceptoPresupuestal {
 
 export interface Requisicion {
   numeroRequisicion: string;
-  tipoContratacion: 'Licitación Pública' | 'Adjudicación Directa' | 'Invitación a tres personas';
-  tipo: 'Bien' | 'Servicio';
+  tipoContratacion: number;
+  tipoRequerimiento: number;
   importeTotalRequisicion: number;
   conceptos: ConceptoPresupuestal[];
 }

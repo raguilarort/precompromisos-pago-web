@@ -12,7 +12,7 @@ export class PrecompromisoService {
     {
       id: 1, ejercicio: 2026, unidad: 1, consecutivo: 1, folio: '26-101091PRE00001', estatus: 4, activo: true,
       requisicion: {
-        numeroRequisicion: '103/26', tipoContratacion: 'Licitación Pública', tipo: 'Servicio', importeTotalRequisicion: 36,
+        numeroRequisicion: '103/26', tipoContratacion: 3, tipoRequerimiento: 2, importeTotalRequisicion: 36,
         conceptos: [
           { idCvePresupuestaria: 15498, descripcion: 'Suministro de material de limpieza.', importeEnero: 1, importeFebrero: 1, importeMarzo: 1, importeAbril: 1, importeMayo: 1, importeJunio: 1, importeJulio: 1, importeAgosto: 1, importeSeptiembre: 1, importeOctubre: 1, importeNoviembre: 1, importeDiciembre: 1, importeTotal: 12 },
           { idCvePresupuestaria: 15499, descripcion: 'Servicio de montaje y logística.', importeEnero: 2, importeFebrero: 2, importeMarzo: 2, importeAbril: 2, importeMayo: 2, importeJunio: 2, importeJulio: 2, importeAgosto: 2, importeSeptiembre: 2, importeOctubre: 2, importeNoviembre: 2, importeDiciembre: 2, importeTotal: 24 }
@@ -22,7 +22,7 @@ export class PrecompromisoService {
     {
       id: 2, ejercicio: 2026, unidad: 2, consecutivo: 4, folio: '26-102091PRE00004', estatus: 1, activo: true,
       requisicion: {
-        numeroRequisicion: '104/26', tipoContratacion: 'Adjudicación Directa', tipo: 'Bien', importeTotalRequisicion: 48,
+        numeroRequisicion: '104/26', tipoContratacion: 1, tipoRequerimiento: 1, importeTotalRequisicion: 48,
         conceptos: [
           { idCvePresupuestaria: 14498, descripcion: 'Adquisición de frigobar congelador.', importeEnero: 1, importeFebrero: 1, importeMarzo: 1, importeAbril: 1, importeMayo: 1, importeJunio: 1, importeJulio: 1, importeAgosto: 1, importeSeptiembre: 1, importeOctubre: 1, importeNoviembre: 1, importeDiciembre: 1, importeTotal: 12 },
           { idCvePresupuestaria: 14499, descripcion: 'Soportes de pared articulados.', importeEnero: 2, importeFebrero: 2, importeMarzo: 2, importeAbril: 2, importeMayo: 2, importeJunio: 2, importeJulio: 2, importeAgosto: 2, importeSeptiembre: 2, importeOctubre: 2, importeNoviembre: 2, importeDiciembre: 2, importeTotal: 24 },
@@ -33,56 +33,56 @@ export class PrecompromisoService {
     {
       id: 3, ejercicio: 2026, unidad: 1, consecutivo: 5, folio: '26-101091PRE00005', estatus: 4, activo: true,
       requisicion: {
-        numeroRequisicion: '105/26', tipoContratacion: 'Invitación a tres personas', tipo: 'Servicio', importeTotalRequisicion: 120000,
+        numeroRequisicion: '105/26', tipoContratacion: 2, tipoRequerimiento: 2, importeTotalRequisicion: 120000,
         conceptos: [{ idCvePresupuestaria: 22101, descripcion: 'Mantenimiento preventivo de elevadores.', importeEnero: 10000, importeFebrero: 10000, importeMarzo: 10000, importeAbril: 10000, importeMayo: 10000, importeJunio: 10000, importeJulio: 10000, importeAgosto: 10000, importeSeptiembre: 10000, importeOctubre: 10000, importeNoviembre: 10000, importeDiciembre: 10000, importeTotal: 120000 }]
       }
     },
     {
       id: 4, ejercicio: 2026, unidad: 3, consecutivo: 12, folio: '26-103091PRE00012', estatus: 1, activo: true,
       requisicion: {
-        numeroRequisicion: '108/26', tipoContratacion: 'Adjudicación Directa', tipo: 'Bien', importeTotalRequisicion: 45000,
+        numeroRequisicion: '108/26', tipoContratacion: 1, tipoRequerimiento: 1, importeTotalRequisicion: 45000,
         conceptos: [{ idCvePresupuestaria: 21101, descripcion: 'Consumibles de oficina e imprenta.', importeEnero: 5000, importeFebrero: 2000, importeMarzo: 8000, importeAbril: 1000, importeMayo: 4000, importeJunio: 3000, importeJulio: 2000, importeAgosto: 6000, importeSeptiembre: 1000, importeOctubre: 5000, importeNoviembre: 3000, importeDiciembre: 5000, importeTotal: 45000 }]
       }
     },
     {
       id: 5, ejercicio: 2026, unidad: 1, consecutivo: 18, folio: '26-101091PRE00018', estatus: 5, activo: true,
       requisicion: {
-        numeroRequisicion: '110/26', tipoContratacion: 'Licitación Pública', tipo: 'Servicio', importeTotalRequisicion: 800000,
+        numeroRequisicion: '110/26', tipoContratacion: 3, tipoRequerimiento: 2, importeTotalRequisicion: 800000,
         conceptos: [{ idCvePresupuestaria: 33401, descripcion: 'Servicio anual de desarrollo de software.', importeEnero: 0, importeFebrero: 200000, importeMarzo: 0, importeAbril: 200000, importeMayo: 0, importeJunio: 200000, importeJulio: 0, importeAgosto: 0, importeSeptiembre: 200000, importeOctubre: 0, importeNoviembre: 0, importeDiciembre: 0, importeTotal: 800000 }]
       }
     },
     {
       id: 6, ejercicio: 2026, unidad: 4, consecutivo: 22, folio: '26-104091PRE00022', estatus: 4, activo: true,
       requisicion: {
-        numeroRequisicion: '115/26', tipoContratacion: 'Adjudicación Directa', tipo: 'Bien', importeTotalRequisicion: 15000,
+        numeroRequisicion: '115/26', tipoContratacion: 1, tipoRequerimiento: 1, importeTotalRequisicion: 15000,
         conceptos: [{ idCvePresupuestaria: 51101, descripcion: 'Adquisición de mobiliario de oficina.', importeEnero: 15000, importeFebrero: 0, importeMarzo: 0, importeAbril: 0, importeMayo: 0, importeJunio: 0, importeJulio: 0, importeAgosto: 0, importeSeptiembre: 0, importeOctubre: 0, importeNoviembre: 0, importeDiciembre: 0, importeTotal: 15000 }]
       }
     },
     {
       id: 7, ejercicio: 2026, unidad: 2, consecutivo: 25, folio: '26-102091PRE00025', estatus: 1, activo: true,
       requisicion: {
-        numeroRequisicion: '120/26', tipoContratacion: 'Invitación a tres personas', tipo: 'Servicio', importeTotalRequisicion: 60000,
+        numeroRequisicion: '120/26', tipoContratacion: 2, tipoRequerimiento: 2, importeTotalRequisicion: 60000,
         conceptos: [{ idCvePresupuestaria: 35501, descripcion: 'Mantenimiento del parque vehicular.', importeEnero: 5000, importeFebrero: 5000, importeMarzo: 5000, importeAbril: 5000, importeMayo: 5000, importeJunio: 5000, importeJulio: 5000, importeAgosto: 5000, importeSeptiembre: 5000, importeOctubre: 5000, importeNoviembre: 5000, importeDiciembre: 5000, importeTotal: 60000 }]
       }
     },
     {
       id: 8, ejercicio: 2026, unidad: 5, consecutivo: 30, folio: '26-105091PRE00030', estatus: 4, activo: true,
       requisicion: {
-        numeroRequisicion: '122/26', tipoContratacion: 'Licitación Pública', tipo: 'Bien', importeTotalRequisicion: 240000,
+        numeroRequisicion: '122/26', tipoContratacion: 3, tipoRequerimiento: 1, importeTotalRequisicion: 240000,
         conceptos: [{ idCvePresupuestaria: 25301, descripcion: 'Adquisición de insumos médicos básicos.', importeEnero: 20000, importeFebrero: 20000, importeMarzo: 20000, importeAbril: 20000, importeMayo: 20000, importeJunio: 20000, importeJulio: 20000, importeAgosto: 20000, importeSeptiembre: 20000, importeOctubre: 20000, importeNoviembre: 20000, importeDiciembre: 20000, importeTotal: 240000 }]
       }
     },
     {
       id: 9, ejercicio: 2026, unidad: 1, consecutivo: 35, folio: '26-101091PRE00035', estatus: 1, activo: true,
       requisicion: {
-        numeroRequisicion: '130/26', tipoContratacion: 'Adjudicación Directa', tipo: 'Servicio', importeTotalRequisicion: 18000,
+        numeroRequisicion: '130/26', tipoContratacion: 1, tipoRequerimiento: 2, importeTotalRequisicion: 18000,
         conceptos: [{ idCvePresupuestaria: 31401, descripcion: 'Servicio de conectividad a internet simétrico.', importeEnero: 1500, importeFebrero: 1500, importeMarzo: 1500, importeAbril: 1500, importeMayo: 1500, importeJunio: 1500, importeJulio: 1500, importeAgosto: 1500, importeSeptiembre: 1500, importeOctubre: 1500, importeNoviembre: 1500, importeDiciembre: 1500, importeTotal: 18000 }]
       }
     },
     {
       id: 10, ejercicio: 2026, unidad: 3, consecutivo: 42, folio: '26-103091PRE00042', estatus: 4, activo: true,
       requisicion: {
-        numeroRequisicion: '135/26', tipoContratacion: 'Licitación Pública', tipo: 'Servicio', importeTotalRequisicion: 144000,
+        numeroRequisicion: '135/26', tipoContratacion: 3, tipoRequerimiento: 2, importeTotalRequisicion: 144000,
         conceptos: [{ idCvePresupuestaria: 33801, descripcion: 'Servicio de vigilancia y seguridad perimetral.', importeEnero: 12000, importeFebrero: 12000, importeMarzo: 12000, importeAbril: 12000, importeMayo: 12000, importeJunio: 12000, importeJulio: 12000, importeAgosto: 12000, importeSeptiembre: 12000, importeOctubre: 12000, importeNoviembre: 12000, importeDiciembre: 12000, importeTotal: 144000 }]
       }
     },
@@ -92,21 +92,21 @@ export class PrecompromisoService {
     {
       id: 11, ejercicio: 2025, unidad: 1, consecutivo: 10, folio: '25-101091PRE00010', estatus: 4, activo: true,
       requisicion: {
-        numeroRequisicion: '088/25', tipoContratacion: 'Licitación Pública', tipo: 'Servicio', importeTotalRequisicion: 300000,
+        numeroRequisicion: '088/25', tipoContratacion: 3, tipoRequerimiento: 2, importeTotalRequisicion: 300000,
         conceptos: [{ idCvePresupuestaria: 33101, descripcion: 'Servicios de asesoría legal e impuestos.', importeEnero: 25000, importeFebrero: 25000, importeMarzo: 25000, importeAbril: 25000, importeMayo: 25000, importeJunio: 25000, importeJulio: 25000, importeAgosto: 25000, importeSeptiembre: 25000, importeOctubre: 25000, importeNoviembre: 25000, importeDiciembre: 25000, importeTotal: 300000 }]
       }
     },
     {
       id: 12, ejercicio: 2025, unidad: 2, consecutivo: 15, folio: '25-102091PRE00015', estatus: 4, activo: true,
       requisicion: {
-        numeroRequisicion: '095/25', tipoContratacion: 'Adjudicación Directa', tipo: 'Bien', importeTotalRequisicion: 96000,
+        numeroRequisicion: '095/25', tipoContratacion: 1, tipoRequerimiento: 1, importeTotalRequisicion: 96000,
         conceptos: [{ idCvePresupuestaria: 51501, descripcion: 'Computadoras de escritorio para personal administrativo.', importeEnero: 96000, importeFebrero: 0, importeMarzo: 0, importeAbril: 0, importeMayo: 0, importeJunio: 0, importeJulio: 0, importeAgosto: 0, importeSeptiembre: 0, importeOctubre: 0, importeNoviembre: 0, importeDiciembre: 0, importeTotal: 96000 }]
       }
     },
     {
       id: 13, ejercicio: 2025, unidad: 3, consecutivo: 20, folio: '25-103091PRE00020', estatus: 5, activo: true,
       requisicion: {
-        numeroRequisicion: '101/25', tipoContratacion: 'Invitación a tres personas', tipo: 'Servicio', importeTotalRequisicion: 50000,
+        numeroRequisicion: '101/25', tipoContratacion: 2, tipoRequerimiento: 2, importeTotalRequisicion: 50000,
         conceptos: [{ idCvePresupuestaria: 36101, descripcion: 'Campañas de difusión institucional.', importeEnero: 0, importeFebrero: 50000, importeMarzo: 0, importeAbril: 0, importeMayo: 0, importeJunio: 0, importeJulio: 0, importeAgosto: 0, importeSeptiembre: 0, importeOctubre: 0, importeNoviembre: 0, importeDiciembre: 0, importeTotal: 50000 }]
       }
     },
@@ -117,14 +117,14 @@ export class PrecompromisoService {
     {
       id: 14, ejercicio: 2024, unidad: 1, consecutivo: 101, folio: '24-101091PRE00101', estatus: 4, activo: true,
       requisicion: {
-        numeroRequisicion: '200/24', tipoContratacion: 'Licitación Pública', tipo: 'Bien', importeTotalRequisicion: 500000,
+        numeroRequisicion: '200/24', tipoContratacion: 3, tipoRequerimiento: 1, importeTotalRequisicion: 500000,
         conceptos: [{ idCvePresupuestaria: 53101, descripcion: 'Equipamiento médico e instrumental especializado.', importeEnero: 500000, importeFebrero: 0, importeMarzo: 0, importeAbril: 0, importeMayo: 0, importeJunio: 0, importeJulio: 0, importeAgosto: 0, importeSeptiembre: 0, importeOctubre: 0, importeNoviembre: 0, importeDiciembre: 0, importeTotal: 500000 }]
       }
     },
     {
       id: 15, ejercicio: 2024, unidad: 4, consecutivo: 105, folio: '24-104091PRE00105', estatus: 4, activo: true,
       requisicion: {
-        numeroRequisicion: '205/24', tipoContratacion: 'Adjudicación Directa', tipo: 'Servicio', importeTotalRequisicion: 36000,
+        numeroRequisicion: '205/24', tipoContratacion: 1, tipoRequerimiento: 2, importeTotalRequisicion: 36000,
         conceptos: [{ idCvePresupuestaria: 31101, descripcion: 'Servicio de energía eléctrica.', importeEnero: 3000, importeFebrero: 3000, importeMarzo: 3000, importeAbril: 3000, importeMayo: 3000, importeJunio: 3000, importeJulio: 3000, importeAgosto: 3000, importeSeptiembre: 3000, importeOctubre: 3000, importeNoviembre: 3000, importeDiciembre: 3000, importeTotal: 36000 }]
       }
     }
