@@ -165,11 +165,12 @@
                       <div class="col-md-5 col-xxl-5">
                         <label class="form-label small fw-bold text-muted">Clave Programática</label>
                           <ng-select 
-                            [items]="catalogoClaves()" 
-                            bindLabel="descripcion" 
-                            bindValue="id" 
+                            [items]="catalogoClavesProgramaticas()" 
+                            bindLabel="textoVisibleOpcion" 
+                            bindValue="idClaveProgramatica" 
                             formControlName="claveProgramatica" 
-                            placeholder="Buscar clave...">
+                            placeholder="Seleccione una clave programática"
+                            [clearable]="false">
                           </ng-select>
                       </div>
                       <div class="col-md-4 col-xxl-5">

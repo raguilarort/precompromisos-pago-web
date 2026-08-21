@@ -55,7 +55,7 @@ export class Form implements OnInit {
   catalogoTiposRequerimiento = signal<any[]>([]);
   catalogoPartidas = signal<any[]>([]);
   catalogoFuentes = signal<any[]>([]);
-  catalogoClaves = signal<any[]>([]); //Depende de la Unidad Seleccionada
+  catalogoClavesProgramaticas = signal<any[]>([]); //Depende de la Unidad Seleccionada
   //#endregion
   
 
@@ -148,6 +148,27 @@ export class Form implements OnInit {
     this.fuenteService.getCatalogoFuentesFinanciamiento().subscribe(data => this.catalogoFuentes.set(data));
   }
 
+  cargarClavesProgramaticasDisponibles(ejercicio: number, unidad: string) {
+    this.claveProgramaticaService.getClavesProgramaticas(ejercicio, unidad).subscribe({
+      next: (data) => {
+        // 1. Transformamos los datos para crear la propiedad concatenada
+        const clavesTransformadas = data.map(clave => ({
+          ...clave,
+          textoVisibleOpcion: `${clave.claveProgramatica} - ${clave.descripcion}`
+        })); 
+        
+        // 2. Actualizamos la señal
+        this.catalogoClavesProgramaticas.set(clavesTransformadas);
+      },
+      error: (err) => {
+        // 3. Manejo de errores
+        console.error('Error al obtener claves programáticas:', err);
+        this.mostrarAlerta('No se pudieron cargar las claves programáticas disponibles.', 'danger');
+        this.catalogoClavesProgramaticas.set([]); // Limpiamos el catálogo por seguridad
+      }
+    });
+  }
+
   configurarListenerUnidad() {
     // Al cambiar la unidad, cargamos las claves programáticas reales permitidas
     this.formulario.get('unidad')?.valueChanges.subscribe(idUnidad => {
@@ -155,11 +176,7 @@ export class Form implements OnInit {
         const ejercicio = this.formulario.get('ejercicio')?.value;
 
         if (ejercicio) {
-          // CONSUMO REAL DEL ENDPOINT CON QUERY PARAMETERS (ejercicio, unidad)
-          this.claveProgramaticaService.getClavesProgramaticas(ejercicio, idUnidad).subscribe({
-            next: (claves) => this.catalogoClaves.set(claves),
-            error: () => this.mostrarAlerta('Error al cargar las claves programáticas', 'danger')
-          });
+          this.cargarClavesProgramaticasDisponibles(ejercicio, idUnidad);
 
           // Si el usuario cambia la unidad, las claves seleccionadas en los conceptos ya no son válidas
           if (!this.esEdicion) {
