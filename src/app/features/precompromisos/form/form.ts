@@ -141,8 +141,6 @@ export class Form implements OnInit {
     this.tipoContratacionService.getCatalogoTiposAdquisiciones().subscribe(data => this.catalogoTiposContratacion.set(data));
     
     this.tipoRequerimientoService.getCatalogoTiposRequerimientos().subscribe(data => this.catalogoTiposRequerimiento.set(data));
-    
-    this.fuenteService.getCatalogoFuentesFinanciamiento().subscribe(data => this.catalogoFuentes.set(data));
   }
 
   cargarClavesProgramaticasDisponibles(ejercicio: number, unidad: string) {
@@ -172,17 +170,49 @@ export class Form implements OnInit {
         // 1. Transformamos los datos para crear la propiedad concatenada
         const partidasTransformadas = data.map(partida => ({
           ...partida,
-          textoVisibleOpcion: `${partida.partida} - ${partida.descripcion}`
+          textoVisibleOpcion: `${partida.partida} - ${partida.descripcion}`,
+          idClave: idClaveProgramatica // INYECCIÓN: Clave para que el Pipe filtrarCatalogo funcione por fila
         })); 
         
-        // 2. Actualizamos la señal
-        this.catalogoPartidasEspecificas.set(partidasTransformadas);
+        // ACUMULACIÓN: Sumamos las partidas nuevas a las que ya estaban en memoria (por si hay múltiples conceptos)
+        this.catalogoPartidasEspecificas.update(actuales => {
+          const fusionadas = [...actuales, ...partidasTransformadas];
+          // Eliminamos posibles duplicados usando el idPartida
+          return Array.from(new Map(fusionadas.map(p => [p.idPartida, p])).values());
+        });
       },
       error: (err) => {
         // 3. Manejo de errores
         console.error('Error al obtener las partidas específicas del Clasificador por Objeto del Gasto:', err);
         this.mostrarAlerta('No se pudieron cargar las partidas.', 'danger');
         this.catalogoPartidasEspecificas.set([]); // Limpiamos el catálogo por seguridad
+      }
+    });
+  }
+
+  // NUEVO MÉTODO: Carga de Fuentes con los 4 parámetros del backend
+  cargarFuentesFinanciamientoDisponibles(ejercicio: number, unidad: string, idCveProg: number, idPartida: number) {
+    // IMPORTANTE: Ajusta el formato según cómo tu servicio de Angular reciba el objeto filtro o parámetros individuales
+    const filtro = { ejercicio, unidad, idCveProg, idPartida };
+    
+    this.fuenteService.consultarFuentesFinanciamiento(filtro).subscribe({
+      next: (data) => {
+        const fuentesTransformadas = data.map(fuente => ({
+          ...fuente,
+          textoVisibleOpcion: `${fuente.idFuenteFinanciamiento} - ${fuente.descripcion}`,
+          idPartida: idPartida // INYECCIÓN: Clave para que el Pipe filtrarCatalogo funcione por fila
+        })); 
+        
+        // ACUMULACIÓN
+        this.catalogoFuentes.update(actuales => {
+          const fusionadas = [...actuales, ...fuentesTransformadas];
+          // Ajusta el "f.id" según la llave primaria de tu fuente
+          return Array.from(new Map(fusionadas.map(f => [f.id, f])).values());
+        });
+      },
+      error: (err) => {
+        console.error('Error al obtener fuentes de financiamiento:', err);
+        this.mostrarAlerta('No se pudieron cargar las fuentes de financiamiento.', 'danger');
       }
     });
   }
@@ -225,36 +255,23 @@ export class Form implements OnInit {
       descripcion: [datosPrevios?.descripcion || '', Validators.required],
       // Control clave oculto: Indica si el candado está cerrado (true) o abierto (false)
       combinacionValidada: [vieneConClave],
-      // 1. Los 3 nuevos campos en lugar del idCvePresupuestaria
-      // 1. Inicializamos con el valor previo si existe, si no, null
-      claveProgramatica: [{ 
-        value: datosPrevios?.claveProgramatica || null, 
-        disabled: vieneConClave 
-      }, Validators.required],
-      // 2. Si trae claveProgramatica previa, la partida nace habilitada
-      partidaEspecifica: [{ 
-        value: datosPrevios?.partidaEspecifica || null, 
-        disabled: !vieneConClave && !datosPrevios?.claveProgramatica  
-      }, Validators.required],
-      // 3. Si trae partida previa, la fuente nace habilitada
-      fuenteFinanciamiento: [{ 
-        value: datosPrevios?.fuenteFinanciamiento || null, 
-        disabled: !vieneConClave && !datosPrevios?.partidaEspecifica 
-      }, Validators.required],     
+      claveProgramatica: [{ value: datosPrevios?.claveProgramatica || null, disabled: vieneConClave }, Validators.required],
+      partidaEspecifica: [{ value: datosPrevios?.partidaEspecifica || null, disabled: !vieneConClave && !datosPrevios?.claveProgramatica }, Validators.required],
+      fuenteFinanciamiento: [{ value: datosPrevios?.fuenteFinanciamiento || null, disabled: !vieneConClave && !datosPrevios?.partidaEspecifica }, Validators.required],     
       
       // 2. Controles ocultos o de solo lectura para almacenar el saldo disponible
-      disponibleEnero: [0],
-      disponibleFebrero: [0],
-      disponibleMarzo: [0],
-      disponibleAbril: [0],
-      disponibleMayo: [0],
-      disponibleJunio: [0],
-      disponibleJulio: [0],
-      disponibleAgosto: [0],
-      disponibleSeptiembre: [0],
-      disponibleOctubre: [0],
-      disponibleNoviembre: [0],
-      disponibleDiciembre: [0],
+      disponibleEnero: [datosPrevios?.disponibleEnero || 0],
+      disponibleFebrero: [datosPrevios?.disponibleFebrero || 0],
+      disponibleMarzo: [datosPrevios?.disponibleMarzo || 0],
+      disponibleAbril: [datosPrevios?.disponibleAbril || 0],
+      disponibleMayo: [datosPrevios?.disponibleMayo || 0],
+      disponibleJunio: [datosPrevios?.disponibleJunio || 0],
+      disponibleJulio: [datosPrevios?.disponibleJulio || 0],
+      disponibleAgosto: [datosPrevios?.disponibleAgosto || 0],
+      disponibleSeptiembre: [datosPrevios?.disponibleSeptiembre || 0],
+      disponibleOctubre: [datosPrevios?.disponibleOctubre || 0],
+      disponibleNoviembre: [datosPrevios?.disponibleNoviembre || 0],
+      disponibleDiciembre: [datosPrevios?.disponibleDiciembre || 0],
       
       importeEnero: [{ value: datosPrevios?.importeEnero || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Enero')]],
       importeFebrero: [{ value: datosPrevios?.importeFebrero || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Febrero')]],
@@ -292,6 +309,7 @@ export class Form implements OnInit {
         const unidad = this.formulario.get('unidad')?.value;
 
         if (ejercicio && unidad) {
+          // Disparamos la carga de Partidas
           this.cargarPartidasEspecificasDisponibles(ejercicio, unidad, idClave);
         }
       } else {
@@ -309,6 +327,15 @@ export class Form implements OnInit {
 
       if (idPartida) {
         controlFuente?.enable({ emitEvent: false });
+
+        const ejercicio = this.formulario.get('ejercicio')?.value;
+        const unidad = this.formulario.get('unidad')?.value;
+        const idClave = grupo.get('claveProgramatica')?.value;
+
+        if (ejercicio && unidad && idClave) {
+          // NUEVO: Disparamos la carga de Fuentes de Financiamiento desde el backend
+          this.cargarFuentesFinanciamientoDisponibles(ejercicio, unidad, idClave, idPartida);
+        }
       } else {
         controlFuente?.disable({ emitEvent: false });
       }
@@ -492,23 +519,37 @@ export class Form implements OnInit {
     this.formulario.get('requisicion.importeTotalRequisicion')?.setValue(granTotal, { emitEvent: false });
   }
 
-  cargarDatosFormulario(registro: Precompromiso) {
+  // ==========================================
+  // HIDRATACIÓN EN MODO EDICIÓN
+  // ==========================================
+  cargarDatosFormulario(registro: any) {
     this.formulario.patchValue({
       ejercicio: registro.ejercicio,
       unidad: registro.unidad,
-      consecutivo: registro.consecutivo as any,
+      consecutivo: registro.consecutivo,
       folio: registro.folio,
       estatus: registro.estatus
     });
 
     this.formulario.get('unidad')?.disable();
-
     this.formulario.get('requisicion')?.patchValue(registro.requisicion);
-
-    // Limpiamos e hidratamos el FormArray dinámicamente
     this.conceptosFormArray.clear();
 
+    // 1. Pre-cargamos la Clave Programática general de la Unidad (Para que el ng-select tenga texto)
+    this.cargarClavesProgramaticasDisponibles(registro.ejercicio, registro.unidad);
+
     registro.requisicion.conceptos.forEach((concepto: any) => {
+      
+      // 2. Pre-cargamos los catálogos en cascada que usa este concepto guardado 
+      // (Para que el ng-select pueda cruzar el ID con el Texto y no quede en blanco)
+      if (concepto.claveProgramatica) {
+        this.cargarPartidasEspecificasDisponibles(registro.ejercicio, registro.unidad, concepto.claveProgramatica);
+      }
+      
+      if (concepto.claveProgramatica && concepto.partidaEspecifica) {
+        this.cargarFuentesFinanciamientoDisponibles(registro.ejercicio, registro.unidad, concepto.claveProgramatica, concepto.partidaEspecifica);
+      }
+
       const fg = this.crearConceptoFormGroup(concepto);
       this.conceptosFormArray.push(fg);
     });

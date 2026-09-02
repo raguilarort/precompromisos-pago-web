@@ -176,7 +176,7 @@
                       <div class="col-md-4 col-xxl-5">
                         <label class="form-label small fw-bold">Partida Presupuestal</label>
                         <ng-select 
-                          [items]="catalogoPartidasEspecificas()"
+                          [items]="catalogoPartidasEspecificas() | filtrarCatalogo:'idClave':concepto.get('claveProgramatica')?.value"
                           bindLabel="textoVisibleOpcion" 
                           bindValue="idPartida" 
                           formControlName="partidaEspecifica" 
@@ -188,12 +188,13 @@
                       <div class="col-md-3 col-xxl-2">
                         <label class="form-label small fw-bold">Fuente de Financiamiento</label>
                         <ng-select 
-                          [items]="catalogoFuentes()"
-                          bindLabel="descripcion" 
-                          bindValue="id" 
+                          [items]="catalogoFuentes() | filtrarCatalogo:'idPartida':concepto.get('partidaEspecifica')?.value"
+                          bindLabel="textoVisibleOpcion" 
+                          bindValue="idFuenteFinanciamiento" 
                           formControlName="fuenteFinanciamiento" 
                           placeholder="Buscar fuente..."
-                          notFoundText="Seleccione una partida primero">
+                          notFoundText="Seleccione una partida primero"
+                          [clearable]="false">
                         </ng-select>
                       </div>
                     </div>
