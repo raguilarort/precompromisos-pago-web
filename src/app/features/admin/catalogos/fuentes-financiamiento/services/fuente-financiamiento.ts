@@ -4,13 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../../../../environments/environment.development';
 
 import { FuenteFinanciamientoDTO } from '../model/fuente-financiamiento.dto';
-
-export interface FiltroFuenteFinanciamiento {
-  ejercicio: number;
-  unidad: string;
-  idCveProg: number;
-  idPartida: number;
-}
+import { FiltroFuenteFinanciamientoDTO } from '../model/filtro-fuente-financiamiento.dto';
 
 @Service()
 export class FuenteFinanciamiento {
@@ -33,7 +27,7 @@ export class FuenteFinanciamiento {
      * @param filtro Objeto tipado con los 4 parámetros obligatorios (ejercicio, unidad, idCveProg, idPartida).
      * @returns Observable con el arreglo de fuentes de financiamiento permitidas.
      */
-   consultarFuentesFinanciamiento(filtro: FiltroFuenteFinanciamiento): Observable<FuenteFinanciamientoDTO[]> {
+   consultarFuentesFinanciamiento(filtro: FiltroFuenteFinanciamientoDTO): Observable<FuenteFinanciamientoDTO[]> {
         // Construimos los Query Parameters de forma inmutable
         const params = new HttpParams()
             .set('ejercicio', filtro.ejercicio.toString())

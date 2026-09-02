@@ -1,4 +1,4 @@
-export interface FiltroFuenteFinanciamiento {
+export interface FiltroFuenteFinanciamientoDTO {
   ejercicio: number;
   unidad: string;
   idCveProg: number;
