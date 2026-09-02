@@ -53,7 +53,7 @@ export class Form implements OnInit {
   catalogoUnidadesEjecutoras = signal<any[]>([]);
   catalogoTiposContratacion = signal<any[]>([]);
   catalogoTiposRequerimiento = signal<any[]>([]);
-  catalogoPartidas = signal<any[]>([]);
+  catalogoPartidasEspecificas = signal<any[]>([]);
   catalogoFuentes = signal<any[]>([]);
   catalogoClavesProgramaticas = signal<any[]>([]); //Depende de la Unidad Seleccionada
   //#endregion
@@ -142,9 +142,6 @@ export class Form implements OnInit {
     
     this.tipoRequerimientoService.getCatalogoTiposRequerimientos().subscribe(data => this.catalogoTiposRequerimiento.set(data));
     
-    // Cargamos catálogo general de partidas y fuentes para que el pipe FiltrarCatalogo haga su magia
-    this.partidaService.getCatalogoPartidas().subscribe(data => this.catalogoPartidas.set(data));
-
     this.fuenteService.getCatalogoFuentesFinanciamiento().subscribe(data => this.catalogoFuentes.set(data));
   }
 
@@ -165,6 +162,27 @@ export class Form implements OnInit {
         console.error('Error al obtener claves programáticas:', err);
         this.mostrarAlerta('No se pudieron cargar las claves programáticas disponibles.', 'danger');
         this.catalogoClavesProgramaticas.set([]); // Limpiamos el catálogo por seguridad
+      }
+    });
+  }
+
+  cargarPartidasEspecificasDisponibles(ejercicio: number, unidad: string, idClaveProgramatica: number) {
+    this.partidaService.getCatalogoPartidasEspecificasPorCveProg(ejercicio, unidad, idClaveProgramatica).subscribe({
+      next: (data) => {
+        // 1. Transformamos los datos para crear la propiedad concatenada
+        const partidasTransformadas = data.map(partida => ({
+          ...partida,
+          textoVisibleOpcion: `${partida.partida} - ${partida.descripcion}`
+        })); 
+        
+        // 2. Actualizamos la señal
+        this.catalogoPartidasEspecificas.set(partidasTransformadas);
+      },
+      error: (err) => {
+        // 3. Manejo de errores
+        console.error('Error al obtener las partidas específicas del Clasificador por Objeto del Gasto:', err);
+        this.mostrarAlerta('No se pudieron cargar las partidas.', 'danger');
+        this.catalogoPartidasEspecificas.set([]); // Limpiamos el catálogo por seguridad
       }
     });
   }
@@ -214,14 +232,14 @@ export class Form implements OnInit {
         disabled: vieneConClave 
       }, Validators.required],
       // 2. Si trae claveProgramatica previa, la partida nace habilitada
-      partidaPresupuestal: [{ 
-        value: datosPrevios?.partidaPresupuestal || null, 
+      partidaEspecifica: [{ 
+        value: datosPrevios?.partidaEspecifica || null, 
         disabled: !vieneConClave && !datosPrevios?.claveProgramatica  
       }, Validators.required],
       // 3. Si trae partida previa, la fuente nace habilitada
       fuenteFinanciamiento: [{ 
         value: datosPrevios?.fuenteFinanciamiento || null, 
-        disabled: !vieneConClave && !datosPrevios?.partidaPresupuestal 
+        disabled: !vieneConClave && !datosPrevios?.partidaEspecifica 
       }, Validators.required],     
       
       // 2. Controles ocultos o de solo lectura para almacenar el saldo disponible
@@ -258,7 +276,7 @@ export class Form implements OnInit {
     grupo.get('claveProgramatica')?.valueChanges.subscribe(idClave => {
       if (grupo.get('combinacionValidada')?.value) return; // Si está bloqueado, no hacer nada
 
-      const controlPartida = grupo.get('partidaPresupuestal');
+      const controlPartida = grupo.get('partidaEspecifica');
       const controlFuente = grupo.get('fuenteFinanciamiento');
       
       // Reseteamos los hijos al cambiar el padre
@@ -269,14 +287,21 @@ export class Form implements OnInit {
 
       if (idClave) {
         controlPartida?.enable({ emitEvent: false });
-        // Aquí podrías llamar al backend: this.catalogosService.obtenerPartidas(idClave).subscribe(...)
+
+        const ejercicio = this.formulario.get('ejercicio')?.value;
+        const unidad = this.formulario.get('unidad')?.value;
+
+        if (ejercicio && unidad) {
+          this.cargarPartidasEspecificasDisponibles(ejercicio, unidad, idClave);
+        }
       } else {
         controlPartida?.disable({ emitEvent: false });
       }
     });
 
+
     // Escucha cambios en Partida Presupuestal
-    grupo.get('partidaPresupuestal')?.valueChanges.subscribe(idPartida => {
+    grupo.get('partidaEspecifica')?.valueChanges.subscribe(idPartida => {
       if (grupo.get('combinacionValidada')?.value) return;
       
       const controlFuente = grupo.get('fuenteFinanciamiento');
@@ -310,7 +335,7 @@ export class Form implements OnInit {
     const unidadId = this.formulario.get('unidad')?.value;
 
     // Medida de seguridad
-    if (!rawValues.claveProgramatica || !rawValues.partidaPresupuestal || !rawValues.fuenteFinanciamiento) {
+    if (!rawValues.claveProgramatica || !rawValues.partidaEspecifica || !rawValues.fuenteFinanciamiento) {
       this.mostrarAlerta('Debe seleccionar la combinación completa antes de verificar.', 'danger');
       return;
     }
@@ -341,7 +366,7 @@ export class Form implements OnInit {
         // 2. CERRAMOS EL CANDADO
         concepto.get('combinacionValidada')?.setValue(true);
         concepto.get('claveProgramatica')?.disable({ emitEvent: false });
-        concepto.get('partidaPresupuestal')?.disable({ emitEvent: false });
+        concepto.get('partidaEspecifica')?.disable({ emitEvent: false });
         concepto.get('fuenteFinanciamiento')?.disable({ emitEvent: false });
 
         // 3. Habilitamos los inputs de meses según el saldo
@@ -356,7 +381,7 @@ export class Form implements OnInit {
     const requestDisponibilidad = {
       unidad: unidadId,
       claveProgramatica: rawValues.claveProgramatica,
-      partida: rawValues.partidaPresupuestal,
+      partida: rawValues.partidaEspecifica,
       fuente: rawValues.fuenteFinanciamiento
     };
 
@@ -370,7 +395,7 @@ export class Form implements OnInit {
         // 2. CERRAMOS EL CANDADO
         concepto.get('combinacionValidada')?.setValue(true);
         concepto.get('claveProgramatica')?.disable({ emitEvent: false });
-        concepto.get('partidaPresupuestal')?.disable({ emitEvent: false });
+        concepto.get('partidaEspecifica')?.disable({ emitEvent: false });
         concepto.get('fuenteFinanciamiento')?.disable({ emitEvent: false });
 
         // 3. Habilitamos los inputs de meses según el saldo
@@ -394,7 +419,7 @@ export class Form implements OnInit {
     
     // 2. Habilitamos los selectores
     concepto.get('claveProgramatica')?.enable({ emitEvent: false });
-    concepto.get('partidaPresupuestal')?.enable({ emitEvent: false });
+    concepto.get('partidaEspecifica')?.enable({ emitEvent: false });
     concepto.get('fuenteFinanciamiento')?.enable({ emitEvent: false });
 
     // 3. Reseteamos los saldos y los importes a 0, y los bloqueamos
@@ -498,7 +523,7 @@ export class Form implements OnInit {
     const concepto = this.conceptosFormArray.at(index) as FormGroup;
     
     const idClave = concepto.get('claveProgramatica')?.value;
-    const idPartida = concepto.get('partidaPresupuestal')?.value;
+    const idPartida = concepto.get('partidaEspecifica')?.value;
     const idFuente = concepto.get('fuenteFinanciamiento')?.value;
 
     // Medida de seguridad: No buscar si la clave presupuestaria está incompleta

@@ -176,18 +176,19 @@
                       <div class="col-md-4 col-xxl-5">
                         <label class="form-label small fw-bold">Partida Presupuestal</label>
                         <ng-select 
-                          [items]="catalogoPartidas() | filtrarCatalogo:'idClave':concepto.get('claveProgramatica')?.value"
-                          bindLabel="descripcion" 
-                          bindValue="id" 
-                          formControlName="partidaPresupuestal" 
-                          placeholder="Buscar partida..."
-                          notFoundText="Seleccione una clave programática primero">
+                          [items]="catalogoPartidasEspecificas()"
+                          bindLabel="textoVisibleOpcion" 
+                          bindValue="idPartida" 
+                          formControlName="partidaEspecifica" 
+                          placeholder="Seleccione una partida"
+                          notFoundText="Seleccione una clave programática primero"
+                          [clearable]="false">
                         </ng-select>
                       </div>
                       <div class="col-md-3 col-xxl-2">
                         <label class="form-label small fw-bold">Fuente de Financiamiento</label>
                         <ng-select 
-                          [items]="catalogoFuentes() | filtrarCatalogo:'idPartida':concepto.get('partidaPresupuestal')?.value"
+                          [items]="catalogoFuentes()"
                           bindLabel="descripcion" 
                           bindValue="id" 
                           formControlName="fuenteFinanciamiento" 
