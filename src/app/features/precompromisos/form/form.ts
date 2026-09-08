@@ -15,6 +15,9 @@ import { TipoRequerimiento } from '../../admin/catalogos/tipos/requerimientos/se
 import { ClaveProgramatica } from '../../admin/catalogos/claves-programaticas/services/clave-programatica';
 import { Partida } from '../../admin/catalogos/partidas/services/partida';
 import { FuenteFinanciamiento } from '../../admin/catalogos/fuentes-financiamiento/services/fuente-financiamiento';
+import { ClavePresupuestaria } from '../../presupuesto/claves-presupuestarias/services/clave-presupuestaria';
+
+import { FiltroCombinacionEUPPFFDTO } from '../../presupuesto/claves-presupuestarias/model/filtro-clave-presupuestaria.dto';
 
 @Component({
   selector: 'app-form',
@@ -37,6 +40,7 @@ export class Form implements OnInit {
   private claveProgramaticaService = inject(ClaveProgramatica);
   private partidaService = inject(Partida);
   private fuenteService = inject(FuenteFinanciamiento);
+  private clavePresupuestariaService = inject(ClavePresupuestaria);
   //#endregion
 
   esEdicion = false;
@@ -255,6 +259,8 @@ export class Form implements OnInit {
       descripcion: [datosPrevios?.descripcion || '', Validators.required],
       // Control clave oculto: Indica si el candado está cerrado (true) o abierto (false)
       combinacionValidada: [vieneConClave],
+      // NUEVO: Control en memoria (sin representación HTML)
+      idCvePresupuestaria: [datosPrevios?.idCvePresupuestaria || null], 
       claveProgramatica: [{ value: datosPrevios?.claveProgramatica || null, disabled: vieneConClave }, Validators.required],
       partidaEspecifica: [{ value: datosPrevios?.partidaEspecifica || null, disabled: !vieneConClave && !datosPrevios?.claveProgramatica }, Validators.required],
       fuenteFinanciamiento: [{ value: datosPrevios?.fuenteFinanciamiento || null, disabled: !vieneConClave && !datosPrevios?.partidaEspecifica }, Validators.required],     
@@ -355,11 +361,12 @@ export class Form implements OnInit {
   // ==========================================
   // EL "CANDADO": VERIFICAR Y DESBLOQUEAR
   // ==========================================
-  
   verificarCombinacion(index: number) {
+    const ejercicio = this.formulario.get('ejercicio')?.value;
+    const unidadId = this.formulario.get('unidad')?.value;
+
     const concepto = this.conceptosFormArray.at(index) as FormGroup;
     const rawValues = concepto.getRawValue();
-    const unidadId = this.formulario.get('unidad')?.value;
 
     // Medida de seguridad
     if (!rawValues.claveProgramatica || !rawValues.partidaEspecifica || !rawValues.fuenteFinanciamiento) {
@@ -367,56 +374,17 @@ export class Form implements OnInit {
       return;
     }
 
-    // SIMULACIÓN DE LA LLAMADA AL BACKEND PARA VALIDAR COMBINACIÓN Y TRAER SALDOS
-    // this.precompromisoService.buscarClave(rawValues.claveProgramatica, ...).subscribe({ ... })
-    import('rxjs').then(({ of, delay }) => {
-      // Generamos saldos simulados (Aquí vendría la respuesta real de tu backend)
-      const saldosActualizados = {
-        disponibleEnero: Math.floor(Math.random() * 15000),
-        disponibleFebrero: 0,
-        disponibleMarzo: -500,
-        disponibleAbril: Math.floor(Math.random() * 15000),
-        disponibleMayo: Math.floor(Math.random() * 15000),
-        disponibleJunio: Math.floor(Math.random() * 15000),
-        disponibleJulio: Math.floor(Math.random() * 15000),
-        disponibleAgosto: Math.floor(Math.random() * 15000),
-        disponibleSeptiembre: Math.floor(Math.random() * 15000),
-        disponibleOctubre: Math.floor(Math.random() * 15000),
-        disponibleNoviembre: Math.floor(Math.random() * 15000),
-        disponibleDiciembre: Math.floor(Math.random() * 15000)
-      };
-
-      of(saldosActualizados).pipe(delay(400)).subscribe(saldos => {
-        // 1. Inyectamos los saldos
-        concepto.patchValue(saldos);
-        
-        // 2. CERRAMOS EL CANDADO
-        concepto.get('combinacionValidada')?.setValue(true);
-        concepto.get('claveProgramatica')?.disable({ emitEvent: false });
-        concepto.get('partidaEspecifica')?.disable({ emitEvent: false });
-        concepto.get('fuenteFinanciamiento')?.disable({ emitEvent: false });
-
-        // 3. Habilitamos los inputs de meses según el saldo
-        this.evaluarEstadoMeses(concepto);
-        
-        this.mostrarAlerta('Combinación validada correctamente. Ya puede capturar los importes.', 'success');
-      });
-    });
-/*
-    //Esto activarlo cuando se tenga el consumo del servicio para verificar la disponibilidad
-    // Armamos el objeto con lo necesario para validar e hidratar saldos
-    const requestDisponibilidad = {
-      unidad: unidadId,
-      claveProgramatica: rawValues.claveProgramatica,
-      partida: rawValues.partidaEspecifica,
-      fuente: rawValues.fuenteFinanciamiento
+    const filtroCombinacion: FiltroCombinacionEUPPFFDTO = {
+      ejercicio: Number(ejercicio),
+      unidad: String(unidadId),
+      idCveProg: Number(rawValues.claveProgramatica),
+      idPartida: Number(rawValues.partidaEspecifica),
+      idFuenteFin: Number(rawValues.fuenteFinanciamiento)
     };
 
-    // CONSUMO REAL DEL ENDPOINT DE DISPONIBILIDAD
-    this.precompromisoService.consultarDisponibilidadCombinacion(requestDisponibilidad).subscribe({
+    this.clavePresupuestariaService.consultarDisponibilidad(filtroCombinacion).subscribe({
       next: (saldosReales) => {
-        // 1. Inyectamos los saldos reales provenientes de Oracle
-        // Se espera que 'saldosReales' contenga propiedades como { disponibleEnero: 1500, ... }
+        // 1. Inyectamos los saldos y el idCvePresupuestaria real provenientes de Oracle
         concepto.patchValue(saldosReales);
         
         // 2. CERRAMOS EL CANDADO
@@ -431,11 +399,11 @@ export class Form implements OnInit {
         this.mostrarAlerta('Combinación validada correctamente. Ya puede capturar los importes.', 'success');
       },
       error: (err) => {
-        const msjError = err.error?.error || err.error?.mensaje || 'Combinación presupuestal no válida o no registrada.';
+        // Aprovechamos la arquitectura de excepciones que creamos en Spring Boot
+        const msjError = err.error?.mensaje || 'Combinación presupuestal no válida o no registrada.';
         this.mostrarAlerta(msjError, 'danger');
       }
     });
-    */
   }
 
   desbloquearCombinacion(index: number) {
@@ -562,43 +530,28 @@ export class Form implements OnInit {
   // ==========================================
   refrescarSaldos(index: number) {
     const concepto = this.conceptosFormArray.at(index) as FormGroup;
+
+    const idCvePresupuestaria = concepto.get('idCvePresupuestaria')?.value;
     
-    const idClave = concepto.get('claveProgramatica')?.value;
-    const idPartida = concepto.get('partidaEspecifica')?.value;
-    const idFuente = concepto.get('fuenteFinanciamiento')?.value;
+    if (!idCvePresupuestaria) {
+       this.verificarCombinacion(index);
+       return;
+    }
 
-    // Medida de seguridad: No buscar si la clave presupuestaria está incompleta
-    if (!idClave || !idPartida || !idFuente) return;
+    this.clavePresupuestariaService.consultarDisponibilidadPorId(idCvePresupuestaria).subscribe({
+      next: (saldosActualizados) => {
+        // 1. Actualizamos únicamente los montos invisibles de disponibilidad
+        concepto.patchValue(saldosActualizados);
 
-    // SIMULACIÓN DE LLAMADA AL BACKEND
-    // Nota: Cuando implementes el servicio real hacia tu base de datos MariaDB, 
-    // asegúrate de que el módulo en la capa de consulta esté optimizado y libre 
-    // de sentencias con loggers de strings pesados para evitar que la UI se trabe durante esta validación.
-    
-    import('rxjs').then(({ of, delay }) => {
-      // Generamos saldos aleatorios para la simulación
-      const saldosActualizados = {
-        disponibleEnero: Math.floor(Math.random() * 15000),
-        disponibleFebrero: 0, // Simulamos un mes en cero
-        disponibleMarzo: -500, // Simulamos un mes en negativo
-        disponibleAbril: Math.floor(Math.random() * 15000),
-        disponibleMayo: Math.floor(Math.random() * 15000),
-        disponibleJunio: Math.floor(Math.random() * 15000),
-        disponibleJulio: Math.floor(Math.random() * 15000),
-        disponibleAgosto: Math.floor(Math.random() * 15000),
-        disponibleSeptiembre: Math.floor(Math.random() * 15000),
-        disponibleOctubre: Math.floor(Math.random() * 15000),
-        disponibleNoviembre: Math.floor(Math.random() * 15000),
-        disponibleDiciembre: Math.floor(Math.random() * 15000)
-      };
-
-      of(saldosActualizados).pipe(delay(500)).subscribe(saldos => {
-        // 1. Inyectamos los nuevos saldos en los campos ocultos del concepto
-        concepto.patchValue(saldos);
-
-        // 2. Llamamos a nuestra función evaluadora
+        // 2. Evaluamos si algún mes se quedó sin fondos para bloquearlo
         this.evaluarEstadoMeses(concepto);
-      });
+        
+        this.mostrarAlerta('Saldos actualizados al momento.', 'success');
+      },
+      error: (err) => {
+        const msjError = err.error?.mensaje || 'Ocurrió un error al intentar actualizar los saldos.';
+        this.mostrarAlerta(msjError, 'danger');
+      }
     });
   }
 
