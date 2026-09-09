@@ -5,7 +5,7 @@ import { ReactiveFormsModule, FormControl, Validators } from '@angular/forms';
 import { ESTATUS_PRECOMPROMISO } from '../../../shared/constants/precompromiso-estatus.constants';
 import { Permisos } from '../../../core/auth/permisos';
 import { PrecompromisoService } from '../services/precompromisos/precompromisos';
-import { Precompromiso } from '../models/precompromiso.model';
+import { PrecompromisoDTO } from '../models/precompromiso.model';
 import { Estatus } from '../../admin/catalogos/estatus/services/estatus';
 
 @Component({
@@ -27,7 +27,7 @@ export class Detail implements OnInit {
 
   permisos = inject(Permisos);
   // Signal para almacenar los datos del precompromiso
-  registro = signal<Precompromiso | undefined>(undefined);
+  registro = signal<PrecompromisoDTO | undefined>(undefined);
   // NUEVO: Señal para el botón de refresco
   // NUEVO: En lugar de un booleano, guardamos el índice del concepto que está cargando
   actualizandoConcepto = signal<number | null>(null);

@@ -41,7 +41,7 @@ export interface Requisicion {
   conceptos: ConceptoPresupuestal[];
 }
 
-export interface Precompromiso {
+export interface PrecompromisoDTO {
   id: number;
   ejercicio: number;
   unidad: number;

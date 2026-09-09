@@ -1,11 +1,11 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { Precompromiso } from '../../models/precompromiso.model';
+import { PrecompromisoDTO } from '../../models/precompromiso.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PrecompromisoService {
-  private compromisos = signal<Precompromiso[]>([
+  private compromisos = signal<PrecompromisoDTO[]>([
     // ==========================================
     // EJERCICIO 2026 (Actual)
     // ==========================================
@@ -132,16 +132,16 @@ export class PrecompromisoService {
 
   compromisosActivos = computed(() => this.compromisos().filter(c => c.activo));
 
-  obtenerPorId(id: number): Precompromiso | undefined {
+  obtenerPorId(id: number): PrecompromisoDTO | undefined {
     return this.compromisos().find(c => c.id === id && c.activo);
   }
 
   // NUEVO MÉTODO: Filtra los registros por ejercicio fiscal y que estén activos
-  obtenerPorEjercicio(ejercicioFiscal: number): Precompromiso[] {
+  obtenerPorEjercicio(ejercicioFiscal: number): PrecompromisoDTO[] {
     return this.compromisos().filter(c => c.ejercicio === ejercicioFiscal && c.activo);
   }
 
-  guardar(compromiso: Precompromiso) {
+  guardar(compromiso: PrecompromisoDTO) {
     if (compromiso.id) {
       this.compromisos.update(lista => lista.map(c => c.id === compromiso.id ? compromiso : c));
     } else {

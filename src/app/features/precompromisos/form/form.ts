@@ -4,8 +4,6 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CurrencyPipe } from '@angular/common';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
-import { PrecompromisoService } from '../services/precompromisos/precompromisos';
-import { Precompromiso } from '../models/precompromiso.model';
 import { FiltrarCatalogoPipe } from '../../../shared/pipes/filtrar-catalogo-pipe';
 
 import { Estatus } from '../../admin/catalogos/estatus/services/estatus';
@@ -16,8 +14,11 @@ import { ClaveProgramatica } from '../../admin/catalogos/claves-programaticas/se
 import { Partida } from '../../admin/catalogos/partidas/services/partida';
 import { FuenteFinanciamiento } from '../../admin/catalogos/fuentes-financiamiento/services/fuente-financiamiento';
 import { ClavePresupuestaria } from '../../presupuesto/claves-presupuestarias/services/clave-presupuestaria';
+import { Precompromiso } from '../services/precompromiso';
 
+import { PrecompromisoRequestDTO } from '../models/precompromiso-request.dto';
 import { FiltroCombinacionEUPPFFDTO } from '../../presupuesto/claves-presupuestarias/model/filtro-clave-presupuestaria.dto';
+import { PrecompromisoDTO } from '../models/precompromiso.model';
 
 @Component({
   selector: 'app-form',
@@ -28,7 +29,7 @@ import { FiltroCombinacionEUPPFFDTO } from '../../presupuesto/claves-presupuesta
 })
 export class Form implements OnInit {
   private fb = inject(FormBuilder);
-  private precompromisoService = inject(PrecompromisoService);
+  private precompromisoService = inject(Precompromiso);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   
@@ -49,6 +50,7 @@ export class Form implements OnInit {
 
   // NUEVO: Signals para manejar el estado de carga
   cargando = signal<boolean>(true);
+  mensajeError = signal<string | null>(null);
   mensajeAlerta = signal<string | null>(null);
   mensajeExito = signal<string | null>(null);
 
@@ -96,10 +98,10 @@ export class Form implements OnInit {
       this.idPrecompromiso = Number(idParam);
       
       //QUITAR CUANDO SE TENGA EL SERVICIO PARA CONSULTAR UN PRECOMPROMISOS POR ID
-      const registro = this.precompromisoService.obtenerPorId(this.idPrecompromiso);
-      if (registro) {
-        this.cargarDatosFormulario(registro);
-      }
+      //const registro = this.precompromisoService.obtenerPorId(this.idPrecompromiso);
+      //if (registro) {
+      //  this.cargarDatosFormulario(registro);
+      //}
 
       /*DESCOMENTAR CUANDO SE TENGA EL SERVICIO PARA CONSULTAR UN PRECOMPROMISO POR ID
       // Llamada real para obtener los datos de la BD
@@ -578,45 +580,50 @@ export class Form implements OnInit {
   }
 
   guardar() {
-    if (this.formulario.valid) {
-      const rawValues = this.formulario.getRawValue(); // Obtiene incluso valores deshabilitados
-      
-      const objetoGuardar: Precompromiso = {
-        id: this.esEdicion ? this.idPrecompromiso! : 0,
-        ejercicio: Number(rawValues.ejercicio),
-        unidad: Number(rawValues.unidad),
-        consecutivo: Number(rawValues.consecutivo || 1),
-        folio: this.esEdicion ? rawValues.folio! : `${rawValues.ejercicio?.toString().substring(2)}-10${rawValues.unidad}091PRE000${Math.floor(Math.random()*90)+10}`,
-        estatus: rawValues.estatus as any,
-        activo: true,
-        requisicion: {
-          numeroRequisicion: rawValues.requisicion.numeroRequisicion!,
-          tipoContratacion: rawValues.requisicion.tipoContratacion as any,
-          tipoRequerimiento: rawValues.requisicion.tipoRequerimiento as any,
-          importeTotalRequisicion: rawValues.requisicion.importeTotalRequisicion!,
-          conceptos: rawValues.conceptos.map((c: any) => ({ ...c, importeTotal: c.importeTotal! }))
-        }
-      };
-
-      /*DESCOMENTAR CUANDO SE TENGA LISTO EL SERVICIO PARA GUARDA PRECOMPROMISOS
-      // CONSUMO REAL DEL ENDPOINT DE GUARDADO
-      this.precompromisoService.guardar(objetoGuardar).subscribe({
-        next: (res) => {
-          this.mostrarAlerta(res.mensaje || 'Precompromiso guardado exitosamente', 'success');
-          setTimeout(() => this.router.navigate(['/home/precompromisos/list']), 1500);
-        },
-        error: (err) => {
-          this.mostrarAlerta(err.error?.error || 'Error al intentar guardar el precompromiso', 'danger');
-        }
-      });
-      */
-
-      this.precompromisoService.guardar(objetoGuardar);
-      this.router.navigate(['/home/precompromisos/list']);
-    } else {
+    console.log("En guardar()")
+    if (this.formulario.invalid) {
       this.formulario.markAllAsTouched();
-      this.mostrarAlerta('Existen errores o combinaciones sin validar en el formulario.', 'danger');
+      this.mostrarAlerta('Por favor, complete todos los campos obligatorios.', 'warning');
+      return;
     }
+
+    this.cargando.set(true);
+
+    console.log("a punto de imprimir rawValues");
+    const rawValues = this.formulario.getRawValue();
+
+    console.log(rawValues);
+
+    const objetoGuardar: PrecompromisoRequestDTO = {
+      ejercicio: Number(rawValues.ejercicio),
+      unidad: Number(rawValues.unidad),
+      numeroRequisicion: rawValues.requisicion.numeroRequisicion!,
+      tipoContratacion: rawValues.requisicion.tipoContratacion,
+      tipoRequerimiento: rawValues.requisicion.tipoRequerimiento,
+      conceptos: rawValues.conceptos.map((c: any) => ({ ...c, importeTotal: c.importeTotal! }))
+
+    }
+
+    console.log("Después del tratamiento");
+
+    console.log(objetoGuardar);
+    
+    
+    this.precompromisoService.registrar(objetoGuardar).subscribe({
+      next: (respuesta) => {
+        this.cargando.set(false);
+        this.mostrarAlerta(`Registro exitoso. Folio asignado: ${respuesta.folio}`, 'success');
+        
+        // Aquí puedes redirigir al usuario a la tabla de listado o limpiar el formulario
+        //this.router.navigate(['/home/precompromisos/list']);
+      },
+      error: (err) => {
+        this.cargando.set(false);
+        const msjError = err.error?.mensaje || 'Ocurrió un error al intentar guardar el precompromiso.';
+        console.error('Error atrapado en Angular:', err);
+        this.mostrarAlerta(msjError, 'danger');
+      }
+    });
   }
 
   // Validador personalizado para evaluar el tope presupuestal
@@ -651,13 +658,16 @@ export class Form implements OnInit {
     }
   }
 
-  mostrarAlerta(mensaje: string, tipo: 'success'|'danger') {
-    if (tipo === 'success') {
-      this.mensajeExito.set(mensaje);
-      setTimeout(() => this.mensajeExito.set(null), 3000);
-    } else {
-      this.mensajeAlerta.set(mensaje);
-      setTimeout(() => this.mensajeAlerta.set(null), 3000);
-    }
+  mostrarAlerta(mensaje: string, tipo: 'success'|'danger'|'warning') {
+    const signalMap = {
+      success: this.mensajeExito,
+      danger: this.mensajeError,
+      warning: this.mensajeAlerta
+    };
+
+    const targetSignal = signalMap[tipo];
+    
+    targetSignal.set(mensaje);
+    setTimeout(() => targetSignal.set(null), 4000);
   }
 }
