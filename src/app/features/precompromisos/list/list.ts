@@ -29,20 +29,20 @@ export class List {
   
   // En lugar de enlazarnos directo al servicio, creamos una señal local 
   // que albergará la respuesta del backend para el ejercicio seleccionado
-  listaCompromisos = signal<any[]>([]);
+  listaPrecompromisos = signal<any[]>([]);
 
   // 1. Estado de la pestaña ('pendientes' por defecto)
   tabActiva = signal<'pendientes' | 'todos'>('pendientes');
 
   // 2. Señal computada para el contador del Badge (Lógica de 99+)
   conteoPendientes = computed(() => {
-    const total = this.listaCompromisos().filter(c => this.permisos.esPendienteParaMi(c.estatus)).length;
+    const total = this.listaPrecompromisos().filter(c => this.permisos.esPendienteParaMi(c.estatus)).length;
     return total > 99 ? '99+' : total.toString();
   });
 
-  compromisosFiltrados = computed(() => {
+  registrosFiltrados = computed(() => {
     const termino = this.terminoBusqueda().toLowerCase().trim();
-    let precompromisos = this.listaCompromisos();
+    let precompromisos = this.listaPrecompromisos();
 
     if (this.permisos.tieneBandejaPendientes() && this.tabActiva() === 'pendientes') {
       precompromisos = precompromisos.filter(c => this.permisos.esPendienteParaMi(c.estatus));
@@ -81,8 +81,8 @@ export class List {
       //this.precompromisoService.eliminarLogico(id);
       
       // Opcional: Actualizar la tabla local después de eliminar
-      const nuevaLista = this.listaCompromisos().filter(c => c.id !== id);
-      this.listaCompromisos.set(nuevaLista);
+      const nuevaLista = this.listaPrecompromisos().filter(c => c.id !== id);
+      this.listaPrecompromisos.set(nuevaLista);
     }
   }
 
@@ -92,7 +92,7 @@ export class List {
     this.precompromisoService.consultarPorEjercicio(ejercicio).subscribe({
       next: (data) => {
         console.log(data);
-        this.listaCompromisos.set(data);
+        this.listaPrecompromisos.set(data);
       },
       error: (err) => {
         console.error('Error al cargar la lista de precompromisos:', err);

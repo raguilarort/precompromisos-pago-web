@@ -83,7 +83,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (item of compromisosFiltrados(); track item.id) {
+          @for (item of registrosFiltrados(); track item.idPrecompromiso) {
             <tr class="border-bottom">
               <td class="ps-3 fw-bold text-primary">{{ item.folio }}</td>
               <td>
@@ -115,19 +115,19 @@
               <td class="text-center pe-3">
                 <!-- flex-nowrap evita el apilamiento vertical. gap-1 separa los botones sutilmente -->
                 <div class="d-flex justify-content-center gap-1 flex-nowrap">
-                  <a [routerLink]="['/home/precompromisos/detail', item.id]" class="btn btn-sm btn-outline-secondary" title="Ver detalle">
+                  <a [routerLink]="['/home/precompromisos/detail', item.idPrecompromiso]" class="btn btn-sm btn-outline-secondary" title="Ver detalle">
                     <i class="bi bi-eye"></i>
                     <!-- El texto solo aparece en pantallas lg (grandes) en adelante -->
                     <span class="d-none d-lg-inline ms-1">Ver</span>
                   </a>
                   @if (permisos.puedeGestionarPrecompromisos()) {
-                    <a [routerLink]="['/home/precompromisos/edit', item.id]" class="btn btn-sm btn-outline-primary" title="Editar"
+                    <a [routerLink]="['/home/precompromisos/edit', item.idPrecompromiso]" class="btn btn-sm btn-outline-primary" title="Editar"
                         [class.disabled]="!permisos.puedeEditarPrecompromiso(item.estatus)"
                         [attr.title]="!permisos.puedeEditarPrecompromiso(item.estatus) ? 'Solo editable en estatus Capturado' : 'Editar Registro'">
                       <i class="bi bi-pencil-square"></i>
                       <span class="d-none d-lg-inline ms-1">Editar</span>
                     </a>
-                    <button type="button" class="btn btn-sm btn-outline-danger" (click)="eliminar(item.id)" title="Eliminar"
+                    <button type="button" class="btn btn-sm btn-outline-danger" (click)="eliminar(item.idPrecompromiso)" title="Eliminar"
                         [disabled]="!permisos.puedeEliminarPrecompromiso(item.estatus)"
                         [attr.title]="!permisos.puedeEliminarPrecompromiso(item.estatus) ? 'Solo eliminable en estatus Capturado' : 'Eliminar Registro'">
                       <i class="bi bi-trash"></i>
