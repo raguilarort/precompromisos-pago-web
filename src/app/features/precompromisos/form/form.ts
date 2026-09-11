@@ -97,24 +97,18 @@ export class Form implements OnInit {
       this.esEdicion = true;
       this.idPrecompromiso = Number(idParam);
       
-      //QUITAR CUANDO SE TENGA EL SERVICIO PARA CONSULTAR UN PRECOMPROMISOS POR ID
-      //const registro = this.precompromisoService.obtenerPorId(this.idPrecompromiso);
-      //if (registro) {
-      //  this.cargarDatosFormulario(registro);
-      //}
-
-      /*DESCOMENTAR CUANDO SE TENGA EL SERVICIO PARA CONSULTAR UN PRECOMPROMISO POR ID
-      // Llamada real para obtener los datos de la BD
       this.precompromisoService.obtenerPorId(this.idPrecompromiso).subscribe({
         next: (registro) => {
+          console.log(registro);
+
           this.cargarDatosFormulario(registro);
         },
         error: (err) => {
-          this.mostrarAlerta('Error al recuperar el precompromiso', 'danger');
+          console.error('Error al recuperar el precompromiso:', err);
+          this.mostrarAlerta('Error al recuperar el precompromiso.', 'danger');
         }
-      });*/
+      });
     } else {
-      // MODO REGISTRO
       this.evaluarReglaUnidadEjecutora();
       this.agregarConcepto();
     }

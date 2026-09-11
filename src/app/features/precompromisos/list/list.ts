@@ -91,7 +91,6 @@ export class List {
 
     this.precompromisoService.consultarPorEjercicio(ejercicio).subscribe({
       next: (data) => {
-        console.log(data);
         this.listaPrecompromisos.set(data);
       },
       error: (err) => {
