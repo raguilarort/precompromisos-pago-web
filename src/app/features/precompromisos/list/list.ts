@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 import { CurrencyPipe } from '@angular/common';
 import { Permisos } from '../../../core/auth/permisos';
 import { ContextoGlobal } from '../../../core/services/contexto-global';
-import { PrecompromisoService } from '../services/precompromisos/precompromisos';
+import { Precompromiso } from '../services/precompromiso';
 
 @Component({
   selector: 'app-list',
@@ -14,11 +14,15 @@ import { PrecompromisoService } from '../services/precompromisos/precompromisos'
 export class List {
   // 1. INYECCIONES (Privadas: Solo el archivo .ts las consume)
   private contextoGlobal = inject(ContextoGlobal);
-  private precompromisoService = inject(PrecompromisoService);
+  private precompromisoService = inject(Precompromiso);
 
   // 2. Inyectamos el servicio de Permisos. 
   // Al no poner 'private', queda expuesto al list.html
   permisos = inject(Permisos);
+
+  mensajeError = signal<string | null>(null);
+  mensajeAlerta = signal<string | null>(null);
+  mensajeExito = signal<string | null>(null);
   
   // 2. ESTADO DEL COMPONENTE (Públicas por defecto: Expuestas al list.html)
   terminoBusqueda = signal<string>('');
@@ -68,13 +72,13 @@ export class List {
   private reaccionarAlEjercicio = effect(() => {
     // Angular rastrea esta lectura. Si cambia en el Navbar, este bloque se re-ejecuta.
     const ejercicioActual = this.contextoGlobal.ejercicioFiscal();
-    this.simularConsultaBaseDatos(ejercicioActual);
+    this.consultarPrecompromisos(ejercicioActual);
   });
 
   // 4. MÉTODOS PÚBLICOS (Llamados desde list.html)
   eliminar(id: number) {
     if (confirm('¿Estás seguro de que deseas eliminar este registro?')) {
-      this.precompromisoService.eliminarLogico(id);
+      //this.precompromisoService.eliminarLogico(id);
       
       // Opcional: Actualizar la tabla local después de eliminar
       const nuevaLista = this.listaCompromisos().filter(c => c.id !== id);
@@ -82,19 +86,32 @@ export class List {
     }
   }
 
-  // 5. MÉTODOS PRIVADOS (Lógica encapsulada de apoyo)
-  private simularConsultaBaseDatos(ejercicio: number) {
+  private consultarPrecompromisos(ejercicio: number) {
     console.info(`Ejecutando SELECT de precompromisos para el ejercicio fiscal: ${ejercicio}`);
 
-   // Simulamos un retraso de red de 400ms para apreciar el comportamiento asíncrono (Loader)
-    setTimeout(() => {
-      
-      // En lugar de inventar los datos aquí, se los pedimos al servicio oficial
-      const registrosDelAnio = this.precompromisoService.obtenerPorEjercicio(ejercicio);
-      
-      // Actualizamos la Signal de la tabla con los resultados puros de ese año
-      this.listaCompromisos.set(registrosDelAnio);
-      
-    },500);
+    this.precompromisoService.consultarPorEjercicio(ejercicio).subscribe({
+      next: (data) => {
+        console.log(data);
+        this.listaCompromisos.set(data);
+      },
+      error: (err) => {
+        console.error('Error al cargar la lista de precompromisos:', err);
+        // Aquí podrías agregar un Toast global informando el fallo
+        this.mostrarAlerta('No se pudieron cargar las claves programáticas disponibles.', 'danger');
+      }
+    });
+  }
+
+  mostrarAlerta(mensaje: string, tipo: 'success'|'danger'|'warning') {
+    const signalMap = {
+      success: this.mensajeExito,
+      danger: this.mensajeError,
+      warning: this.mensajeAlerta
+    };
+
+    const targetSignal = signalMap[tipo];
+    
+    targetSignal.set(mensaje);
+    setTimeout(() => targetSignal.set(null), 4000);
   }
 }

@@ -90,25 +90,25 @@
                 <span class="d-block fw-medium">{{ item.ejercicio }}</span>
                 <span class="text-muted small">U. Ejecutora: {{ item.unidad }}</span>
               </td>
-              <td class="fw-medium text-dark">{{ item.requisicion.numeroRequisicion }}</td>
+              <td class="fw-medium text-dark">{{ item.numeroRequisicion }}</td>
               <td>
-                <span class="d-block text-dark small fw-medium">{{ item.requisicion.tipo }}</span>
-                <span class="badge bg-light text-secondary border font-monospace">{{ item.requisicion.tipoContratacion }}</span>
+                <span class="d-block text-dark small fw-medium">{{ item.tipo }}</span>
+                <span class="badge bg-light text-secondary border font-monospace">{{ item.tipoContratacion }}</span>
               </td>
               <td class="text-center fw-bold text-secondary">
-                {{ item.requisicion.conceptos.length }}
+                {{ item.cantidadConceptos }}
               </td>
               <td class="text-end fw-bold text-success font-monospace fs-6">
-                {{ item.requisicion.importeTotalRequisicion | currency }}
+                {{ item.importeTotal | currency }}
               </td>
               <td class="text-center">
                 <span class="badge px-3 py-2 rounded-pill font-monospace"
-                      [class.bg-warning-subtle]="item.estatus === 'Capturado'"
-                      [class.text-warning]="item.estatus === 'Capturado'"
-                      [class.bg-success-subtle]="item.estatus === 'Comprometido'"
-                      [class.text-success]="item.estatus === 'Comprometido'"
-                      [class.bg-danger-subtle]="item.estatus === 'Cancelado'"
-                      [class.text-danger]="item.estatus === 'Cancelado'">
+                      [class.bg-warning-subtle]="item.estatus === 'CAPTURADO'"
+                      [class.text-warning]="item.estatus === 'CAPTURADO'"
+                      [class.bg-success-subtle]="item.estatus === 'COMPROMETIDO'"
+                      [class.text-success]="item.estatus === 'COMPROMETIDO'"
+                      [class.bg-danger-subtle]="item.estatus === 'CANCELADO'"
+                      [class.text-danger]="item.estatus === 'CANCELADO'">
                   {{ item.estatus }}
                 </span>
               </td>

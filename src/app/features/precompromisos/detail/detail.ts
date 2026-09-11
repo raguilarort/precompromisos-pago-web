@@ -4,7 +4,7 @@ import { CurrencyPipe, DatePipe, UpperCasePipe } from '@angular/common';
 import { ReactiveFormsModule, FormControl, Validators } from '@angular/forms';
 import { ESTATUS_PRECOMPROMISO } from '../../../shared/constants/precompromiso-estatus.constants';
 import { Permisos } from '../../../core/auth/permisos';
-import { PrecompromisoService } from '../services/precompromisos/precompromisos';
+import { Precompromiso } from '../services/precompromiso';
 import { PrecompromisoDTO } from '../models/precompromiso.model';
 import { Estatus } from '../../admin/catalogos/estatus/services/estatus';
 
@@ -17,7 +17,7 @@ import { Estatus } from '../../admin/catalogos/estatus/services/estatus';
 export class Detail implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private precompromisoService = inject(PrecompromisoService);
+  private precompromisoService = inject(Precompromiso);
   private estatusService = inject(Estatus);
 
   // 1. Exponemos la constante importada para que el HTML pueda leerla
@@ -54,7 +54,7 @@ export class Detail implements OnInit {
       // Simulamos la latencia de la base de datos (ej. 800ms)
       setTimeout(() => {
         // Convertimos el ID de la ruta (string) a número para buscarlo
-        const data = this.precompromisoService.obtenerPorId(Number(idParam));
+        /*const data = this.precompromisoService.obtenerPorId(Number(idParam));
 
         if (data && !data.historial) {
           data.historial = [
@@ -85,7 +85,7 @@ export class Detail implements OnInit {
         
 
         this.registro.set(data);
-
+*/
         
 
       }, 800);

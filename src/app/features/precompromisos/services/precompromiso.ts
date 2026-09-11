@@ -1,18 +1,19 @@
 import { Service, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { environment } from '../../../../environments/environment.development';
-import { ConceptoPresupuestal, PrecompromisoDTO, Requisicion } from '../models/precompromiso.model';
 import { PrecompromisoRequestDTO, PrecompromisoResponse } from '../models/precompromiso-request.dto';
+import { PrecompromisoResumeDTO } from '../models/precompromiso-resume.dto';
 
 @Service()
 export class Precompromiso {
     private http = inject(HttpClient);
     private baseUrl = `${environment.apiUrl}/precompromisos`;
 
-    /**
-   * Registra un nuevo precompromiso. 
-   * Traduce el modelo de la UI al RequestDTO esperado por el Backend.
+  /**
+   * Registra un nuevo precompromiso
+   * @param precompromisoUI Modelo de la GUI que se transformará en un RequestDTO esperado por el Backend
+   * @returns Observable con el objeto que se arma durante la respuesta del servicio y que puede ser utilizado GUI
    */
   registrar(precompromisoUI: PrecompromisoRequestDTO): Observable<PrecompromisoResponse> {
     
@@ -23,7 +24,6 @@ export class Precompromiso {
       tipoContratacion: precompromisoUI.tipoContratacion,
       tipoRequerimiento: precompromisoUI.tipoRequerimiento,
       
-      // Mapeamos el arreglo de conceptos
       conceptos: precompromisoUI.conceptos.map(concepto => ({
         descripcion: concepto.descripcion,
         idCvePresupuestaria: concepto.idCvePresupuestaria,
@@ -43,5 +43,17 @@ export class Precompromiso {
     };
 
     return this.http.post<PrecompromisoResponse>(this.baseUrl, payloadSeguro);
+  }
+
+  /**
+   * Consulta los precompromisos gestionados en un ejercicio determinado
+   * 
+   * @param ejercicio Ejercicio en el que fueron registrados y gestionados los precompromisos.
+   * @returns Observable con el arreglo de precompromisos que se tiene permitodos consultar.
+   */
+  consultarPorEjercicio(ejercicio: Number): Observable<PrecompromisoResumeDTO[]> {
+    let params = new HttpParams().set('ejercicio', ejercicio.toString());
+
+    return this.http.get<PrecompromisoResumeDTO[]>(`${this.baseUrl}`,{params}).pipe(map(data => data || []));
   }
 }
