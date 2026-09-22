@@ -13,37 +13,21 @@ export class Precompromiso {
 
   /**
    * Registra un nuevo precompromiso
-   * @param precompromisoUI Modelo de la GUI que se transformará en un RequestDTO esperado por el Backend
+   * @param payload Objeto de tipo PrecompromisoRequestDTO esperado por el Backend
    * @returns Observable con el objeto que se arma durante la respuesta del servicio y que puede ser utilizado GUI
    */
-  registrar(precompromisoUI: PrecompromisoRequestDTO): Observable<PrecompromisoResponse> {
-    
-    const payloadSeguro: PrecompromisoRequestDTO = {
-      ejercicio: precompromisoUI.ejercicio,
-      unidad: precompromisoUI.unidad,
-      numeroRequisicion: precompromisoUI.numeroRequisicion,
-      tipoContratacion: precompromisoUI.tipoContratacion,
-      tipoRequerimiento: precompromisoUI.tipoRequerimiento,
-      
-      conceptos: precompromisoUI.conceptos.map(concepto => ({
-        descripcion: concepto.descripcion,
-        idCvePresupuestaria: concepto.idCvePresupuestaria,
-        importeEnero: concepto.importeEnero,
-        importeFebrero: concepto.importeFebrero,
-        importeMarzo: concepto.importeMarzo,
-        importeAbril: concepto.importeAbril,
-        importeMayo: concepto.importeMayo,
-        importeJunio: concepto.importeJunio,
-        importeJulio: concepto.importeJulio,
-        importeAgosto: concepto.importeAgosto,
-        importeSeptiembre: concepto.importeSeptiembre,
-        importeOctubre: concepto.importeOctubre,
-        importeNoviembre: concepto.importeNoviembre,
-        importeDiciembre: concepto.importeDiciembre
-      }))
-    };
+  registrar(payload: PrecompromisoRequestDTO): Observable<PrecompromisoResponse> {    
+    return this.http.post<PrecompromisoResponse>(this.baseUrl, payload);
+  }
 
-    return this.http.post<PrecompromisoResponse>(this.baseUrl, payloadSeguro);
+  /**
+   * Actualiza un precompromiso existente
+   * @param idPrecompromiso Identificador del precompromiso a actualizar
+   * @param payload Objeto de tipo PrecompromisoRequestDTO esperado por el Backend para actualizar
+   * @returns Observable con el objeto que se arma durante la respuesta del servicio y que puede ser utilizado GUI
+   */
+  actualizar(idPrecompromiso: number, payload: PrecompromisoRequestDTO): Observable<PrecompromisoResponse> {
+    return this.http.put<PrecompromisoResponse>(`${this.baseUrl}/${idPrecompromiso}`, payload);
   }
 
   /**

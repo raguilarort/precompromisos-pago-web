@@ -164,38 +164,56 @@
                     <div class="row mb-3">
                       <div class="col-md-5 col-xxl-5">
                         <label class="form-label small fw-bold text-muted">Clave Programática</label>
-                          <ng-select 
-                            [items]="catalogoClavesProgramaticas()" 
-                            bindLabel="textoVisibleOpcion" 
-                            bindValue="idClaveProgramatica" 
-                            formControlName="claveProgramatica" 
-                            placeholder="Seleccione una clave programática"
-                            [clearable]="false">
-                          </ng-select>
+                          @if (concepto.get('claveProgramatica')?.disabled) {
+                            <input type="text" class="form-control bg-light text-secondary font-monospace" 
+                                  [value]="concepto.get('codigoClaveProgramatica')?.value + ' - ' + concepto.get('descClaveProgramatica')?.value" 
+                                  readonly>
+                          } @else {
+                            <ng-select 
+                              [items]="catalogoClavesProgramaticas()" 
+                              bindLabel="textoVisibleOpcion" 
+                              bindValue="idClaveProgramatica" 
+                              formControlName="claveProgramatica" 
+                              placeholder="Seleccione una clave programática"
+                              [clearable]="false">
+                            </ng-select>
+                          }
                       </div>
                       <div class="col-md-4 col-xxl-5">
                         <label class="form-label small fw-bold">Partida Presupuestal</label>
-                        <ng-select 
-                          [items]="catalogoPartidasEspecificas() | filtrarCatalogo:'idClave':concepto.get('claveProgramatica')?.value"
-                          bindLabel="textoVisibleOpcion" 
-                          bindValue="idPartida" 
-                          formControlName="partidaEspecifica" 
-                          placeholder="Seleccione una partida"
-                          notFoundText="Seleccione una clave programática primero"
-                          [clearable]="false">
-                        </ng-select>
+                        @if (concepto.get('partidaEspecifica')?.disabled) {
+                          <input type="text" class="form-control bg-light text-secondary font-monospace" 
+                                [value]="concepto.get('codigoPartida')?.value + ' - ' + concepto.get('descPartida')?.value" 
+                                readonly>
+                        } @else {
+                          <ng-select 
+                            [items]="catalogoPartidasEspecificas() | filtrarCatalogo:'idClave':concepto.get('claveProgramatica')?.value"
+                            bindLabel="textoVisibleOpcion" 
+                            bindValue="idPartida" 
+                            formControlName="partidaEspecifica" 
+                            placeholder="Seleccione una partida"
+                            notFoundText="Seleccione una clave programática primero"
+                            [clearable]="false">
+                          </ng-select>
+                        }
                       </div>
                       <div class="col-md-3 col-xxl-2">
                         <label class="form-label small fw-bold">Fuente de Financiamiento</label>
-                        <ng-select 
-                          [items]="catalogoFuentes() | filtrarCatalogo:'idPartida':concepto.get('partidaEspecifica')?.value"
-                          bindLabel="textoVisibleOpcion" 
-                          bindValue="idFuenteFinanciamiento" 
-                          formControlName="fuenteFinanciamiento" 
-                          placeholder="Buscar fuente..."
-                          notFoundText="Seleccione una partida primero"
-                          [clearable]="false">
-                        </ng-select>
+                        @if (concepto.get('fuenteFinanciamiento')?.disabled) {
+                          <input type="text" class="form-control bg-light text-secondary font-monospace" 
+                                [value]="concepto.get('idFuenteFinTexto')?.value + ' - ' + concepto.get('descFuenteFin')?.value" 
+                                readonly>
+                        } @else {
+                          <ng-select 
+                            [items]="catalogoFuentesFinanciamiento() | filtrarCatalogo:'idPartida':concepto.get('partidaEspecifica')?.value"
+                            bindLabel="textoVisibleOpcion" 
+                            bindValue="idFuenteFinanciamiento" 
+                            formControlName="fuenteFinanciamiento" 
+                            placeholder="Buscar fuente..."
+                            notFoundText="Seleccione una partida primero"
+                            [clearable]="false">
+                          </ng-select>
+                        }
                       </div>
                     </div>
 

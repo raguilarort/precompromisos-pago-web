@@ -15,10 +15,15 @@ export interface PrecompromisoDetailDTO {
 export interface ConceptoDetailDTO {
   idConcepto: number,
   descripcion: string;
-  idClaveProgramatica: number;
-  idPartidaEspecifica: number;
-  idFuenteFinanciamiento: number;
   idClavePresupuestaria: number;
+  idClaveProgramatica: number;
+  claveProgramatica: string;
+  descClaveProgramatica: string;
+  idPartidaEspecifica: number;
+  partidaEspecifica: string;
+  descPartidaEspecifica: string;
+  idFuenteFinanciamiento: number;
+  descFuenteFinanciamiento: string;
   importeEnero: number;
   importeFebrero: number;
   importeMarzo: number;

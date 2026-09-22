@@ -16,9 +16,8 @@ import { FuenteFinanciamiento } from '../../admin/catalogos/fuentes-financiamien
 import { ClavePresupuestaria } from '../../presupuesto/claves-presupuestarias/services/clave-presupuestaria';
 import { Precompromiso } from '../services/precompromiso';
 
-import { PrecompromisoRequestDTO } from '../models/precompromiso-request.dto';
+import { PrecompromisoRequestDTO, PrecompromisoResponse } from '../models/precompromiso-request.dto';
 import { FiltroCombinacionEUPPFFDTO } from '../../presupuesto/claves-presupuestarias/model/filtro-clave-presupuestaria.dto';
-import { PrecompromisoDTO } from '../models/precompromiso.model';
 
 @Component({
   selector: 'app-form',
@@ -59,9 +58,10 @@ export class Form implements OnInit {
   catalogoUnidadesEjecutoras = signal<any[]>([]);
   catalogoTiposContratacion = signal<any[]>([]);
   catalogoTiposRequerimiento = signal<any[]>([]);
-  catalogoPartidasEspecificas = signal<any[]>([]);
-  catalogoFuentes = signal<any[]>([]);
   catalogoClavesProgramaticas = signal<any[]>([]); //Depende de la Unidad Seleccionada
+  catalogoPartidasEspecificas = signal<any[]>([]);
+  catalogoFuentesFinanciamiento = signal<any[]>([]);
+
   //#endregion
   
 
@@ -144,10 +144,18 @@ export class Form implements OnInit {
   }
 
   cargarClavesProgramaticasDisponibles(ejercicio: number, unidad: string) {
+    console.log('En cargarClavesProgramaticasDisponibles');
+    console.log(ejercicio);
+    console.log(unidad);
+
     this.claveProgramaticaService.getClavesProgramaticas(ejercicio, unidad).subscribe({
       next: (data) => {
+        console.log(data);
+        const respuesta = data || [];
+        console.log(respuesta);
+
         // 1. Transformamos los datos para crear la propiedad concatenada
-        const clavesTransformadas = data.map(clave => ({
+        const clavesTransformadas = respuesta.map(clave => ({
           ...clave,
           textoVisibleOpcion: `${clave.claveProgramatica} - ${clave.descripcion}`
         })); 
@@ -167,8 +175,10 @@ export class Form implements OnInit {
   cargarPartidasEspecificasDisponibles(ejercicio: number, unidad: string, idClaveProgramatica: number) {
     this.partidaService.getCatalogoPartidasEspecificasPorCveProg(ejercicio, unidad, idClaveProgramatica).subscribe({
       next: (data) => {
+        const respuesta = data || [];
+
         // 1. Transformamos los datos para crear la propiedad concatenada
-        const partidasTransformadas = data.map(partida => ({
+        const partidasTransformadas = respuesta.map(partida => ({
           ...partida,
           textoVisibleOpcion: `${partida.partida} - ${partida.descripcion}`,
           idClave: idClaveProgramatica // INYECCIÓN: Clave para que el Pipe filtrarCatalogo funcione por fila
@@ -197,14 +207,16 @@ export class Form implements OnInit {
     
     this.fuenteService.consultarFuentesFinanciamiento(filtro).subscribe({
       next: (data) => {
-        const fuentesTransformadas = data.map(fuente => ({
+        const respuesta = data || [];
+
+        const fuentesTransformadas = respuesta.map(fuente => ({
           ...fuente,
           textoVisibleOpcion: `${fuente.idFuenteFinanciamiento} - ${fuente.descripcion}`,
           idPartida: idPartida // INYECCIÓN: Clave para que el Pipe filtrarCatalogo funcione por fila
         })); 
         
         // ACUMULACIÓN
-        this.catalogoFuentes.update(actuales => {
+        this.catalogoFuentesFinanciamiento.update(actuales => {
           const fusionadas = [...actuales, ...fuentesTransformadas];
           // Ajusta el "f.id" según la llave primaria de tu fuente
           return Array.from(new Map(fusionadas.map(f => [f.id, f])).values());
@@ -252,14 +264,23 @@ export class Form implements OnInit {
     const vieneConClave = !!datosPrevios?.claveProgramatica;
 
     const grupo = this.fb.group({
+      idConcepto: [datosPrevios?.idConcepto || null], 
       descripcion: [datosPrevios?.descripcion || '', Validators.required],
       // Control clave oculto: Indica si el candado está cerrado (true) o abierto (false)
       combinacionValidada: [vieneConClave],
       // NUEVO: Control en memoria (sin representación HTML)
       idCvePresupuestaria: [datosPrevios?.idCvePresupuestaria || null], 
       claveProgramatica: [{ value: datosPrevios?.claveProgramatica || null, disabled: vieneConClave }, Validators.required],
-      partidaEspecifica: [{ value: datosPrevios?.partidaEspecifica || null, disabled: !vieneConClave && !datosPrevios?.claveProgramatica }, Validators.required],
-      fuenteFinanciamiento: [{ value: datosPrevios?.fuenteFinanciamiento || null, disabled: !vieneConClave && !datosPrevios?.partidaEspecifica }, Validators.required],     
+      partidaEspecifica: [{ value: datosPrevios?.partidaEspecifica || null, disabled: vieneConClave || !datosPrevios?.claveProgramatica  }, Validators.required],   
+      fuenteFinanciamiento: [{ value: datosPrevios?.fuenteFinanciamiento || null, disabled: vieneConClave || !datosPrevios?.partidaEspecifica  }, Validators.required],
+
+      // Controles para los input
+      codigoClaveProgramatica: [datosPrevios?.codigoClaveProgramatica || ''],
+      descClaveProgramatica: [datosPrevios?.descClaveProgramatica || ''],
+      codigoPartida: [datosPrevios?.codigoPartida || ''],
+      descPartida: [datosPrevios?.descPartidaEspecifica || ''],
+      idFuenteFinTexto: [datosPrevios?.idFuenteFinanciamiento || ''],
+      descFuenteFin: [datosPrevios?.descFuenteFinanciamiento || ''],
       
       // 2. Controles ocultos o de solo lectura para almacenar el saldo disponible
       disponibleEnero: [datosPrevios?.disponibleEnero || 0],
@@ -380,6 +401,25 @@ export class Form implements OnInit {
 
     this.clavePresupuestariaService.consultarDisponibilidad(filtroCombinacion).subscribe({
       next: (saldosReales) => {
+        const idClave = Number(rawValues.claveProgramatica);
+        const idPartida = Number(rawValues.partidaEspecifica);
+        const idFuente = Number(rawValues.fuenteFinanciamiento);
+
+        // Buscamos los objetos completos en tus Signals
+        const objClave = this.catalogoClavesProgramaticas().find(c => c.idClaveProgramatica === idClave);
+        const objPartida = this.catalogoPartidasEspecificas().find(p => p.idPartida === idPartida);
+        const objFuente = this.catalogoFuentesFinanciamiento().find(f => f.idFuenteFinanciamiento === idFuente);
+
+        // Guardamos los textos en el formulario antes de bloquear
+        concepto.patchValue({
+          codigoClaveProgramatica: objClave?.claveProgramatica || '',
+          descClaveProgramatica: objClave?.descripcion || '',
+          codigoPartida: objPartida?.partida || '',
+          descPartida: objPartida?.descripcion || '',
+          idFuenteFinTexto: objFuente?.idFuenteFinanciamiento || '',
+          descFuenteFin: objFuente?.descripcion || ''
+        }, { emitEvent: false });
+
         // 1. Inyectamos los saldos y el idCvePresupuestaria real provenientes de Oracle
         concepto.patchValue(saldosReales);
         
@@ -403,17 +443,33 @@ export class Form implements OnInit {
   }
 
   desbloquearCombinacion(index: number) {
+    const confirmacion = window.confirm(
+      '¿Está seguro de que desea modificar esta combinación?\n\n' +
+      'Al continuar, se limpiarán las selecciones actuales y todos los importes mensuales de este concepto se reiniciarán a cero.'
+    );
+
+    if (!confirmacion) {
+      return; 
+    }
+
     const concepto = this.conceptosFormArray.at(index) as FormGroup;
     
-    // 1. ABRIMOS EL CANDADO
     concepto.get('combinacionValidada')?.setValue(false);
     
-    // 2. Habilitamos los selectores
     concepto.get('claveProgramatica')?.enable({ emitEvent: false });
     concepto.get('partidaEspecifica')?.enable({ emitEvent: false });
     concepto.get('fuenteFinanciamiento')?.enable({ emitEvent: false });
 
-    // 3. Reseteamos los saldos y los importes a 0, y los bloqueamos
+    concepto.patchValue({
+      idCvePresupuestaria: null,
+      claveProgramatica: null,
+      partidaEspecifica: null,
+      fuenteFinanciamiento: null,
+      codigoClaveProgramatica: '', descClaveProgramatica: '',
+      codigoPartida: '', descPartida: '',
+      idFuenteFinTexto: '', descFuenteFin: ''
+    }, { emitEvent: false });
+
     const reseteo = {
       disponibleEnero: 0, importeEnero: 0,
       disponibleFebrero: 0, importeFebrero: 0,
@@ -432,7 +488,6 @@ export class Form implements OnInit {
     
     concepto.patchValue(reseteo, { emitEvent: false });
     
-    // Forzamos el bloqueo visual de los inputs
     const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
     meses.forEach(mes => {
       concepto.get(`importe${mes}`)?.disable({ emitEvent: false });
@@ -492,33 +547,50 @@ export class Form implements OnInit {
       unidad: registro.unidad,
       consecutivo: registro.consecutivo,
       folio: registro.folio,
-      estatus: registro.estatus
+      estatus: registro.idEstatus
     });
 
     this.formulario.get('unidad')?.disable();
-    this.formulario.get('requisicion')?.patchValue(registro.requisicion);
+
+    this.formulario.get('requisicion')?.patchValue({
+      numeroRequisicion: registro.numeroRequisicion,
+      tipoContratacion: registro.idTipoContratacion,
+      tipoRequerimiento: registro.idTipoRequerimiento,
+      importeTotalRequisicion: 0
+    });
+
     this.conceptosFormArray.clear();
 
-    // 1. Pre-cargamos la Clave Programática general de la Unidad (Para que el ng-select tenga texto)
-    this.cargarClavesProgramaticasDisponibles(registro.ejercicio, registro.unidad);
-
-    registro.requisicion.conceptos.forEach((concepto: any) => {
+    registro.conceptos.forEach((conceptoBackend: any) => {
       
-      // 2. Pre-cargamos los catálogos en cascada que usa este concepto guardado 
-      // (Para que el ng-select pueda cruzar el ID con el Texto y no quede en blanco)
-      if (concepto.claveProgramatica) {
-        this.cargarPartidasEspecificasDisponibles(registro.ejercicio, registro.unidad, concepto.claveProgramatica);
-      }
-      
-      if (concepto.claveProgramatica && concepto.partidaEspecifica) {
-        this.cargarFuentesFinanciamientoDisponibles(registro.ejercicio, registro.unidad, concepto.claveProgramatica, concepto.partidaEspecifica);
-      }
+      const conceptoAdaptado = {
+        ...conceptoBackend,
+        idCvePresupuestaria: conceptoBackend.idClavePresupuestaria,
+        claveProgramatica: conceptoBackend.idClaveProgramatica,
+        partidaEspecifica: conceptoBackend.idPartidaEspecifica,
+        fuenteFinanciamiento: conceptoBackend.idFuenteFinanciamiento,
 
-      const fg = this.crearConceptoFormGroup(concepto);
+        // 2. Los textos directos de Oracle que alimentarán a los <input readonly>
+        codigoClaveProgramatica: conceptoBackend.claveProgramatica,
+        descClaveProgramatica: conceptoBackend.descClaveProgramatica,
+        codigoPartida: conceptoBackend.partidaEspecifica, // Ej. "38201"
+        descPartida: conceptoBackend.descPartidaEspecifica,
+        idFuenteFinTexto: conceptoBackend.idFuenteFinanciamiento, 
+        descFuenteFin: conceptoBackend.descFuenteFinanciamiento
+      };
+
+      console.log("Concepto Adaptado");
+      console.log(conceptoAdaptado);
+      
+      const fg = this.crearConceptoFormGroup(conceptoAdaptado);
       this.conceptosFormArray.push(fg);
     });
 
     this.calcularTotales();
+
+    this.conceptosFormArray.controls.forEach((_, index) => {
+      this.refrescarSaldos(index);
+    });
   }
 
   // ==========================================
@@ -561,7 +633,7 @@ export class Form implements OnInit {
 
       if (disponible === 0 || disponible < 0) {
         // Si es 0, lo bloqueamos y nos aseguramos de que su valor sea 0
-        controlImporte?.setValue(0, { emitEvent: false });
+        //controlImporte?.setValue(0, { emitEvent: false });
         controlImporte?.disable({ emitEvent: false });
       } else {
         // Si hay saldo positivo, lo habilitamos
@@ -594,30 +666,60 @@ export class Form implements OnInit {
       numeroRequisicion: rawValues.requisicion.numeroRequisicion!,
       tipoContratacion: rawValues.requisicion.tipoContratacion,
       tipoRequerimiento: rawValues.requisicion.tipoRequerimiento,
-      conceptos: rawValues.conceptos.map((c: any) => ({ ...c, importeTotal: c.importeTotal! }))
-
-    }
+      conceptos: rawValues.conceptos.map((c: any) => ({
+        idConcepto: c.idConcepto || null,
+        descripcion: c.descripcion,
+        idCvePresupuestaria: c.idCvePresupuestaria,
+        importeEnero: Number(c.importeEnero) || 0,
+        importeFebrero: Number(c.importeFebrero) || 0,
+        importeMarzo: Number(c.importeMarzo) || 0,
+        importeAbril: Number(c.importeAbril) || 0,
+        importeMayo: Number(c.importeMayo) || 0,
+        importeJunio: Number(c.importeJunio) || 0,
+        importeJulio: Number(c.importeJulio) || 0,
+        importeAgosto: Number(c.importeAgosto) || 0,
+        importeSeptiembre: Number(c.importeSeptiembre) || 0,
+        importeOctubre: Number(c.importeOctubre) || 0,
+        importeNoviembre: Number(c.importeNoviembre) || 0,
+        importeDiciembre: Number(c.importeDiciembre) || 0
+      }))
+    };
 
     console.log("Después del tratamiento");
 
     console.log(objetoGuardar);
     
-    
-    this.precompromisoService.registrar(objetoGuardar).subscribe({
-      next: (respuesta) => {
-        this.cargando.set(false);
-        this.mostrarAlerta(`Registro exitoso. Folio asignado: ${respuesta.folio}`, 'success');
-        
-        // Aquí puedes redirigir al usuario a la tabla de listado o limpiar el formulario
-        //this.router.navigate(['/home/precompromisos/list']);
-      },
-      error: (err) => {
-        this.cargando.set(false);
-        const msjError = err.error?.mensaje || 'Ocurrió un error al intentar guardar el precompromiso.';
-        console.error('Error atrapado en Angular:', err);
-        this.mostrarAlerta(msjError, 'danger');
-      }
-    });
+    if (this.esEdicion && this.idPrecompromiso) {
+      this.precompromisoService.actualizar(this.idPrecompromiso, objetoGuardar).subscribe({
+        next: (respuesta: PrecompromisoResponse) => {
+          this.cargando.set(false);
+          const msj = respuesta.mensaje || 'Precompromiso actualizado exitosamente';
+          this.mostrarAlerta(msj, 'success');
+          
+          setTimeout(() => this.router.navigate(['/home/precompromisos/list']), 3000);
+        },
+        error: (err) => {
+          this.cargando.set(false);
+          const msjError = err.error?.mensaje || 'Ocurrió un error al intentar actualizar el precompromiso.';
+          this.mostrarAlerta(msjError, 'danger');
+        }
+      });
+    } else {
+      this.precompromisoService.registrar(objetoGuardar).subscribe({
+        next: (respuesta: PrecompromisoResponse) => {
+          this.cargando.set(false);
+          this.mostrarAlerta(`Registro exitoso. Folio asignado: ${respuesta.folio}`, 'success');
+          
+          setTimeout(() => this.router.navigate(['/home/precompromisos/list']), 3000);
+        },
+        error: (err) => {
+          this.cargando.set(false);
+          const msjError = err.error?.mensaje || 'Ocurrió un error al intentar guardar el precompromiso.';
+          console.error('Error atrapado en Angular:', err);
+          this.mostrarAlerta(msjError, 'danger');
+        }
+      });
+    }
   }
 
   // Validador personalizado para evaluar el tope presupuestal

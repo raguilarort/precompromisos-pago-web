@@ -16,6 +16,7 @@ export interface PrecompromisoResponse {
 
 
 export interface ConceptoRequestDTO {
+  idConcepto?: number;
   descripcion: string;
   idCvePresupuestaria: number;
   importeEnero: number;
