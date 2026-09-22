@@ -391,6 +391,20 @@ export class Form implements OnInit {
       return;
     }
 
+    const indexDuplicado = this.conceptosFormArray.controls.findIndex((ctrl, i) => {
+      if (i === index) return false; // No compararse consigo mismo
+      
+      const val = (ctrl as FormGroup).getRawValue();
+      return val.claveProgramatica === rawValues.claveProgramatica &&
+             val.partidaEspecifica === rawValues.partidaEspecifica &&
+             val.fuenteFinanciamiento === rawValues.fuenteFinanciamiento;
+    });
+
+    if (indexDuplicado !== -1) {
+      this.mostrarAlerta(`Esta combinación ya se encuentra en el Concepto #${indexDuplicado + 1}. Por favor, sume los importes en ese registro o seleccione una combinación diferente.`, 'warning');
+      return;
+    }
+
     const filtroCombinacion: FiltroCombinacionEUPPFFDTO = {
       ejercicio: Number(ejercicio),
       unidad: String(unidadId),
@@ -658,7 +672,24 @@ export class Form implements OnInit {
     console.log("a punto de imprimir rawValues");
     const rawValues = this.formulario.getRawValue();
 
-    console.log(rawValues);
+    const combinacionesSet = new Set();
+    for (let i = 0; i < rawValues.conceptos.length; i++) {
+      const c = rawValues.conceptos[i] as any;
+
+      if (!c.combinacionValidada) {
+        this.mostrarAlerta(`Debe validar la combinación del Concepto #${i + 1} antes de guardar.`, 'warning');
+        this.cargando.set(false);
+        return;
+      }
+      
+      const llave = `${c.claveProgramatica}-${c.partidaEspecifica}-${c.fuenteFinanciamiento}`;
+      if (combinacionesSet.has(llave)) {
+        this.mostrarAlerta(`Los conceptos tienen combinaciones presupuestales duplicadas. Por favor, consolide los importes.`, 'warning');
+        this.cargando.set(false);
+        return;
+      }
+      combinacionesSet.add(llave);
+    }
 
     const objetoGuardar: PrecompromisoRequestDTO = {
       ejercicio: Number(rawValues.ejercicio),
