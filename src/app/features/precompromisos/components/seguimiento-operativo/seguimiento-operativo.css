@@ -1,0 +1,33 @@
+/* Línea de tiempo vertical */
+.timeline-container {
+  position: relative;
+  border-left: 2px solid #e9ecef;
+  margin-left: 1rem;
+  padding-left: 1.5rem;
+}
+
+/* Elementos individuales */
+.timeline-item {
+  position: relative;
+}
+
+/* El punto del semáforo */
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -1.95rem; /* Ajuste para centrar sobre la línea vertical */
+  top: 0.2rem;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px #ced4da;
+  z-index: 2;
+}
+
+/* Colores Dinámicos del Semáforo */
+.bg-estatus-capturado::before { background-color: #ffc107; } /* Amarillo */
+.bg-estatus-revisado::before { background-color: #0dcaf0; } /* Info */
+.bg-estatus-autorizado::before { background-color: #198754; } /* Verde */
+.bg-estatus-cancelado::before { background-color: #dc3545; } /* Rojo */
+.bg-estatus-default::before { background-color: #6c757d; } /* Gris */

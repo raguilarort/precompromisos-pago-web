@@ -5,6 +5,7 @@ import { environment } from '../../../../environments/environment.development';
 import { PrecompromisoRequestDTO, PrecompromisoResponse } from '../models/precompromiso-request.dto';
 import { PrecompromisoResumeDTO } from '../models/precompromiso-resume.dto';
 import { PrecompromisoDetailDTO } from '../models/precompromiso-detail.dto';
+import { SeguimientoOperativoDTO } from '../models/seguimiento-operativo.dto';
 
 @Service()
 export class Precompromiso {
@@ -24,7 +25,7 @@ export class Precompromiso {
    * Actualiza un precompromiso existente
    * @param idPrecompromiso Identificador del precompromiso a actualizar
    * @param payload Objeto de tipo PrecompromisoRequestDTO esperado por el Backend para actualizar
-   * @returns Observable con el objeto que se arma durante la respuesta del servicio y que puede ser utilizado GUI
+   * @returns Observable con el objeto que se arma durante la respuesta del servicio
    */
   actualizar(idPrecompromiso: number, payload: PrecompromisoRequestDTO): Observable<PrecompromisoResponse> {
     return this.http.put<PrecompromisoResponse>(`${this.baseUrl}/${idPrecompromiso}`, payload);
@@ -60,5 +61,10 @@ export class Precompromiso {
   obtenerPorId(idPrecompromiso: Number | string): Observable<PrecompromisoDetailDTO[]> {
 
     return this.http.get<PrecompromisoDetailDTO[]>(`${this.baseUrl}/${idPrecompromiso}`).pipe(map(data => data || []));
+  }
+
+  obtenerSeguimiento(idPrecompromiso: number): Observable<SeguimientoOperativoDTO[]> {
+    return this.http.get<SeguimientoOperativoDTO[]>(`${this.baseUrl}/${idPrecompromiso}/seguimiento`)
+      .pipe(map(data => data || []));
   }
 }

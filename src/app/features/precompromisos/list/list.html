@@ -68,15 +68,15 @@
 <!-- Si hay pestañas, le quitamos el borde superior izquierdo para que se fusione con el tab activo -->
 <div class="card shadow-sm border-0" >
   <div class="card-body p-0">
-    <div class="table-responsive">
+    <div class="table-fixed-container">
       <table class="table table-hover mb-0 align-middle">
-        <thead class="bg-white text-secondary uppercase border-bottom">
+        <thead class="bg-white text-secondary uppercase">
           <tr>
             <th class="ps-3 py-3">Folio Precompromiso</th>
-            <th>Ejercicio / Unidad</th>
+            <th class="d-none d-md-table-cell">Ejercicio / Unidad</th>
             <th>No. Requisición</th>
             <th>Tipo / Contratación</th>
-            <th class="text-center">Partidas</th>
+            <th class="d-none d-md-table-cell text-center">Conceptos</th>
             <th class="text-end">Importe Total</th>
             <th class="text-center">Estatus</th>
             <th class="text-center">Acciones</th>
@@ -84,9 +84,9 @@
         </thead>
         <tbody>
           @for (item of registrosFiltrados(); track item.idPrecompromiso) {
-            <tr class="border-bottom">
+            <tr class="border-bottom" [class.opacity-50]="item.estatus === 'ELIMINADO'">
               <td class="ps-3 fw-bold text-primary">{{ item.folio }}</td>
-              <td>
+              <td class="d-none d-md-table-cell">
                 <span class="d-block fw-medium">{{ item.ejercicio }}</span>
                 <span class="text-muted small">U. Ejecutora: {{ item.unidad }}</span>
               </td>
@@ -95,22 +95,41 @@
                 <span class="d-block text-dark small fw-medium">{{ item.tipo }}</span>
                 <span class="badge bg-light text-secondary border font-monospace">{{ item.tipoContratacion }}</span>
               </td>
-              <td class="text-center fw-bold text-secondary">
+              <td class="d-none d-md-table-cell text-center fw-bold text-secondary">
                 {{ item.cantidadConceptos }}
               </td>
-              <td class="text-end fw-bold text-success font-monospace fs-6">
+              <td class="text-end fw-bold font-monospace fs-6"
+                  [class.text-success]="item.estatus !== 'ELIMINADO'"
+                  [class.text-muted]="item.estatus === 'ELIMINADO'"
+                  [class.text-decoration-line-through]="item.estatus === 'ELIMINADO'">
                 {{ item.importeTotal | currency }}
               </td>
               <td class="text-center">
-                <span class="badge px-3 py-2 rounded-pill font-monospace"
-                      [class.bg-warning-subtle]="item.estatus === 'CAPTURADO'"
-                      [class.text-warning]="item.estatus === 'CAPTURADO'"
-                      [class.bg-success-subtle]="item.estatus === 'COMPROMETIDO'"
-                      [class.text-success]="item.estatus === 'COMPROMETIDO'"
-                      [class.bg-danger-subtle]="item.estatus === 'CANCELADO'"
-                      [class.text-danger]="item.estatus === 'CANCELADO'">
-                  {{ item.estatus }}
-                </span>
+                <div class="hover-trigger position-relative d-inline-block">
+                  <!-- Estandarización de colores solicitada -->
+                  <span class="badge px-3 py-2 rounded-pill font-monospace cursor-pointer shadow-sm"
+                        [class.bg-warning-subtle]="item.estatus === 'CAPTURADO'"
+                        [class.text-warning]="item.estatus === 'CAPTURADO'"
+                        [class.bg-info-subtle]="item.estatus === 'REVISADO'"
+                        [class.text-info]="item.estatus === 'REVISADO'"
+                        [class.bg-success-subtle]="item.estatus === 'COMPROMETIDO'"
+                        [class.text-success]="item.estatus === 'COMPROMETIDO'"
+                        [class.bg-danger-subtle]="item.estatus === 'CANCELADO'"
+                        [class.text-danger]="item.estatus === 'CANCELADO'"
+                        
+                        [class.bg-secondary]="item.estatus === 'ELIMINADO'"
+                        [class.text-white]="item.estatus === 'ELIMINADO'">
+                    {{ item.estatus }}
+                  </span>
+                  
+                  <!-- Popover Oculto -->
+                  <div class="hover-popover shadow-lg border rounded position-absolute z-3">
+                    <div class="popover-arrow"></div>
+                    <div class="p-1 bg-white rounded">
+                      <app-seguimiento-operativo [idPrecompromiso]="item.idPrecompromiso" vista="popover"></app-seguimiento-operativo>
+                    </div>
+                  </div>
+                </div>
               </td>
               <td class="text-center pe-3">
                 <!-- flex-nowrap evita el apilamiento vertical. gap-1 separa los botones sutilmente -->

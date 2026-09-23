@@ -18,10 +18,11 @@ import { Precompromiso } from '../services/precompromiso';
 
 import { PrecompromisoRequestDTO, PrecompromisoResponse } from '../models/precompromiso-request.dto';
 import { FiltroCombinacionEUPPFFDTO } from '../../presupuesto/claves-presupuestarias/model/filtro-clave-presupuestaria.dto';
+import { SeguimientoOperativo } from '../components/seguimiento-operativo/seguimiento-operativo';
 
 @Component({
   selector: 'app-form',
-  imports: [ReactiveFormsModule, RouterLink, CurrencyPipe, NgSelectModule, FiltrarCatalogoPipe, NgxMaskDirective],
+  imports: [ReactiveFormsModule, RouterLink, CurrencyPipe, NgSelectModule, FiltrarCatalogoPipe, NgxMaskDirective, SeguimientoOperativo],
   providers: [provideNgxMask()],
   templateUrl: './form.html',
   styleUrl: './form.css',
@@ -660,7 +661,6 @@ export class Form implements OnInit {
   }
 
   guardar() {
-    console.log("En guardar()")
     if (this.formulario.invalid) {
       this.formulario.markAllAsTouched();
       this.mostrarAlerta('Por favor, complete todos los campos obligatorios.', 'warning');
@@ -669,7 +669,6 @@ export class Form implements OnInit {
 
     this.cargando.set(true);
 
-    console.log("a punto de imprimir rawValues");
     const rawValues = this.formulario.getRawValue();
 
     const combinacionesSet = new Set();

@@ -1,3 +1,87 @@
 .btn:disabled, .btn.disabled {
   opacity: 0.3 !important;
 }
+
+.table-fixed-container {
+  height: calc(100vh - 210px); 
+  overflow-y: auto;
+  overflow-x: auto; /* Reactivamos el movimiento lateral */
+}
+
+/* Diseño Minimalista de Barras de Desplazamiento (No roban espacio) */
+.table-fixed-container::-webkit-scrollbar {
+  width: 6px;  /* Grosor de la barra vertical */
+  height: 6px; /* Grosor de la barra horizontal */
+}
+
+.table-fixed-container::-webkit-scrollbar-track {
+  background: transparent; /* Fondo invisible */
+}
+
+.table-fixed-container::-webkit-scrollbar-thumb {
+  background-color: #ced4da; /* Gris sutil */
+  border-radius: 10px;
+}
+
+.table-fixed-container::-webkit-scrollbar-thumb:hover {
+  background-color: #6c757d; /* Gris oscuro al pasar el ratón */
+}
+
+/* Header estático (Sticky) */
+.table-fixed-container thead th {
+  position: sticky;
+  top: 0;
+  background-color: #fff;
+  z-index: 2; 
+  box-shadow: inset 0 -2px 0 #dee2e6;
+}
+
+/* =================================================================
+   2. SOLUCIÓN AL POPOVER (Despliegue Lateral Izquierdo)
+   ================================================================= */
+.hover-trigger .hover-popover {
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  
+  /* Posicionamiento a la IZQUIERDA del estatus para evitar cortes verticales */
+  top: 50%;
+  right: 110%; /* Empuja el popover hacia la izquierda del badge */
+  transform: translateY(-50%) translateX(10px); /* Lo centra verticalmente y lo oculta un poco hacia adentro */
+}
+
+/* Mostrar al hacer hover */
+.hover-trigger:hover .hover-popover {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(-50%) translateX(0); /* Desliza suavemente a su lugar */
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* Construcción de la flecha apuntando hacia la derecha (hacia el badge) */
+.hover-popover .popover-arrow {
+  position: absolute;
+  top: 50%;
+  right: -7px; /* Sale de la caja blanca por el lado derecho */
+  margin-top: -7px; /* Centrado exacto */
+  width: 0; 
+  height: 0; 
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  border-left: 7px solid #dee2e6; /* Borde gris (hace sombra) */
+}
+
+.hover-popover .popover-arrow::after {
+  content: "";
+  position: absolute;
+  top: -6px; /* Desplazamiento interno para centrar con su padre */
+  right: 1px; /* Empuja un pixel adentro para dibujar el borde */
+  width: 0; 
+  height: 0; 
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  border-left: 6px solid #fff; /* Relleno blanco de la flecha */
+}

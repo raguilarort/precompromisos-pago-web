@@ -27,6 +27,13 @@
             2. Conceptos y Presupuesto Mensual
           </button>
         </li>
+        @if (esEdicion) {
+          <li class="nav-item">
+            <button type="button" class="nav-link text-secondary" [class.active]="activeTab === 'seguimiento'" (click)="activeTab = 'seguimiento'">
+              <i class="bi bi-clock-history me-1"></i> 3. Seguimiento Operativo
+            </button>
+          </li>
+        }
       </ul>
     </div>
 
@@ -589,6 +596,13 @@
                 </button>
               </div>
             </div>
+          </div>
+        }
+
+        @if (activeTab === 'seguimiento' && esEdicion && idPrecompromiso) {
+          <div class="px-3 py-2">
+            <h6 class="text-primary border-bottom pb-2 mb-4">Bitácora de Movimientos</h6>
+            <app-seguimiento-operativo [idPrecompromiso]="idPrecompromiso" vista="timeline"></app-seguimiento-operativo>
           </div>
         }
       </form>

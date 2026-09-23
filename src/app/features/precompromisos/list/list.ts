@@ -4,10 +4,11 @@ import { CurrencyPipe } from '@angular/common';
 import { Permisos } from '../../../core/auth/permisos';
 import { ContextoGlobal } from '../../../core/services/contexto-global';
 import { Precompromiso } from '../services/precompromiso';
+import { SeguimientoOperativo } from '../components/seguimiento-operativo/seguimiento-operativo';
 
 @Component({
   selector: 'app-list',
-  imports: [RouterLink, CurrencyPipe],
+  imports: [RouterLink, CurrencyPipe, SeguimientoOperativo],
   templateUrl: './list.html',
   styleUrl: './list.css',
 })
@@ -50,11 +51,11 @@ export class List {
 
     if (termino) {
       precompromisos = precompromisos.filter(c => 
-        c.folio.toLowerCase().includes(termino) ||
-        c.estatus.toLowerCase().includes(termino) ||
-        c.requisicion.numeroRequisicion.toLowerCase().includes(termino) ||
-        c.requisicion.tipoContratacion.toLowerCase().includes(termino) ||
-        c.requisicion.tipo.toLowerCase().includes(termino)
+        (c.folio && c.folio.toLowerCase().includes(termino)) ||
+        (c.estatus && c.estatus.toLowerCase().includes(termino)) ||
+        (c.numeroRequisicion && c.numeroRequisicion.toLowerCase().includes(termino)) ||
+        (c.tipoContratacion && c.tipoContratacion.toLowerCase().includes(termino)) ||
+        (c.tipoRequerimiento && c.tipoRequerimiento.toLowerCase().includes(termino))
       );
     }
 
