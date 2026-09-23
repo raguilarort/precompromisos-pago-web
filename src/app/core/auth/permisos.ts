@@ -51,8 +51,7 @@ export class Permisos {
     const user = this.auth.usuarioAutenticado();
     if (!user) return false;
     
-    // El Capturista y Revisor pueden eliminar si aún está en etapa inicial o fue rechazado
-    const rolesPermitidos = [RolSistema.Capturista, RolSistema.Revisor];
+    const rolesPermitidos = [RolSistema.Capturista, RolSistema.Revisor, RolSistema.Administrador];
     const estatusPermitidos = ['CAPTURADO', 'RECHAZADO'];
     
     return rolesPermitidos.includes(user.rol) && estatusPermitidos.includes(estatusActual);

@@ -31,6 +31,15 @@ export class Precompromiso {
   }
 
   /**
+   * Elimina un precompromiso lógicamente en la base de datos
+   * @param idPrecompromiso Identificador del precompromiso a eliminar
+   * @returns Observable con el objeto que se arma durante la respuesta del servicio
+   */
+  eliminar(idPrecompromiso: number): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/${idPrecompromiso}`);
+  }
+
+  /**
    * Consulta los precompromisos gestionados en un ejercicio determinado
    * 
    * @param ejercicio Ejercicio en el que fueron registrados y gestionados los precompromisos.
