@@ -141,14 +141,14 @@
                   </a>
                   @if (permisos.puedeGestionarPrecompromisos()) {
                     <a [routerLink]="['/home/precompromisos/edit', item.idPrecompromiso]" class="btn btn-sm btn-outline-primary" title="Editar"
-                        [class.disabled]="!permisos.puedeEditarPrecompromiso(item.estatus)"
-                        [attr.title]="!permisos.puedeEditarPrecompromiso(item.estatus) ? 'Solo editable en estatus Capturado' : 'Editar Registro'">
+                        [class.disabled]="!permisos.puedeEditarPrecompromiso(item.idEstatus)"
+                        [attr.title]="!permisos.puedeEditarPrecompromiso(item.idEstatus) ? 'Solo editable en estatus Capturado' : 'Editar Registro'">
                       <i class="bi bi-pencil-square"></i>
                       <span class="d-none d-lg-inline ms-1">Editar</span>
                     </a>
                     <button type="button" class="btn btn-sm btn-outline-danger" (click)="eliminar(item.idPrecompromiso)" title="Eliminar"
-                        [disabled]="!permisos.puedeEliminarPrecompromiso(item.estatus)"
-                        [attr.title]="!permisos.puedeEliminarPrecompromiso(item.estatus) ? 'Solo eliminable en estatus Capturado' : 'Eliminar Registro'">
+                        [disabled]="!permisos.puedeEliminarPrecompromiso(item.idEstatus)"
+                        [attr.title]="!permisos.puedeEliminarPrecompromiso(item.idEstatus) ? 'Solo eliminable en estatus Capturado' : 'Eliminar Registro'">
                       <i class="bi bi-trash"></i>
                       <span class="d-none d-lg-inline ms-1">Eliminar</span>
                     </button>

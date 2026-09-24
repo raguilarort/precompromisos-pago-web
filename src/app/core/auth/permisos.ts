@@ -1,6 +1,7 @@
 import { Service, inject } from '@angular/core';
 import { Auth } from './services/auth'
 import { RolSistema } from './models/auth.model';
+import { ESTATUS_PRECOMPROMISO } from '../../shared/constants/precompromiso-estatus.constants';
 
 @Service()
 export class Permisos {
@@ -37,24 +38,41 @@ export class Permisos {
     return rolesPermitidos.includes(user.rol);
   }
 
-  puedeEditarPrecompromiso(estatusActual: string): boolean {
+  puedeEditarPrecompromiso(idEstatusActual: number): boolean {
+    console.log('Estatus recibido en puedeEditarPrecompromiso ', idEstatusActual);
     const user = this.auth.usuarioAutenticado();
     if (!user) return false;
-    if (user.rol === RolSistema.Administrador) return true;
 
-    const rolesPermitidos = [RolSistema.Capturista, RolSistema.Revisor];
-    return rolesPermitidos.includes(user.rol) && estatusActual === 'CAPTURADO';
+    console.log(user);
+
+    if (idEstatusActual !== ESTATUS_PRECOMPROMISO.CAPTURADO) {
+      return false;
+    }
+
+    console.log(idEstatusActual !== ESTATUS_PRECOMPROMISO.CAPTURADO);
+
+    const rolesPermitidos = [RolSistema.Capturista, RolSistema.Revisor, RolSistema.Administrador];
+    console.log(rolesPermitidos.includes(user.rol));
+    return rolesPermitidos.includes(user.rol);
   }
 
   // ELIMINACIÓN (Ampliación de Regla)
-  puedeEliminarPrecompromiso(estatusActual: string): boolean {
+  puedeEliminarPrecompromiso(idEstatusActual: number): boolean {
+    console.log('Estatus recibido en puedeEliminarPrecompromiso ', idEstatusActual);
     const user = this.auth.usuarioAutenticado();
     if (!user) return false;
+
+    const estatusPermitidos: number[] = [
+      ESTATUS_PRECOMPROMISO.CAPTURADO, 
+      ESTATUS_PRECOMPROMISO.RECHAZADO
+    ];
     
+    if (!estatusPermitidos.includes(idEstatusActual)) {
+      return false;
+    }
+
     const rolesPermitidos = [RolSistema.Capturista, RolSistema.Revisor, RolSistema.Administrador];
-    const estatusPermitidos = ['CAPTURADO', 'RECHAZADO'];
-    
-    return rolesPermitidos.includes(user.rol) && estatusPermitidos.includes(estatusActual);
+    return rolesPermitidos.includes(user.rol);
   }
 
   // --------------------------------------------------------

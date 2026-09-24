@@ -232,7 +232,7 @@
       <div class="d-flex gap-2 flex-wrap justify-content-end w-100">
         
         <!-- ELIMINAR: Solo si está en ESTATUS.CAPTURADO -->
-        @if (item.idEstatus === ESTATUS.CAPTURADO && permisos.puedeEliminarPrecompromiso(obtenerNombreEstatus(item.idEstatus))) {
+        @if (item.idEstatus === ESTATUS.CAPTURADO && permisos.puedeEliminarPrecompromiso(item.idEstatus)) {
           <button class="btn btn-outline-danger me-auto" (click)="eliminar()">
             <i class="bi bi-trash"></i> Eliminar Registro
           </button>
