@@ -8,7 +8,9 @@ export interface PrecompromisoDetailDTO {
   estatus: string;
   numeroRequisicion: string;
   idTipoContratacion: number;
+  nombreTipoContratacion: string;
   idTipoRequerimiento: number;
+  nombreTipoRequerimiento:string;
   conceptos: ConceptoDetailDTO[];
 }
 
@@ -36,4 +38,22 @@ export interface ConceptoDetailDTO {
   importeOctubre: number;
   importeNoviembre: number;
   importeDiciembre: number;
+}
+
+export interface MesView {
+  nombre: string;
+  importe: number;
+  disponible: number;
+  haySuficiencia: boolean;
+}
+
+export interface ConceptoDetailView extends ConceptoDetailDTO {
+  clavePresupuestariaFormateada?: string;
+  importeTotal: number;
+  meses: MesView[];
+}
+
+export interface PrecompromisoDetailView extends PrecompromisoDetailDTO {
+  importeTotalRequisicion: number;
+  conceptos: ConceptoDetailView[];
 }

@@ -17,16 +17,19 @@
         <h3 class="mb-0 fw-bold text-dark d-flex align-items-center">
           Folio: {{ item.folio }}
           <span class="badge ms-3 fs-6 rounded-pill"
-                [class.bg-warning-subtle]="item.estatus === ESTATUS.CAPTURADO"
-                [class.text-warning]="item.estatus === ESTATUS.CAPTURADO"
-                [class.bg-info-subtle]="item.estatus === ESTATUS.REVISADO"
-                [class.text-info]="item.estatus === ESTATUS.REVISADO"
-                [class.bg-success-subtle]="item.estatus === ESTATUS.COMPROMETIDO || item.estatus === ESTATUS.AUTORIZADO"
-                [class.text-success]="item.estatus === ESTATUS.COMPROMETIDO || item.estatus === ESTATUS.AUTORIZADO"
-                [class.bg-danger-subtle]="item.estatus === ESTATUS.CANCELADO || item.estatus === ESTATUS.RECHAZADO"
-                [class.text-danger]="item.estatus === ESTATUS.CANCELADO || item.estatus === ESTATUS.RECHAZADO">
-            {{ obtenerNombreEstatus(item.estatus) | uppercase }}
-          </span>
+                [class.bg-warning-subtle]="item.idEstatus === ESTATUS.CAPTURADO"
+                [class.text-warning]="item.idEstatus === ESTATUS.CAPTURADO"
+                [class.bg-info-subtle]="item.idEstatus === ESTATUS.REVISADO"
+                [class.text-info]="item.idEstatus === ESTATUS.REVISADO"
+                [class.bg-success-subtle]="item.idEstatus === ESTATUS.COMPROMETIDO || item.idEstatus === ESTATUS.AUTORIZADO"
+                [class.text-success]="item.idEstatus === ESTATUS.COMPROMETIDO || item.idEstatus === ESTATUS.AUTORIZADO"
+                [class.bg-danger-subtle]="item.idEstatus === ESTATUS.CANCELADO || item.idEstatus === ESTATUS.RECHAZADO"
+                [class.text-danger]="item.idEstatus === ESTATUS.CANCELADO || item.idEstatus === ESTATUS.RECHAZADO"
+                
+                [class.bg-secondary]="item.estatus === 'ELIMINADO'"
+                [class.text-white]="item.estatus === 'ELIMINADO'">
+            {{ obtenerNombreEstatus(item.idEstatus) | uppercase }}
+          </span>                  
         </h3>
       </div>
       <div class="btn-group shadow-sm">
@@ -34,8 +37,8 @@
           <i class="bi bi-arrow-left"></i> Volver a la Lista
         </a>
         <!-- REGLA: Solo se puede editar si está en estatus Capturado -->
-        @if (item.estatus === ESTATUS.CAPTURADO && permisos.puedeGestionarPrecompromisos()) {
-          <a [routerLink]="['/home/precompromisos/edit', item.id]" class="btn btn-primary fw-bold">
+        @if (item.idEstatus === ESTATUS.CAPTURADO && permisos.puedeGestionarPrecompromisos()) {
+          <a [routerLink]="['/home/precompromisos/edit', item.idPrecompromiso]" class="btn btn-primary fw-bold">
             <i class="bi bi-pencil-square"></i> Editar Registro
           </a>
         }
@@ -63,7 +66,7 @@
               <dd class="col-sm-7 fw-medium mb-2">{{ item.unidad }}</dd>
               
               <dt class="col-sm-5 text-muted fw-normal mb-2">Consecutivo</dt>
-              <dd class="col-sm-7 fw-medium mb-2">{{ item.consecutivo }}</dd>
+              <dd class="col-sm-7 fw-medium mb-2">{{ item.folio }}</dd>
             </dl>
           </div>
         </div>
@@ -78,17 +81,20 @@
           <div class="card-body">
             <dl class="row mb-0">
               <dt class="col-sm-5 text-muted fw-normal mb-2">No. Requisición</dt>
-              <dd class="col-sm-7 fw-medium mb-2">{{ item.requisicion.numeroRequisicion }}</dd>
+              <dd class="col-sm-7 fw-medium mb-2">{{ item.numeroRequisicion }}</dd>
               
               <dt class="col-sm-5 text-muted fw-normal mb-2">Tipo de Contratación</dt>
-              <dd class="col-sm-7 fw-medium mb-2">{{ item.requisicion.tipoContratacion }}</dd>
+              <dd class="col-sm-7 fw-medium mb-2">{{ item.nombreTipoContratacion }}</dd>
               
               <dt class="col-sm-5 text-muted fw-normal mb-2">Clasificación</dt>
-              <dd class="col-sm-7 fw-medium mb-2">{{ item.requisicion.tipoRequerimiento }}</dd>
+              <dd class="col-sm-7 fw-medium mb-2">{{ item.nombreTipoRequerimiento }}</dd>
 
               <dt class="col-sm-5 text-muted fw-normal mb-0 mt-3 pt-2 border-top">Importe Total</dt>
-              <dd class="col-sm-7 fw-bold text-success fs-5 mb-0 mt-3 pt-2 border-top">
-                {{ item.requisicion.importeTotalRequisicion | currency }}
+              <dd class="col-sm-7 fw-bold fs-5 mb-0 mt-3 pt-2 border-top font-monospace"
+                  [class.text-success]="item.idEstatus !== ESTATUS.ELIMINADO"
+                  [class.text-muted]="item.idEstatus === ESTATUS.ELIMINADO"
+                  [class.text-decoration-line-through]="item.idEstatus === ESTATUS.ELIMINADO">
+                {{ item.importeTotalRequisicion | currency }}
               </dd>
             </dl>
           </div>
@@ -100,24 +106,37 @@
         <div class="card shadow-sm border-0">
           <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
             <span class="fw-medium">Desglose Presupuestal Mensualizado</span>
-            <span class="badge bg-light text-dark">{{ item.requisicion.conceptos.length }} Partida(s)</span>
+            <span class="badge bg-light text-dark">{{ item.conceptos.length }} Partida(s)</span>
           </div>
           <div class="card-body p-0">            
             <div class="accordion accordion-flush" id="acordeonConceptos">
-              @for (concepto of item.requisicion.conceptos; track $index) {
+              @for (concepto of item.conceptos; track $index) {
                 <div class="accordion-item border-bottom">                  
                   <h2 class="accordion-header">
-                    <!-- Botón del acordeón: Resumen del Concepto -->
                     <button class="accordion-button collapsed px-4 py-3" type="button" data-bs-toggle="collapse" [attr.data-bs-target]="'#collapse' + $index">
                       <div class="d-flex justify-content-between w-100 me-3 align-items-center">
                         <div>
                           <span class="d-block fw-bold text-dark">Concepto #{{ $index + 1 }} - {{ concepto.descripcion }}</span>
-                          <span class="badge bg-light border text-secondary font-monospace mt-1">
-                            {{ concepto.idCvePresupuestaria || 'Estructura-N/A' }}
+                          <span class="badge bg-light border text-secondary font-monospace mt-1 shadow-sm mb-2">
+                            {{ concepto.clavePresupuestariaFormateada }}
                           </span>
+                          <div class="small text-muted lh-sm mt-1 border-start border-3 border-primary ps-2">
+                            <div class="text-truncate mb-1">
+                              <i class="bi bi-diagram-3 text-secondary me-1"></i> 
+                              <strong>Programa:</strong> {{ concepto.claveProgramatica }} - {{ concepto.descClaveProgramatica }}
+                            </div>
+                            <div class="text-truncate mb-1">
+                              <i class="bi bi-box text-secondary me-1"></i> 
+                              <strong>Partida:</strong> {{ concepto.partidaEspecifica }} - {{ concepto.descPartidaEspecifica }}
+                            </div>
+                            <div class="text-truncate">
+                              <i class="bi bi-bank text-secondary me-1"></i> 
+                              <strong>Fuente Financiamiento:</strong> {{ concepto.idFuenteFinanciamiento }} -  {{ concepto.descFuenteFinanciamiento }}
+                            </div>
+                          </div>
                         </div>
                         
-                        <div class="text-end fw-bold fs-6 text-success">
+                        <div class="text-end fw-bold fs-5 text-success mt-1">
                           {{ concepto.importeTotal | currency }}
                         </div>
                       </div>
@@ -129,7 +148,7 @@
                     <div class="accordion-body bg-light p-4">
 
                       <!-- BARRA DE HERRAMIENTAS DEL CONCEPTO (Botón reubicado) -->
-                      @if (item.estatus === ESTATUS.CAPTURADO || item.estatus === ESTATUS.REVISADO) {
+                      @if (item.idEstatus === ESTATUS.CAPTURADO || item.idEstatus === ESTATUS.REVISADO) {
                         <div class="d-flex justify-content-end mb-3">
                           <button class="btn btn-sm btn-outline-primary shadow-sm" 
                                   (click)="refrescarSuficiencia(concepto, $event, $index)"
@@ -161,7 +180,7 @@
                                       [class.text-dark]="mes.haySuficiencia"
                                       [class.text-danger]="!mes.haySuficiencia">{{ mes.nombre }}</span>
                                 
-                                @if (item.estatus === ESTATUS.CAPTURADO || item.estatus === ESTATUS.REVISADO) {
+                                @if (item.idEstatus === ESTATUS.CAPTURADO || item.idEstatus === ESTATUS.REVISADO) {
                                   <span class="badge" style="font-size: 0.7rem;"
                                         [class.bg-secondary]="mes.disponible === 0 && mes.importe === 0"
                                         [class.bg-warning]="mes.disponible < 0"
@@ -213,21 +232,21 @@
       <div class="d-flex gap-2 flex-wrap justify-content-end w-100">
         
         <!-- ELIMINAR: Solo si está en ESTATUS.CAPTURADO -->
-        @if (item.estatus === ESTATUS.CAPTURADO && permisos.puedeEliminarPrecompromiso(obtenerNombreEstatus(item.estatus))) {
+        @if (item.idEstatus === ESTATUS.CAPTURADO && permisos.puedeEliminarPrecompromiso(obtenerNombreEstatus(item.idEstatus))) {
           <button class="btn btn-outline-danger me-auto" (click)="eliminar()">
             <i class="bi bi-trash"></i> Eliminar Registro
           </button>
         }
 
         <!-- CANCELAR: Solo si está en ESTATUS.AUTORIZADO -->
-        @if (item.estatus === ESTATUS.AUTORIZADO && permisos.puedeCancelarPrecompromiso(obtenerNombreEstatus(item.estatus))) {
+        @if (item.idEstatus === ESTATUS.AUTORIZADO && permisos.puedeCancelarPrecompromiso(obtenerNombreEstatus(item.idEstatus))) {
           <button class="btn btn-warning me-auto" (click)="cancelar()">
             <i class="bi bi-x-circle"></i> Cancelar Precompromiso
           </button>
         }
 
         <!-- RECHAZAR -->
-        @if (permisos.puedeRechazar(obtenerNombreEstatus(item.estatus))) {
+        @if (permisos.puedeRechazar(obtenerNombreEstatus(item.idEstatus))) {
           <button class="btn btn-danger shadow-sm px-4" 
                   data-bs-toggle="modal" 
                   data-bs-target="#modalRechazo"
@@ -237,7 +256,7 @@
         }
 
         <!-- DAR VISTO BUENO -->
-        @if (permisos.puedeDarVistoBueno(obtenerNombreEstatus(item.estatus))) {
+        @if (permisos.puedeDarVistoBueno(obtenerNombreEstatus(item.idEstatus))) {
           <span [attr.title]="!suficienciaPresupuestal() ? 'No cuenta con suficiencia presupuestal completa' : ''">
             <button class="btn btn-success shadow-sm px-4" 
                     (click)="darVistoBueno()" 
@@ -248,7 +267,7 @@
         }
 
         <!-- AUTORIZAR PRESUPUESTO -->
-        @if (permisos.puedeAutorizar(obtenerNombreEstatus(item.estatus))) {
+        @if (permisos.puedeAutorizar(obtenerNombreEstatus(item.idEstatus))) {
           <span [attr.title]="!suficienciaPresupuestal() ? 'No cuenta con suficiencia presupuestal completa' : ''">
             <button class="btn btn-success shadow-sm px-4" 
                     (click)="autorizar()" 
@@ -262,7 +281,7 @@
 
     <!-- COMPONENTE MODAL: Historial de Seguimiento -->
     <div class="modal fade" id="modalHistorial" tabindex="-1" aria-labelledby="modalHistorialLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
         <div class="modal-content shadow">
           
           <div class="modal-header bg-light">
@@ -272,32 +291,19 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
           </div>
           
-          <div class="modal-body p-0">
-            <div class="p-3 bg-white border-bottom text-center">
-              <span class="small text-muted fw-bold text-uppercase d-block mb-1">Precompromiso Actual</span>
+          <div class="modal-body p-0 bg-white">
+            <div class="p-3 bg-light border-bottom text-center">
+              <span class="small text-muted fw-bold text-uppercase d-block mb-1">Cronología Operativa</span>
               <span class="fs-5 fw-bold text-primary">{{ item.folio }}</span>
             </div>
             
-            <ul class="list-group list-group-flush">
-              @for (log of item.historial; track log.fecha) {
-                <li class="list-group-item px-4 py-3 border-bottom bg-light">
-                  <div class="d-flex justify-content-between align-items-start mb-2">
-                    <span class="badge rounded-pill bg-secondary bg-opacity-10 text-dark border font-monospace">
-                      {{ log.estatus | uppercase }}
-                    </span>
-                    <span class="small text-muted"><i class="bi bi-calendar-event me-1"></i> {{ log.fecha | date:'short' }}</span>
-                  </div>
-                  <div class="fw-medium text-dark mt-2">
-                    <i class="bi bi-person-circle me-1 text-secondary"></i> {{ log.usuario }}
-                  </div>
-                </li>
-              } @empty {
-                <li class="list-group-item text-center text-muted py-5 small bg-white">
-                  <i class="bi bi-inbox fs-3 d-block mb-2"></i>
-                  No hay registros de seguimiento.
-                </li>
-              }
-            </ul>
+            <div class="p-4">
+              <!-- INYECCIÓN DEL COMPONENTE STANDALONE EN MODO TIMELINE -->
+              <app-seguimiento-operativo 
+                [idPrecompromiso]="idPrecompromiso()" 
+                vista="timeline">
+              </app-seguimiento-operativo>
+            </div>
           </div>
           
           <div class="modal-footer bg-light">
