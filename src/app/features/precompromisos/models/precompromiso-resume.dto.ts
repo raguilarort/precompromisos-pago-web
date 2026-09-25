@@ -3,6 +3,7 @@ export interface PrecompromisoResumeDTO {
   folio: string;
   ejercicio: number;
   unidad: string;
+  idEstatus: number;
   estatus: string;
   numeroRequisicion: string;
   tipoContratacion: string;

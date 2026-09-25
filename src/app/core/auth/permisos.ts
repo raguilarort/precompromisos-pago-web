@@ -39,26 +39,19 @@ export class Permisos {
   }
 
   puedeEditarPrecompromiso(idEstatusActual: number): boolean {
-    console.log('Estatus recibido en puedeEditarPrecompromiso ', idEstatusActual);
     const user = this.auth.usuarioAutenticado();
     if (!user) return false;
-
-    console.log(user);
 
     if (idEstatusActual !== ESTATUS_PRECOMPROMISO.CAPTURADO) {
       return false;
     }
 
-    console.log(idEstatusActual !== ESTATUS_PRECOMPROMISO.CAPTURADO);
-
     const rolesPermitidos = [RolSistema.Capturista, RolSistema.Revisor, RolSistema.Administrador];
-    console.log(rolesPermitidos.includes(user.rol));
     return rolesPermitidos.includes(user.rol);
   }
 
   // ELIMINACIÓN (Ampliación de Regla)
   puedeEliminarPrecompromiso(idEstatusActual: number): boolean {
-    console.log('Estatus recibido en puedeEliminarPrecompromiso ', idEstatusActual);
     const user = this.auth.usuarioAutenticado();
     if (!user) return false;
 
@@ -106,36 +99,55 @@ export class Permisos {
     return false;
   }
 
-  puedeCancelarPrecompromiso(estatusActual: string): boolean {
-    const user = this.auth.usuarioAutenticado();
-    if (!user) return false;
-    if (user.rol === RolSistema.Administrador) return true;
-
-    return user.rol === RolSistema.Validador && estatusActual === 'AUTORIZADO';
-  }
-
-
   
   // REVISOR
-  puedeDarVistoBueno(estatusActual: string): boolean {
+  puedeDarVistoBueno(idEstatusActual: number): boolean {
     const user = this.auth.usuarioAutenticado();
-    return user ? user.rol === RolSistema.Revisor && estatusActual === 'CAPTURADO' : false;
+    if (!user) return false;
+
+    if (idEstatusActual !== ESTATUS_PRECOMPROMISO.CAPTURADO) {
+      return false;
+    }
+
+    const rolesPermitidos = [RolSistema.Revisor, RolSistema.Administrador];
+    return rolesPermitidos.includes(user.rol);
   }
 
   // VALIDADOR
-  puedeAutorizar(estatusActual: string): boolean {
-    const user = this.auth.usuarioAutenticado();
-    return user ? user.rol === RolSistema.Validador && estatusActual === 'REVISADO' : false;
-  }
-
-  // AMBOS (Rechazo)
-  puedeRechazar(estatusActual: string): boolean {
+  puedeAutorizar(idEstatusActual: number): boolean {
     const user = this.auth.usuarioAutenticado();
     if (!user) return false;
-    
-    if (user.rol === RolSistema.Revisor && estatusActual === 'CAPTURADO') return true;
-    if (user.rol === RolSistema.Validador && estatusActual === 'REVISADO') return true;
-    return false;
+
+    if (idEstatusActual !== ESTATUS_PRECOMPROMISO.REVISADO) {
+      return false;
+    }
+
+    const rolesPermitidos = [RolSistema.Validador, RolSistema.Administrador];
+    return rolesPermitidos.includes(user.rol);
+  }
+
+  puedeRechazar(idEstatusActual: number): boolean {
+    const user = this.auth.usuarioAutenticado();
+    if (!user) return false;
+
+    if (idEstatusActual !== ESTATUS_PRECOMPROMISO.REVISADO) {
+      return false;
+    }
+
+    const rolesPermitidos = [RolSistema.Validador, RolSistema.Administrador];
+    return rolesPermitidos.includes(user.rol);
+  }
+
+  puedeCancelarPrecompromiso(idEstatusActual: number): boolean {
+    const user = this.auth.usuarioAutenticado();
+    if (!user) return false;
+
+    if (idEstatusActual !== ESTATUS_PRECOMPROMISO.AUTORIZADO) {
+      return false;
+    }
+
+    const rolesPermitidos = [RolSistema.Validador, RolSistema.Administrador];
+    return rolesPermitidos.includes(user.rol);
   }
 
 
