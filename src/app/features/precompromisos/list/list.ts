@@ -1,16 +1,17 @@
 import { Component, ViewChild, computed, effect, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CurrencyPipe } from '@angular/common';
+import { CurrencyPipe, UpperCasePipe } from '@angular/common';
 import { Permisos } from '../../../core/auth/permisos';
 import { ContextoGlobal } from '../../../core/services/contexto-global';
 import { Precompromiso } from '../services/precompromiso';
 import { ModalMotivoAccion, ModalMotivoResult } from '../components/modal-motivo-accion/modal-motivo-accion';
 import { SeguimientoOperativo } from '../components/seguimiento-operativo/seguimiento-operativo';
+import { ESTATUS_PRECOMPROMISO } from '../../../shared/constants/precompromiso-estatus.constants';
 
 
 @Component({
   selector: 'app-list',
-  imports: [RouterLink, CurrencyPipe, SeguimientoOperativo, ModalMotivoAccion],
+  imports: [RouterLink, CurrencyPipe, UpperCasePipe, SeguimientoOperativo, ModalMotivoAccion],
   templateUrl: './list.html',
   styleUrl: './list.css',
 })
@@ -20,6 +21,8 @@ export class List {
   private precompromisoService = inject(Precompromiso);
 
   @ViewChild('modalDinamico') modalDinamico!: ModalMotivoAccion;
+
+  readonly ESTATUS = ESTATUS_PRECOMPROMISO;
 
   // 2. Inyectamos el servicio de Permisos. 
   // Al no poner 'private', queda expuesto al list.html
@@ -124,6 +127,12 @@ export class List {
         this.mostrarAlerta('No se pudieron cargar las claves programáticas disponibles.', 'danger');
       }
     });
+  }
+
+  obtenerNombreEstatus(idEstatus: number): string {
+
+    const entrada = Object.entries(this.ESTATUS).find(([llave, valor]) => valor === idEstatus);
+    return entrada ? entrada[0] : 'DESCONOCIDO';
   }
 
   mostrarAlerta(mensaje: string, tipo: 'success'|'danger'|'warning') {

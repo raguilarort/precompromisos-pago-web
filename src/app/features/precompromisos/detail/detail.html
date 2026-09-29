@@ -17,17 +17,26 @@
         <h3 class="mb-0 fw-bold text-dark d-flex align-items-center">
           Folio: {{ item.folio }}
           <span class="badge ms-3 fs-6 rounded-pill"
-                [class.bg-warning-subtle]="item.idEstatus === ESTATUS.CAPTURADO"
-                [class.text-warning]="item.idEstatus === ESTATUS.CAPTURADO"
+                [class.bg-primary-subtle]="item.idEstatus === ESTATUS.CAPTURADO"
+                [class.text-primary]="item.idEstatus === ESTATUS.CAPTURADO"
+                
                 [class.bg-info-subtle]="item.idEstatus === ESTATUS.REVISADO"
                 [class.text-info]="item.idEstatus === ESTATUS.REVISADO"
-                [class.bg-success-subtle]="item.idEstatus === ESTATUS.COMPROMETIDO || item.idEstatus === ESTATUS.AUTORIZADO"
-                [class.text-success]="item.idEstatus === ESTATUS.COMPROMETIDO || item.idEstatus === ESTATUS.AUTORIZADO"
-                [class.bg-danger-subtle]="item.idEstatus === ESTATUS.CANCELADO || item.idEstatus === ESTATUS.RECHAZADO"
-                [class.text-danger]="item.idEstatus === ESTATUS.CANCELADO || item.idEstatus === ESTATUS.RECHAZADO"
                 
-                [class.bg-secondary]="item.estatus === 'ELIMINADO'"
-                [class.text-white]="item.estatus === 'ELIMINADO'">
+                [class.bg-success-subtle]="item.idEstatus === ESTATUS.AUTORIZADO"
+                [class.text-success]="item.idEstatus === ESTATUS.AUTORIZADO"
+                
+                [class.bg-dark]="item.idEstatus === ESTATUS.COMPROMETIDO"
+                [class.text-white]="item.idEstatus === ESTATUS.COMPROMETIDO"
+                
+                [class.bg-warning-subtle]="item.idEstatus === ESTATUS.RECHAZADO"
+                [class.text-warning]="item.idEstatus === ESTATUS.RECHAZADO"
+
+                [class.bg-danger-subtle]="item.idEstatus === ESTATUS.CANCELADO"
+                [class.text-danger]="item.idEstatus === ESTATUS.CANCELADO"
+                
+                [class.bg-secondary]="item.idEstatus === ESTATUS.ELIMINADO"
+                [class.text-white]="item.idEstatus === ESTATUS.ELIMINADO">
             {{ obtenerNombreEstatus(item.idEstatus) | uppercase }}
           </span>                  
         </h3>

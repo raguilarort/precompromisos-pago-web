@@ -99,27 +99,36 @@
                 {{ item.cantidadConceptos }}
               </td>
               <td class="text-end fw-bold font-monospace fs-6"
-                  [class.text-success]="item.estatus !== 'ELIMINADO'"
-                  [class.text-muted]="item.estatus === 'ELIMINADO'"
-                  [class.text-decoration-line-through]="item.estatus === 'ELIMINADO'">
+                  [class.text-success]="item.idEstatus !== ESTATUS.ELIMINADO"
+                  [class.text-muted]="item.idEstatus === ESTATUS.ELIMINADO || item.idEstatus === ESTATUS.CANCELADO"
+                  [class.text-decoration-line-through]="item.idEstatus === ESTATUS.ELIMINADO || item.idEstatus === ESTATUS.CANCELADO">
                 {{ item.importeTotal | currency }}
               </td>
               <td class="text-center">
                 <div class="hover-trigger position-relative d-inline-block">
                   <!-- Estandarización de colores solicitada -->
                   <span class="badge px-3 py-2 rounded-pill font-monospace cursor-pointer shadow-sm"
-                        [class.bg-warning-subtle]="item.estatus === 'CAPTURADO'"
-                        [class.text-warning]="item.estatus === 'CAPTURADO'"
-                        [class.bg-info-subtle]="item.estatus === 'REVISADO'"
-                        [class.text-info]="item.estatus === 'REVISADO'"
-                        [class.bg-success-subtle]="item.estatus === 'COMPROMETIDO'"
-                        [class.text-success]="item.estatus === 'COMPROMETIDO'"
-                        [class.bg-danger-subtle]="item.estatus === 'CANCELADO'"
-                        [class.text-danger]="item.estatus === 'CANCELADO'"
+                        [class.bg-primary-subtle]="item.idEstatus === ESTATUS.CAPTURADO"
+                        [class.text-primary]="item.idEstatus === ESTATUS.CAPTURADO"
                         
-                        [class.bg-secondary]="item.estatus === 'ELIMINADO'"
-                        [class.text-white]="item.estatus === 'ELIMINADO'">
-                    {{ item.estatus }}
+                        [class.bg-info-subtle]="item.idEstatus === ESTATUS.REVISADO"
+                        [class.text-info]="item.idEstatus === ESTATUS.REVISADO"
+                        
+                        [class.bg-success-subtle]="item.idEstatus === ESTATUS.AUTORIZADO"
+                        [class.text-success]="item.idEstatus === ESTATUS.AUTORIZADO"
+                        
+                        [class.bg-dark]="item.idEstatus === ESTATUS.COMPROMETIDO"
+                        [class.text-white]="item.idEstatus === ESTATUS.COMPROMETIDO"
+                        
+                        [class.bg-warning-subtle]="item.idEstatus === ESTATUS.RECHAZADO"
+                        [class.text-warning]="item.idEstatus === ESTATUS.RECHAZADO"
+
+                        [class.bg-danger-subtle]="item.idEstatus === ESTATUS.CANCELADO"
+                        [class.text-danger]="item.idEstatus === ESTATUS.CANCELADO"
+                        
+                        [class.bg-secondary]="item.idEstatus === ESTATUS.ELIMINADO"
+                        [class.text-white]="item.idEstatus === ESTATUS.ELIMINADO">
+                    {{ obtenerNombreEstatus(item.idEstatus) | uppercase }}
                   </span>
                   
                   <!-- Popover Oculto -->
