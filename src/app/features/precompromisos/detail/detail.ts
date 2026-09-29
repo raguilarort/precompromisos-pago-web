@@ -1,20 +1,17 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { CurrencyPipe, DatePipe, UpperCasePipe } from '@angular/common';
-import { ReactiveFormsModule, FormControl, Validators } from '@angular/forms';
+import { CurrencyPipe, UpperCasePipe } from '@angular/common';
 import { ESTATUS_PRECOMPROMISO } from '../../../shared/constants/precompromiso-estatus.constants';
-import { Estatus } from '../../admin/catalogos/estatus/services/estatus';
 import { Permisos } from '../../../core/auth/permisos';
 import { Precompromiso } from '../services/precompromiso';
-import { PrecompromisoDetailDTO, PrecompromisoDetailView } from '../models/precompromiso-detail.dto';
+import { PrecompromisoDetailView } from '../models/precompromiso-detail.dto';
 import { SeguimientoOperativo } from '../components/seguimiento-operativo/seguimiento-operativo';
 import { ClavePresupuestaria } from '../../presupuesto/claves-presupuestarias/services/clave-presupuestaria';
-
-
+import { ModalMotivoAccion, ModalMotivoResult } from '../components/modal-motivo-accion/modal-motivo-accion';
 
 @Component({
   selector: 'app-detail',
-  imports: [RouterLink, CurrencyPipe, UpperCasePipe, ReactiveFormsModule, SeguimientoOperativo],
+  imports: [RouterLink, CurrencyPipe, UpperCasePipe, SeguimientoOperativo, ModalMotivoAccion],
   templateUrl: './detail.html',
   styleUrl: './detail.css',
 })
@@ -22,8 +19,9 @@ export class Detail implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private precompromisoService = inject(Precompromiso);
-  private estatusService = inject(Estatus);
   private clavePresupuestariaService = inject(ClavePresupuestaria);
+
+  @ViewChild('modalDinamico') modalDinamico!: ModalMotivoAccion;
 
   // 1. Exponemos la constante importada para que el HTML pueda leerla
   readonly ESTATUS = ESTATUS_PRECOMPROMISO;
@@ -45,13 +43,6 @@ export class Detail implements OnInit {
   mensajeError = signal<string | null>(null);
   mensajeAlerta = signal<string | null>(null);
   mensajeExito = signal<string | null>(null);
-
-  // 3. CONTROL REACTIVO PARA EL RECHAZO
-  // Exigimos que sea obligatorio y tenga al menos 15 caracteres de longitud
-  motivoRechazo = new FormControl('', [
-    Validators.required, 
-    Validators.minLength(15)
-  ]);
 
   ngOnInit() {
     const idParam = this.route.snapshot.paramMap.get('id');
@@ -76,9 +67,9 @@ export class Detail implements OnInit {
           this.cargando.set(false);
         }
       });
-    }   
-    
-    this.cargando.set(false);
+    } else {
+      this.cargando.set(false);
+    }
   }
 
   // 4. FUNCIÓN TRADUCTORA PARA EL HTML
@@ -110,8 +101,6 @@ export class Detail implements OnInit {
 
     this.actualizandoConcepto.set(index);
 
-    console.log(idClave);
-
     this.clavePresupuestariaService.consultarDisponibilidadPorId(idClave).subscribe({
       next: (saldosActualizados: any) => {
         console.log(saldosActualizados);
@@ -140,7 +129,7 @@ export class Detail implements OnInit {
       error: (err) => {
         console.error(err);
         this.actualizandoConcepto.set(null);
-        const msjError = err.error?.mensaje || 'Ocurrió un error al intentar actualizar los saldos.';
+        const msjError = err.error?.mensaje || 'Ocurrió un error al actualizar los saldos.';
         this.mostrarAlerta(msjError, 'danger');
       }
     });
@@ -205,60 +194,103 @@ export class Detail implements OnInit {
   // ==========================================
 
   darVistoBueno() {
-    console.log('Emitiendo Visto Bueno...');
-    this.router.navigate(['/home/precompromisos/list']);
+    this.cargando.set(true);
+    this.mensajeCarga.set('Aplicando Visto Bueno...');
+    
+    this.precompromisoService.darVistoBueno(this.idPrecompromiso()).subscribe({
+      next: (res) => {
+        this.mostrarAlerta(res.mensaje || 'Visto bueno aplicado', 'success');
+        setTimeout(() => this.router.navigate(['/home/precompromisos/list']), 1500);
+      },
+      error: (err) => {
+        this.cargando.set(false);
+        this.mostrarAlerta(err.error?.mensaje || 'Error al aplicar visto bueno', 'danger');
+      }
+    });
   }
 
   autorizar() {
-    console.log('Autorizando precompromiso...');
-    this.router.navigate(['/home/precompromisos/list']);
+    this.cargando.set(true);
+    this.mensajeCarga.set('Autorizando Presupuesto...');
+
+    this.precompromisoService.autorizar(this.idPrecompromiso()).subscribe({
+      next: (res) => {
+        this.mostrarAlerta(res.mensaje || 'Precompromiso Autorizado', 'success');
+        setTimeout(() => this.router.navigate(['/home/precompromisos/list']), 1500);
+      },
+      error: (err) => {
+        this.cargando.set(false);
+        this.mostrarAlerta(err.error?.mensaje || 'Error al autorizar precompromiso', 'danger');
+      }
+    });
   }
 
-  rechazar() {
-    const motivo = prompt('Por favor, ingrese el motivo del rechazo:');
-    if (motivo) {
-      console.log('Rechazado por:', motivo);
-      this.router.navigate(['/home/precompromisos/list']);
-    }
-  }
-
-  cancelar() {
-    const confirmacion = confirm('¿Está seguro que desea CANCELAR este folio autorizado?');
-    if (confirmacion) {
-      console.log('Cancelando folio...');
-      this.router.navigate(['/home/precompromisos/list']);
-    }
-  }
-
-  eliminar() {
-    const confirmacion = confirm('¿Eliminar definitivamente este registro?');
-    if (confirmacion) {
-      console.log('Registro eliminado.');
-      this.router.navigate(['/home/precompromisos/list']);
-    }
-  }
-
-  // 4. MÉTODOS PARA EL MODAL DE RECHAZO
-  abrirModalRechazo() {
-    // Limpiamos controles y errores previos cada vez que se abre el modal
-    this.motivoRechazo.reset();
-  }
-
-  confirmarRechazo() {
-    if (this.motivoRechazo.invalid) {
-      // Forzamos que se muestren los errores visuales si el usuario intenta saltar la validación
-      this.motivoRechazo.markAsTouched();
-      return;
-    }
-
-    const motivo = this.motivoRechazo.value;
-    console.log('Precompromiso rechazado. Motivo capturado:', motivo);
+  rechazar(motivo: string) {
+    // Ya no usamos prompt(); el motivo viene del modal
+    console.log('Rechazado por:', motivo);
+    this.cargando.set(true);
+    this.mensajeCarga.set('Registrando rechazo...');
     
-    // Aquí conectarás con tu servicio: this.precompromisoService.rechazar(id, motivo).subscribe(...)
-    
-    // IMPORTANTE: Como usamos el atributo 'data-bs-dismiss' de Bootstrap en el HTML 
-    // para cerrar el modal automáticamente si es válido, aquí solo hacemos la redirección.
-    this.router.navigate(['/home/precompromisos/list']);
+    this.precompromisoService.rechazar(this.idPrecompromiso(), motivo).subscribe({
+      next: (data: any) => {
+        this.mostrarAlerta(data.mensaje || 'Precompromiso rechazado exitosamente', 'success');
+        setTimeout(() => this.router.navigate(['/home/precompromisos/list']), 1500);
+      },
+      error: (err: any) => {
+        this.cargando.set(false);
+        this.mostrarAlerta(err.error?.mensaje || 'Error al rechazar el precompromiso', 'danger');
+      }
+    });
+  }
+
+  cancelar(motivo: string) {
+    // Conservamos tu confirm original
+    const confirmacion = confirm('¿Está seguro de que desea cancelar este precompromiso autorizado? Esta acción no se puede deshacer.');
+
+    if (confirmacion) {
+      this.cargando.set(true);
+      this.mensajeCarga.set('Cancelando precompromiso...');
+      
+      this.precompromisoService.cancelar(this.idPrecompromiso(), motivo).subscribe({
+        next: (data: any) => {
+          this.mostrarAlerta(data.mensaje || 'Precompromiso cancelado exitosamente', 'success');
+          setTimeout(() => this.router.navigate(['/home/precompromisos/list']), 1500);
+        },
+        error: (err: any) => {
+          this.cargando.set(false);
+          this.mostrarAlerta(err.error?.mensaje || 'Error en el servidor.', 'danger');
+        }
+      });
+    }
+  }
+
+  eliminar(motivo: string) {
+    // Conservamos tu confirm original
+    if (confirm('¿Está seguro de que desea eliminar este precompromiso de forma permanente? Esta acción no se puede deshacer.')) {
+      this.cargando.set(true);
+      this.mensajeCarga.set('Eliminando registro...');
+
+      this.precompromisoService.eliminar(this.idPrecompromiso(), motivo).subscribe({
+        next: (data: any) => {
+          this.mostrarAlerta(data.mensaje || 'Precompromiso eliminado exitosamente', 'success');
+          setTimeout(() => this.router.navigate(['/home/precompromisos/list']), 1500);
+        },
+        error: (err: any) => {
+          this.cargando.set(false);
+          this.mostrarAlerta(err.error?.mensaje || 'Error en el servidor.', 'danger');
+        }
+      });
+    }
+  }
+
+  procesarAccionModal(evento: ModalMotivoResult) {
+    if (evento.accion === 'RECHAZAR') {
+      this.rechazar(evento.motivo);
+    } else if (evento.accion === 'CANCELAR') {
+      this.cancelar(evento.motivo);
+    } else if (evento.accion === 'ELIMINAR') {
+      this.eliminar(evento.motivo); 
+    }
   }
 
   mostrarAlerta(mensaje: string, tipo: 'success'|'danger'|'warning') {

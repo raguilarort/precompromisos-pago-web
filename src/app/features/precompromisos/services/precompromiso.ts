@@ -32,15 +32,6 @@ export class Precompromiso {
   }
 
   /**
-   * Elimina un precompromiso lógicamente en la base de datos
-   * @param idPrecompromiso Identificador del precompromiso a eliminar
-   * @returns Observable con el objeto que se arma durante la respuesta del servicio
-   */
-  eliminar(idPrecompromiso: number): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/${idPrecompromiso}`);
-  }
-
-  /**
    * Consulta los precompromisos gestionados en un ejercicio determinado
    * 
    * @param ejercicio Ejercicio en el que fueron registrados y gestionados los precompromisos.
@@ -50,6 +41,36 @@ export class Precompromiso {
     let params = new HttpParams().set('ejercicio', ejercicio.toString());
 
     return this.http.get<PrecompromisoResumeDTO[]>(`${this.baseUrl}`,{params}).pipe(map(data => data || []));
+  }
+
+  darVistoBueno(id: number): Observable<any> {
+    return this.http.patch(`${this.baseUrl}/${id}/visto-bueno`, {});
+  }
+
+  autorizar(id: number): Observable<any> {
+    return this.http.patch(`${this.baseUrl}/${id}/autorizar`, {});
+  }
+
+  rechazar(id: number, motivo: string): Observable<any> {
+    return this.http.patch(`${this.baseUrl}/${id}/rechazar`, { motivo });
+  }
+
+  /**
+   * Cancela un precompromiso previamente autorizado
+   * @param idPrecompromiso Identificador del precompromiso a cancelar
+   * @returns Observable con el objeto que se arma durante la respuesta del servicio
+   */
+  cancelar(idPrecompromiso: number, motivo: string): Observable<any> {
+    return this.http.patch(`${this.baseUrl}/${idPrecompromiso}/cancelar`, {motivo});
+  }
+
+  /**
+   * Elimina un precompromiso lógicamente en la base de datos
+   * @param idPrecompromiso Identificador del precompromiso a eliminar
+   * @returns Observable con el objeto que se arma durante la respuesta del servicio
+   */
+  eliminar(idPrecompromiso: number, motivo: string): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/${idPrecompromiso}`, { body: { motivo } });
   }
 
   /**

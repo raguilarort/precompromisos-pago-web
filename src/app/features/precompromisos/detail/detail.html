@@ -106,7 +106,7 @@
         <div class="card shadow-sm border-0">
           <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
             <span class="fw-medium">Desglose Presupuestal Mensualizado</span>
-            <span class="badge bg-light text-dark">{{ item.conceptos.length }} Partida(s)</span>
+            <span class="badge bg-light text-dark">{{ item.conceptos.length }} Concepto(s)</span>
           </div>
           <div class="card-body p-0">            
             <div class="accordion accordion-flush" id="acordeonConceptos">
@@ -231,32 +231,36 @@
       
       <div class="d-flex gap-2 flex-wrap justify-content-end w-100">
         
-        <!-- ELIMINAR: Solo si está en ESTATUS.CAPTURADO -->
+        <!-- ELIMINAR -->
         @if (item.idEstatus === ESTATUS.CAPTURADO && permisos.puedeEliminarPrecompromiso(item.idEstatus)) {
-          <button class="btn btn-outline-danger me-auto" (click)="eliminar()">
+          <button class="btn btn-outline-danger me-auto" 
+                  data-bs-toggle="modal" data-bs-target="#modalMotivo"
+                  (click)="modalDinamico.abrir('ELIMINAR', item.idPrecompromiso)">
             <i class="bi bi-trash"></i> Eliminar Registro
           </button>
         }
 
-        <!-- CANCELAR: Solo si está en ESTATUS.AUTORIZADO -->
-        @if (item.idEstatus === ESTATUS.AUTORIZADO && permisos.puedeCancelarPrecompromiso(obtenerNombreEstatus(item.idEstatus))) {
-          <button class="btn btn-warning me-auto" (click)="cancelar()">
+        <!-- CANCELAR -->
+        @if (item.idEstatus === ESTATUS.AUTORIZADO && permisos.puedeCancelarPrecompromiso(item.idEstatus)) {
+          <button class="btn btn-warning me-auto text-dark" 
+                  data-bs-toggle="modal" data-bs-target="#modalMotivo"
+                  (click)="modalDinamico.abrir('CANCELAR', item.idPrecompromiso)">
             <i class="bi bi-x-circle"></i> Cancelar Precompromiso
           </button>
         }
 
         <!-- RECHAZAR -->
-        @if (permisos.puedeRechazar(obtenerNombreEstatus(item.idEstatus))) {
+        @if (permisos.puedeRechazar(item.idEstatus)) {
           <button class="btn btn-danger shadow-sm px-4" 
-                  data-bs-toggle="modal" 
-                  data-bs-target="#modalRechazo"
-                  (click)="abrirModalRechazo()">
+                  data-bs-toggle="modal" data-bs-target="#modalMotivo"
+                  (click)="modalDinamico.abrir('RECHAZAR', item.idPrecompromiso)">
             <i class="bi bi-hand-thumbs-down"></i> Rechazar
           </button>
         }
 
+
         <!-- DAR VISTO BUENO -->
-        @if (permisos.puedeDarVistoBueno(obtenerNombreEstatus(item.idEstatus))) {
+        @if (permisos.puedeDarVistoBueno(item.idEstatus)) {
           <span [attr.title]="!suficienciaPresupuestal() ? 'No cuenta con suficiencia presupuestal completa' : ''">
             <button class="btn btn-success shadow-sm px-4" 
                     (click)="darVistoBueno()" 
@@ -267,7 +271,7 @@
         }
 
         <!-- AUTORIZAR PRESUPUESTO -->
-        @if (permisos.puedeAutorizar(obtenerNombreEstatus(item.idEstatus))) {
+        @if (permisos.puedeAutorizar(item.idEstatus)) {
           <span [attr.title]="!suficienciaPresupuestal() ? 'No cuenta con suficiencia presupuestal completa' : ''">
             <button class="btn btn-success shadow-sm px-4" 
                     (click)="autorizar()" 
@@ -313,62 +317,10 @@
       </div>
     </div>
 
-    <!-- COMPONENTE MODAL: Justificación de Rechazo -->
-    <div class="modal fade" id="modalRechazo" tabindex="-1" aria-labelledby="modalRechazoLabel" aria-hidden="true" data-bs-backdrop="static">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content shadow-lg border-0">
-          
-          <div class="modal-header bg-danger text-white border-0">
-            <h5 class="modal-title fw-bold d-flex align-items-center" id="modalRechazoLabel">
-              <i class="bi bi-exclamation-triangle-fill me-2"></i> Confirmar Rechazo
-            </h5>
-            <!-- Botón de cierre en blanco nativo de Bootstrap -->
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-          </div>
-          
-          <div class="modal-body p-4 bg-light">
-            <p class="text-muted small mb-3">
-              Estás a punto de rechazar el precompromiso <strong>{{ item.folio }}</strong>. Esta acción no podrá revertirse.
-            </p>
-
-            <div class="mb-3">
-              <label for="motivoRechazoInput" class="form-label fw-bold text-dark small mb-1">
-                Justificación obligatoria <span class="text-danger">*</span>
-              </label>
-              <textarea id="motivoRechazoInput" 
-                        class="form-control shadow-sm" 
-                        rows="4" 
-                        placeholder="Explica detalladamente por qué se rechaza este presupuesto..."
-                        [formControl]="motivoRechazo"
-                        [class.is-invalid]="motivoRechazo.invalid && motivoRechazo.touched"></textarea>
-              
-              <!-- Validaciones Reactivas -->
-              @if (motivoRechazo.invalid && motivoRechazo.touched) {
-                <div class="invalid-feedback d-block fw-medium mt-1">
-                  @if (motivoRechazo.hasError('required')) {
-                    <i class="bi bi-info-circle-fill me-1"></i> El motivo es obligatorio.
-                  } @else if (motivoRechazo.hasError('minlength')) {
-                    <i class="bi bi-info-circle-fill me-1"></i> La justificación debe ser breve (mínimo 15 caracteres).
-                  }
-                </div>
-              }
-            </div>
-          </div>
-          
-          <div class="modal-footer bg-white border-top">
-            <button type="button" class="btn btn-outline-secondary fw-medium" data-bs-dismiss="modal">Cancelar</button>
-            
-            <!-- El botón aplica data-bs-dismiss SOLO si el formulario es válido -->
-            <button type="button" class="btn btn-danger fw-bold shadow-sm" 
-                    (click)="confirmarRechazo()"
-                    [attr.data-bs-dismiss]="motivoRechazo.valid ? 'modal' : null">
-              <i class="bi bi-send-fill me-1"></i> Confirmar Rechazo
-            </button>
-          </div>
-          
-        </div>
-      </div>
-    </div>
+    <app-modal-motivo-accion 
+      #modalDinamico 
+      (alConfirmar)="procesarAccionModal($event)">
+    </app-modal-motivo-accion>
   } @else {
     <!-- Pantalla de Error / No Encontrado -->
     <div class="text-center py-5 mt-5">

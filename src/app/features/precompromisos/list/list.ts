@@ -1,14 +1,16 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, ViewChild, computed, effect, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CurrencyPipe } from '@angular/common';
 import { Permisos } from '../../../core/auth/permisos';
 import { ContextoGlobal } from '../../../core/services/contexto-global';
 import { Precompromiso } from '../services/precompromiso';
+import { ModalMotivoAccion, ModalMotivoResult } from '../components/modal-motivo-accion/modal-motivo-accion';
 import { SeguimientoOperativo } from '../components/seguimiento-operativo/seguimiento-operativo';
+
 
 @Component({
   selector: 'app-list',
-  imports: [RouterLink, CurrencyPipe, SeguimientoOperativo],
+  imports: [RouterLink, CurrencyPipe, SeguimientoOperativo, ModalMotivoAccion],
   templateUrl: './list.html',
   styleUrl: './list.css',
 })
@@ -16,6 +18,8 @@ export class List {
   // 1. INYECCIONES (Privadas: Solo el archivo .ts las consume)
   private contextoGlobal = inject(ContextoGlobal);
   private precompromisoService = inject(Precompromiso);
+
+  @ViewChild('modalDinamico') modalDinamico!: ModalMotivoAccion;
 
   // 2. Inyectamos el servicio de Permisos. 
   // Al no poner 'private', queda expuesto al list.html
@@ -76,10 +80,16 @@ export class List {
     this.consultarPrecompromisos(ejercicioActual);
   });
 
+  procesarAccionModal(evento: ModalMotivoResult) {
+    if (evento.accion === 'ELIMINAR' && evento.idRegistro) {
+      this.eliminar(evento.idRegistro, evento.motivo); 
+    }
+  }
+
   // 4. MÉTODOS PÚBLICOS (Llamados desde list.html)
-  eliminar(id: number) {
+  eliminar(id: number, motivo: string) {
     if (confirm('¿Está seguro de que desea eliminar este precompromiso de forma permanente? Esta acción no se puede deshacer.')) {
-      this.precompromisoService.eliminar(id).subscribe({
+      this.precompromisoService.eliminar(id, motivo).subscribe({
         next: (data) => {
           this.mostrarAlerta(data.mensaje || 'Precompromiso eliminado exitosamente', 'success');
           

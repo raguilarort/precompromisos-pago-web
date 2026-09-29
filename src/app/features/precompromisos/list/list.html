@@ -146,7 +146,7 @@
                       <i class="bi bi-pencil-square"></i>
                       <span class="d-none d-lg-inline ms-1">Editar</span>
                     </a>
-                    <button type="button" class="btn btn-sm btn-outline-danger" (click)="eliminar(item.idPrecompromiso)" title="Eliminar"
+                    <button type="button" class="btn btn-sm btn-outline-danger" (click)="modalDinamico.abrir('ELIMINAR', item.idPrecompromiso)" title="Eliminar"
                         [disabled]="!permisos.puedeEliminarPrecompromiso(item.idEstatus)"
                         [attr.title]="!permisos.puedeEliminarPrecompromiso(item.idEstatus) ? 'Solo eliminable en estatus Capturado' : 'Eliminar Registro'">
                       <i class="bi bi-trash"></i>
@@ -195,3 +195,7 @@
     </div>
   </div>
 }
+<app-modal-motivo-accion 
+  #modalDinamico 
+  (alConfirmar)="procesarAccionModal($event)">
+</app-modal-motivo-accion>
