@@ -1,0 +1,59 @@
+<div class="modal fade" #modalMotivoElement tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content shadow-lg border-0">
+      
+      <div class="modal-header text-white border-0"
+           [class.bg-danger]="accion() === 'RECHAZAR' || accion() === 'ELIMINAR'"
+           [class.bg-warning]="accion() === 'CANCELAR'"
+           [class.text-dark]="accion() === 'CANCELAR'">
+        <h5 class="modal-title fw-bold d-flex align-items-center">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i> 
+          Confirmar {{ accion() | titlecase }}
+        </h5>
+        <button type="button" class="btn-close" 
+                [class.btn-close-white]="accion() !== 'CANCELAR'" 
+                (click)="cerrar()" aria-label="Cerrar"></button>
+      </div>
+      
+      <div class="modal-body p-4 bg-light">
+        <p class="text-muted small mb-3">
+          Estás a punto de <strong>{{ accion() | lowercase }}</strong> el registro seleccionado. 
+          @if(accion() === 'CANCELAR') {
+            Esta acción liberará el presupuesto apartado.
+          } @else {
+            Esta acción no podrá revertirse.
+          }
+        </p>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold text-dark small mb-1">
+            Justificación obligatoria <span class="text-danger">*</span>
+          </label>
+          <textarea class="form-control shadow-sm" 
+                    rows="4" 
+                    placeholder="Explica detalladamente el motivo..."
+                    [formControl]="motivoControl"
+                    [class.is-invalid]="motivoControl.invalid && motivoControl.touched"></textarea>
+          
+          @if (motivoControl.invalid && motivoControl.touched) {
+            <div class="invalid-feedback d-block fw-medium mt-1">
+              <i class="bi bi-info-circle-fill me-1"></i> 
+              {{ motivoControl.hasError('required') ? 'El motivo es obligatorio.' : 'Debe tener al menos 15 caracteres.' }}
+            </div>
+          }
+        </div>
+      </div>
+      
+      <div class="modal-footer bg-white border-top">
+        <button type="button" class="btn btn-outline-secondary fw-medium" (click)="cerrar()">Cerrar</button>
+        <button type="button" class="btn fw-bold shadow-sm" 
+                [class.btn-danger]="accion() === 'RECHAZAR' || accion() === 'ELIMINAR'"
+                [class.btn-warning]="accion() === 'CANCELAR'"
+                (click)="confirmar()">
+          <i class="bi bi-send-fill me-1"></i> Confirmar 
+        </button>
+      </div>
+      
+    </div>
+  </div>
+</div>
