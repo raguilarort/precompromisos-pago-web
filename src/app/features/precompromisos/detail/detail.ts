@@ -115,32 +115,32 @@ export class Detail implements OnInit {
       return;
     }
 
-    const ejercicio = this.registro()?.ejercicio || 2026; // Obtener del registro actual
+    const ejercicio = this.registro()?.ejercicio || new Date().getFullYear();
     this.actualizandoConcepto.set(index);
 
-    // Consumimos el NUEVO endpoint de desglose orquestado
     this.saldosPresupuestalesService.consultarDesglosePresupuestalOrquestadoPorId(idClave).subscribe({
       next: (saldosActualizados: any) => {
         
         if (concepto.meses) {
-          concepto.meses.forEach((mes: any) => {
-            // Leemos del DTO orquestado
-            const grp = Number(saldosActualizados[`grp${mes.nombre}`]) || 0;
-            const precomp = Number(saldosActualizados[`precomp${mes.nombre}`]) || 0;
-            const neto = grp - precomp; // Cálculo del neto matemático
-            
-            // Asignamos al objeto del mes para que el HTML y el Popover lo consuman
-            mes.disponibleGrp = grp;
-            mes.precomprometido = precomp;
-            mes.disponibleNeto = neto;
-            
-            // Evaluamos la regla de negocio
-            mes.haySuficiencia = mes.disponibleNeto >= mes.importe;
+          concepto.meses = concepto.meses.map((mesAnterior: any) => {
+           const grp = Number(saldosActualizados[`grp${mesAnterior.nombre}`]) || 0;
+            const precomp = Number(saldosActualizados[`precomp${mesAnterior.nombre}`]) || 0;
+            const neto = grp - precomp;
+
+             return {
+              ...mesAnterior,
+              disponibleGrp: grp,
+              precomprometido: precomp,
+              disponibleNeto: neto,
+              haySuficiencia: neto >= mesAnterior.importe
+            };
           });
         }
         
-        // Truco Reactivo
-        this.registro.set({ ...this.registro()! });
+        const registroClonado = { ...this.registro()! };
+        registroClonado.conceptos = [...registroClonado.conceptos]; 
+        
+        this.registro.set(registroClonado);
         this.actualizandoConcepto.set(null);
         
         if (event.type !== 'load') {
