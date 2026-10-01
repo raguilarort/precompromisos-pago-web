@@ -6,12 +6,13 @@ import { Permisos } from '../../../core/auth/permisos';
 import { Precompromiso } from '../services/precompromiso';
 import { PrecompromisoDetailView } from '../models/precompromiso-detail.dto';
 import { SeguimientoOperativo } from '../components/seguimiento-operativo/seguimiento-operativo';
-import { ClavePresupuestaria } from '../../presupuesto/claves-presupuestarias/services/clave-presupuestaria';
 import { ModalMotivoAccion, ModalMotivoResult } from '../components/modal-motivo-accion/modal-motivo-accion';
+import { Saldos } from '../../presupuesto/saldos/services/saldos';
+import { DesgloseSaldoComponent } from '../../presupuesto/saldos/components/desglose-saldo/desglose-saldo';
 
 @Component({
   selector: 'app-detail',
-  imports: [RouterLink, CurrencyPipe, UpperCasePipe, SeguimientoOperativo, ModalMotivoAccion],
+  imports: [RouterLink, CurrencyPipe, UpperCasePipe, SeguimientoOperativo, ModalMotivoAccion, DesgloseSaldoComponent],
   templateUrl: './detail.html',
   styleUrl: './detail.css',
 })
@@ -19,7 +20,7 @@ export class Detail implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private precompromisoService = inject(Precompromiso);
-  private clavePresupuestariaService = inject(ClavePresupuestaria);
+  private saldosPresupuestalesService = inject(Saldos);
 
   @ViewChild('modalDinamico') modalDinamico!: ModalMotivoAccion;
 
@@ -89,45 +90,64 @@ export class Detail implements OnInit {
     );
   });
 
+  private mapearSaldosAFormulario(dto: any): any {
+    const mapeo: any = { idCvePresupuestaria: dto.idCvePresupuestaria };
+    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+    meses.forEach(mes => {
+      const grp = dto[`grp${mes}`] || 0;
+      const precomp = dto[`precomp${mes}`] || 0;
+      
+      mapeo[`grp${mes}`] = grp;
+      mapeo[`precomp${mes}`] = precomp;
+      mapeo[`disponible${mes}`] = grp - precomp; // El neto que usará el validador
+    });
+
+    return mapeo;
+  }
+
   refrescarSuficiencia(concepto: any, event: Event, index: number) {
     event.stopPropagation(); 
     
     const idClave = concepto.idClavePresupuestaria;
-
     if (!idClave) {
       this.mostrarAlerta('El concepto no tiene una clave presupuestaria asociada.', 'warning');
       return;
     }
 
+    const ejercicio = this.registro()?.ejercicio || 2026; // Obtener del registro actual
     this.actualizandoConcepto.set(index);
 
-    this.clavePresupuestariaService.consultarDisponibilidadPorId(idClave).subscribe({
+    // Consumimos el NUEVO endpoint de desglose orquestado
+    this.saldosPresupuestalesService.consultarDesglosePresupuestalOrquestadoPorId(idClave).subscribe({
       next: (saldosActualizados: any) => {
-        console.log(saldosActualizados);
         
-        // 1. Actualizamos nuestro arreglo de la vista ('meses')
         if (concepto.meses) {
           concepto.meses.forEach((mes: any) => {
-            // El backend devuelve 'importeEnero', 'importeFebrero', etc.
-            const nombrePropiedad = `disponible${mes.nombre}`; 
+            // Leemos del DTO orquestado
+            const grp = Number(saldosActualizados[`grp${mes.nombre}`]) || 0;
+            const precomp = Number(saldosActualizados[`precomp${mes.nombre}`]) || 0;
+            const neto = grp - precomp; // Cálculo del neto matemático
             
-            // Asignamos el disponible real que trajo la base de datos
-            mes.disponible = Number(saldosActualizados[nombrePropiedad]) || 0;
+            // Asignamos al objeto del mes para que el HTML y el Popover lo consuman
+            mes.disponibleGrp = grp;
+            mes.precomprometido = precomp;
+            mes.disponibleNeto = neto;
             
-            // Evaluamos la regla de negocio para saber si el mes se pinta rojo o verde
-            mes.haySuficiencia = mes.disponible >= mes.importe;
+            // Evaluamos la regla de negocio
+            mes.haySuficiencia = mes.disponibleNeto >= mes.importe;
           });
         }
         
-        // 2. Truco Reactivo: Clonamos el registro para forzar a Angular a re-evaluar la UI
-        // Esto disparará automáticamente el computed 'suficienciaPresupuestal()'
+        // Truco Reactivo
         this.registro.set({ ...this.registro()! });
-        
         this.actualizandoConcepto.set(null);
-        this.mostrarAlerta(`Saldos del Concepto #${index + 1} actualizados.`, 'success');
+        
+        if (event.type !== 'load') {
+          this.mostrarAlerta(`Saldos del Concepto #${index + 1} actualizados.`, 'success');
+        }
       },
       error: (err) => {
-        console.error(err);
         this.actualizandoConcepto.set(null);
         const msjError = err.error?.mensaje || 'Ocurrió un error al actualizar los saldos.';
         this.mostrarAlerta(msjError, 'danger');
@@ -162,18 +182,18 @@ export class Detail implements OnInit {
 
       // Armamos el arreglo iterable para el HTML
       concepto.meses = [
-        { nombre: 'Enero', importe: concepto.importeEnero || 0, disponible: 0, haySuficiencia: true },
-        { nombre: 'Febrero', importe: concepto.importeFebrero || 0, disponible: 0, haySuficiencia: true },
-        { nombre: 'Marzo', importe: concepto.importeMarzo || 0, disponible: 0, haySuficiencia: true },
-        { nombre: 'Abril', importe: concepto.importeAbril || 0, disponible: 0, haySuficiencia: true },
-        { nombre: 'Mayo', importe: concepto.importeMayo || 0, disponible: 0, haySuficiencia: true },
-        { nombre: 'Junio', importe: concepto.importeJunio || 0, disponible: 0, haySuficiencia: true },
-        { nombre: 'Julio', importe: concepto.importeJulio || 0, disponible: 0, haySuficiencia: true },
-        { nombre: 'Agosto', importe: concepto.importeAgosto || 0, disponible: 0, haySuficiencia: true },
-        { nombre: 'Septiembre', importe: concepto.importeSeptiembre || 0, disponible: 0, haySuficiencia: true },
-        { nombre: 'Octubre', importe: concepto.importeOctubre || 0, disponible: 0, haySuficiencia: true },
-        { nombre: 'Noviembre', importe: concepto.importeNoviembre || 0, disponible: 0, haySuficiencia: true },
-        { nombre: 'Diciembre', importe: concepto.importeDiciembre || 0, disponible: 0, haySuficiencia: true },
+        { nombre: 'Enero', importe: concepto.importeEnero || 0, disponibleGrp: 0, precomprometido: 0, disponibleNeto: 0, haySuficiencia: true },
+        { nombre: 'Febrero', importe: concepto.importeFebrero || 0, disponibleGrp: 0, precomprometido: 0, disponibleNeto: 0, haySuficiencia: true },
+        { nombre: 'Marzo', importe: concepto.importeMarzo || 0, disponibleGrp: 0, precomprometido: 0, disponibleNeto: 0, haySuficiencia: true },
+        { nombre: 'Abril', importe: concepto.importeAbril || 0, disponibleGrp: 0, precomprometido: 0, disponibleNeto: 0, haySuficiencia: true },
+        { nombre: 'Mayo', importe: concepto.importeMayo || 0, disponibleGrp: 0, precomprometido: 0, disponibleNeto: 0, haySuficiencia: true },
+        { nombre: 'Junio', importe: concepto.importeJunio || 0, disponibleGrp: 0, precomprometido: 0, disponibleNeto: 0, haySuficiencia: true },
+        { nombre: 'Julio', importe: concepto.importeJulio || 0, disponibleGrp: 0, precomprometido: 0, disponibleNeto: 0, haySuficiencia: true },
+        { nombre: 'Agosto', importe: concepto.importeAgosto || 0, disponibleGrp: 0, precomprometido: 0, disponibleNeto: 0, haySuficiencia: true },
+        { nombre: 'Septiembre', importe: concepto.importeSeptiembre || 0, disponibleGrp: 0, precomprometido: 0, disponibleNeto: 0, haySuficiencia: true },
+        { nombre: 'Octubre', importe: concepto.importeOctubre || 0, disponibleGrp: 0, precomprometido: 0, disponibleNeto: 0, haySuficiencia: true },
+        { nombre: 'Noviembre', importe: concepto.importeNoviembre || 0, disponibleGrp: 0, precomprometido: 0, disponibleNeto: 0, haySuficiencia: true },
+        { nombre: 'Diciembre', importe: concepto.importeDiciembre || 0, disponibleGrp: 0, precomprometido: 0, disponibleNeto: 0, haySuficiencia: true },
       ];
     });
 

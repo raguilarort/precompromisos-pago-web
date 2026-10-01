@@ -43,8 +43,14 @@ export interface ConceptoDetailDTO {
 export interface MesView {
   nombre: string;
   importe: number;
-  disponible: number;
   haySuficiencia: boolean;
+
+  disponible?: number; 
+  
+  // --- NUEVAS PROPIEDADES AÑADIDAS ---
+  disponibleGrp: number;
+  precomprometido: number;
+  disponibleNeto: number;
 }
 
 export interface ConceptoDetailView extends ConceptoDetailDTO {

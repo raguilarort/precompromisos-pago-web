@@ -13,16 +13,18 @@ import { TipoRequerimiento } from '../../admin/catalogos/tipos/requerimientos/se
 import { ClaveProgramatica } from '../../admin/catalogos/claves-programaticas/services/clave-programatica';
 import { Partida } from '../../admin/catalogos/partidas/services/partida';
 import { FuenteFinanciamiento } from '../../admin/catalogos/fuentes-financiamiento/services/fuente-financiamiento';
-import { ClavePresupuestaria } from '../../presupuesto/claves-presupuestarias/services/clave-presupuestaria';
 import { Precompromiso } from '../services/precompromiso';
+import { Saldos } from '../../presupuesto/saldos/services/saldos';
 
 import { PrecompromisoRequestDTO, PrecompromisoResponse } from '../models/precompromiso-request.dto';
 import { FiltroCombinacionEUPPFFDTO } from '../../presupuesto/claves-presupuestarias/model/filtro-clave-presupuestaria.dto';
 import { SeguimientoOperativo } from '../components/seguimiento-operativo/seguimiento-operativo';
+import { DesgloseSaldoComponent } from '../../presupuesto/saldos/components/desglose-saldo/desglose-saldo';
+
 
 @Component({
   selector: 'app-form',
-  imports: [ReactiveFormsModule, RouterLink, CurrencyPipe, NgSelectModule, FiltrarCatalogoPipe, NgxMaskDirective, SeguimientoOperativo],
+  imports: [ReactiveFormsModule, RouterLink, CurrencyPipe, NgSelectModule, FiltrarCatalogoPipe, NgxMaskDirective, SeguimientoOperativo, DesgloseSaldoComponent],
   providers: [provideNgxMask()],
   templateUrl: './form.html',
   styleUrl: './form.css',
@@ -41,7 +43,7 @@ export class Form implements OnInit {
   private claveProgramaticaService = inject(ClaveProgramatica);
   private partidaService = inject(Partida);
   private fuenteService = inject(FuenteFinanciamiento);
-  private clavePresupuestariaService = inject(ClavePresupuestaria);
+  private saldosPresupuestalesService = inject(Saldos);
   //#endregion
 
   esEdicion = false;
@@ -297,6 +299,19 @@ export class Form implements OnInit {
       disponibleNoviembre: [datosPrevios?.disponibleNoviembre || 0],
       disponibleDiciembre: [datosPrevios?.disponibleDiciembre || 0],
       
+      grpEnero: [datosPrevios?.grpEnero || 0], precompEnero: [datosPrevios?.precompEnero || 0],
+      grpFebrero: [datosPrevios?.grpFebrero || 0], precompFebrero: [datosPrevios?.precompFebrero || 0],
+      grpMarzo: [datosPrevios?.grpMarzo || 0], precompMarzo: [datosPrevios?.precompMarzo || 0],
+      grpAbril: [datosPrevios?.grpAbril || 0], precompAbril: [datosPrevios?.precompAbril || 0],
+      grpMayo: [datosPrevios?.grpMayo || 0], precompMayo: [datosPrevios?.precompMayo || 0],
+      grpJunio: [datosPrevios?.grpJunio || 0], precompJunio: [datosPrevios?.precompJunio || 0],
+      grpJulio: [datosPrevios?.grpJulio || 0], precompJulio: [datosPrevios?.precompJulio || 0],
+      grpAgosto: [datosPrevios?.grpAgosto || 0], precompAgosto: [datosPrevios?.precompAgosto || 0],
+      grpSeptiembre: [datosPrevios?.grpSeptiembre || 0], precompSeptiembre: [datosPrevios?.precompSeptiembre || 0],
+      grpOctubre: [datosPrevios?.grpOctubre || 0], precompOctubre: [datosPrevios?.precompOctubre || 0],
+      grpNoviembre: [datosPrevios?.grpNoviembre || 0], precompNoviembre: [datosPrevios?.precompNoviembre || 0],
+      grpDiciembre: [datosPrevios?.grpDiciembre || 0], precompDiciembre: [datosPrevios?.precompDiciembre || 0],
+      
       importeEnero: [{ value: datosPrevios?.importeEnero || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Enero')]],
       importeFebrero: [{ value: datosPrevios?.importeFebrero || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Febrero')]],
       importeMarzo: [{ value: datosPrevios?.importeMarzo || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Marzo')]],
@@ -414,7 +429,7 @@ export class Form implements OnInit {
       idFuenteFin: Number(rawValues.fuenteFinanciamiento)
     };
 
-    this.clavePresupuestariaService.consultarDisponibilidad(filtroCombinacion).subscribe({
+    this.saldosPresupuestalesService.consultarDesglosePresupuestalOrquestadoPorFiltro(filtroCombinacion).subscribe({
       next: (saldosReales) => {
         const idClave = Number(rawValues.claveProgramatica);
         const idPartida = Number(rawValues.partidaEspecifica);
@@ -424,6 +439,8 @@ export class Form implements OnInit {
         const objClave = this.catalogoClavesProgramaticas().find(c => c.idClaveProgramatica === idClave);
         const objPartida = this.catalogoPartidasEspecificas().find(p => p.idPartida === idPartida);
         const objFuente = this.catalogoFuentesFinanciamiento().find(f => f.idFuenteFinanciamiento === idFuente);
+
+        const saldosMapeados = this.mapearSaldosAFormulario(saldosReales);
 
         // Guardamos los textos en el formulario antes de bloquear
         concepto.patchValue({
@@ -436,7 +453,7 @@ export class Form implements OnInit {
         }, { emitEvent: false });
 
         // 1. Inyectamos los saldos y el idCvePresupuestaria real provenientes de Oracle
-        concepto.patchValue(saldosReales);
+        concepto.patchValue(saldosMapeados);
         
         // 2. CERRAMOS EL CANDADO
         concepto.get('combinacionValidada')?.setValue(true);
@@ -611,6 +628,22 @@ export class Form implements OnInit {
   // ==========================================
   // REFRESCO DE SALDOS EN TIEMPO REAL
   // ==========================================
+  private mapearSaldosAFormulario(dto: any): any {
+    const mapeo: any = { idCvePresupuestaria: dto.idCvePresupuestaria };
+    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+    meses.forEach(mes => {
+      const grp = dto[`grp${mes}`] || 0;
+      const precomp = dto[`precomp${mes}`] || 0;
+      
+      mapeo[`grp${mes}`] = grp;
+      mapeo[`precomp${mes}`] = precomp;
+      mapeo[`disponible${mes}`] = grp - precomp; // El neto que usará el validador
+    });
+
+    return mapeo;
+  }
+
   refrescarSaldos(index: number) {
     const concepto = this.conceptosFormArray.at(index) as FormGroup;
 
@@ -621,10 +654,11 @@ export class Form implements OnInit {
        return;
     }
 
-    this.clavePresupuestariaService.consultarDisponibilidadPorId(idCvePresupuestaria).subscribe({
+    this.saldosPresupuestalesService.consultarDesglosePresupuestalOrquestadoPorId(idCvePresupuestaria).subscribe({
       next: (saldosActualizados) => {
         // 1. Actualizamos únicamente los montos invisibles de disponibilidad
-        concepto.patchValue(saldosActualizados);
+        const saldosMapeados = this.mapearSaldosAFormulario(saldosActualizados);
+        concepto.patchValue(saldosMapeados);
 
         // 2. Evaluamos si algún mes se quedó sin fondos para bloquearlo
         this.evaluarEstadoMeses(concepto);

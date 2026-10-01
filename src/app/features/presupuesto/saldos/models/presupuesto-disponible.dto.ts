@@ -1,4 +1,4 @@
-export interface ClavePresupuestariaSaldosDisponibilidadDTO {
+export interface PresupuestoDisponibleDTO {
   idCvePresupuestaria: number;
   disponibleEnero: number;
   disponibleFebrero: number;

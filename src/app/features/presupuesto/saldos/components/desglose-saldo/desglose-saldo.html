@@ -1,0 +1,17 @@
+<!--<span class="badge cursor-pointer shadow-sm w-100 py-2 d-flex justify-content-between align-items-center" -->
+<span class="badge cursor-pointer shadow-sm py-2 px-2" 
+      tabindex="0"
+      data-bs-toggle="popover"
+      [attr.data-bs-title]="'Desglose ' + mes.nombre"
+      [class.bg-secondary]="mes.disponibleNeto === 0 && mes.importe === 0"
+      [class.bg-warning]="mes.disponibleNeto < 0"
+      [class.text-dark]="mes.disponibleNeto < 0"
+      [class.bg-success]="mes.disponibleNeto > 0 && mes.haySuficiencia"
+      [class.bg-danger]="mes.disponibleNeto >= 0 && !mes.haySuficiencia">
+  
+  <!--<span>Disp: {{ mes.disponibleNeto | currency }}</span>-->
+  Disp: {{ mes.disponibleNeto | currency }}
+  
+  <!-- Icono de información que sugiere al usuario que hay más datos al interactuar -->
+  <!--<i class="bi bi-info-circle ms-2" style="font-size: 0.8rem; opacity: 0.8;"></i>-->
+</span>

@@ -1,10 +1,14 @@
 // 1. Cambiamos la importación superior para usar provideBrowserGlobalErrorListeners
-import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { ApplicationConfig, provideBrowserGlobalErrorListeners, LOCALE_ID, DEFAULT_CURRENCY_CODE } from '@angular/core';
+import { registerLocaleData } from '@angular/common';
+import localeEsMx from '@angular/common/locales/es-MX';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS, withInterceptors } from '@angular/common/http';
 import { routes } from './app.routes';
 import { environment } from '../environments/environment.development';
 import { authInterceptor } from './core/auth/interceptors/auth-interceptor';
+
+
 
 import { 
   MsalService, 
@@ -49,6 +53,8 @@ export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
   };
 }
 
+registerLocaleData(localeEsMx, 'es-MX');
+
 // 3. Registro Global de Proveedores
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -77,6 +83,9 @@ export const appConfig: ApplicationConfig = {
     },
     MsalService,
     MsalGuard,
-    MsalBroadcastService
+    MsalBroadcastService,
+
+    { provide: LOCALE_ID, useValue: 'es-MX' },
+    { provide: DEFAULT_CURRENCY_CODE, useValue: 'MXN' }
   ]
 };

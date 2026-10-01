@@ -184,19 +184,13 @@
                                   [class.border-bottom]="mes.haySuficiencia"
                                   [class.bg-transparent]="!mes.haySuficiencia"
                                   [class.border-danger]="!mes.haySuficiencia">
-                                
+
                                 <span class="small fw-bold mb-0" 
                                       [class.text-dark]="mes.haySuficiencia"
                                       [class.text-danger]="!mes.haySuficiencia">{{ mes.nombre }}</span>
-                                
+
                                 @if (item.idEstatus === ESTATUS.CAPTURADO || item.idEstatus === ESTATUS.REVISADO) {
-                                  <span class="badge" style="font-size: 0.7rem;"
-                                        [class.bg-secondary]="mes.disponible === 0 && mes.importe === 0"
-                                        [class.bg-warning]="mes.disponible < 0"
-                                        [class.bg-success]="mes.disponible > 0 && mes.disponible >= mes.importe"
-                                        [class.bg-danger]="mes.disponible >= 0 && mes.disponible < mes.importe">
-                                    Disp: {{ mes.disponible | currency }}
-                                  </span>
+                                  <app-desglose-saldo [mes]="mes"></app-desglose-saldo>
                                 }
                               </div>
                               

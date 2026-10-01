@@ -1,0 +1,10 @@
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* Opcional: Asegurar que el popover mantenga la fuente de tu sistema */
+:host ::ng-deep .popover {
+  font-family: inherit;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  border: none;
+}

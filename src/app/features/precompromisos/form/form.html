@@ -240,15 +240,15 @@
                         <div class="col">
                           <div class="p-2 border rounded bg-light h-100">
                             <div class="d-flex flex-wrap justify-content-between align-items-center mb-2 gap-1">
-                              <label class="small fw-bold mb-0">Enero</label>
-                              <span class="badge" 
-                                    [class.bg-secondary]="concepto.get('disponibleEnero')?.value === 0"
-                                    [class.bg-warning]="concepto.get('disponibleEnero')?.value < 0"
-                                    [class.text-dark]="concepto.get('disponibleEnero')?.value < 0"
-                                    [class.bg-success]="concepto.get('disponibleEnero')?.value > 0 && !concepto.get('importeEnero')?.hasError('excedePresupuesto')"
-                                    [class.bg-danger]="concepto.get('disponibleEnero')?.value > 0 && concepto.get('importeEnero')?.hasError('excedePresupuesto')">
-                                Disp: {{ concepto.get('disponibleEnero')?.value | currency }}
-                              </span>
+                              <label class="small fw-bold mb-0">Enero</label>                              
+                              <app-desglose-saldo [mes]="{
+                                  nombre: 'Enero',
+                                  importe: concepto.get('importeEnero')?.value || 0,
+                                  disponibleGrp: concepto.get('grpEnero')?.value || 0,
+                                  precomprometido: concepto.get('precompEnero')?.value || 0,
+                                  disponibleNeto: concepto.get('disponibleEnero')?.value || 0,
+                                  haySuficiencia: !concepto.get('importeEnero')?.hasError('excedePresupuesto')
+                                }"></app-desglose-saldo>
                             </div>
 
                             <input type="text" class="form-control form-control-sm text-end" formControlName="importeEnero"
@@ -269,14 +269,14 @@
                           <div class="p-2 border rounded bg-light h-100">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                               <label class="small fw-bold mb-0">Febrero</label>
-                              <span class="badge" 
-                                    [class.bg-secondary]="concepto.get('disponibleFebrero')?.value === 0"
-                                    [class.bg-warning]="concepto.get('disponibleFebrero')?.value < 0"
-                                    [class.text-dark]="concepto.get('disponibleFebrero')?.value < 0"
-                                    [class.bg-success]="concepto.get('disponibleFebrero')?.value > 0 && !concepto.get('importeFebrero')?.hasError('excedePresupuesto')"
-                                    [class.bg-danger]="concepto.get('disponibleFebrero')?.value > 0 && concepto.get('importeFebrero')?.hasError('excedePresupuesto')">
-                                Disp: {{ concepto.get('disponibleFebrero')?.value | currency }}
-                              </span>
+                              <app-desglose-saldo [mes]="{
+                                nombre: 'Febrero',
+                                importe: concepto.get('importeFebrero')?.value || 0,
+                                disponibleGrp: concepto.get('grpFebrero')?.value || 0,
+                                precomprometido: concepto.get('precompFebrero')?.value || 0,
+                                disponibleNeto: concepto.get('disponibleFebrero')?.value || 0,
+                                haySuficiencia: !concepto.get('importeFebrero')?.hasError('excedePresupuesto')
+                              }"></app-desglose-saldo>
                             </div>
                             
                             <input type="text" class="form-control form-control-sm text-end" formControlName="importeFebrero"
@@ -297,14 +297,14 @@
                           <div class="p-2 border rounded bg-light h-100">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                               <label class="small fw-bold mb-0">Marzo</label>
-                              <span class="badge" 
-                                    [class.bg-secondary]="concepto.get('disponibleMarzo')?.value === 0"
-                                    [class.bg-warning]="concepto.get('disponibleMarzo')?.value < 0"
-                                    [class.text-dark]="concepto.get('disponibleMarzo')?.value < 0"
-                                    [class.bg-success]="concepto.get('disponibleMarzo')?.value > 0 && !concepto.get('importeMarzo')?.hasError('excedePresupuesto')"
-                                    [class.bg-danger]="concepto.get('disponibleMarzo')?.value > 0 && concepto.get('importeMarzo')?.hasError('excedePresupuesto')">
-                                Disp: {{ concepto.get('disponibleMarzo')?.value | currency }}
-                              </span>
+                              <app-desglose-saldo [mes]="{
+                                nombre: 'Marzo',
+                                importe: concepto.get('importeMarzo')?.value || 0,
+                                disponibleGrp: concepto.get('grpMarzo')?.value || 0,
+                                precomprometido: concepto.get('precompMarzo')?.value || 0,
+                                disponibleNeto: concepto.get('disponibleMarzo')?.value || 0,
+                                haySuficiencia: !concepto.get('importeMarzo')?.hasError('excedePresupuesto')
+                              }"></app-desglose-saldo>
                             </div>
                             
                             <input type="text" class="form-control form-control-sm text-end" formControlName="importeMarzo"
@@ -325,14 +325,14 @@
                           <div class="p-2 border rounded bg-light h-100">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                               <label class="small fw-bold mb-0">Abril</label>
-                              <span class="badge" 
-                                    [class.bg-secondary]="concepto.get('disponibleAbril')?.value === 0"
-                                    [class.bg-warning]="concepto.get('disponibleAbril')?.value < 0"
-                                    [class.text-dark]="concepto.get('disponibleAbril')?.value < 0"
-                                    [class.bg-success]="concepto.get('disponibleAbril')?.value > 0 && !concepto.get('importeAbril')?.hasError('excedePresupuesto')"
-                                    [class.bg-danger]="concepto.get('disponibleAbril')?.value > 0 && concepto.get('importeAbril')?.hasError('excedePresupuesto')">
-                                Disp: {{ concepto.get('disponibleAbril')?.value | currency }}
-                              </span>
+                              <app-desglose-saldo [mes]="{
+                                nombre: 'Abril',
+                                importe: concepto.get('importeAbril')?.value || 0,
+                                disponibleGrp: concepto.get('grpAbril')?.value || 0,
+                                precomprometido: concepto.get('precompAbril')?.value || 0,
+                                disponibleNeto: concepto.get('disponibleAbril')?.value || 0,
+                                haySuficiencia: !concepto.get('importeAbril')?.hasError('excedePresupuesto')
+                              }"></app-desglose-saldo>
                             </div>
                             
                             <input type="text" class="form-control form-control-sm text-end" formControlName="importeAbril"
@@ -353,14 +353,14 @@
                           <div class="p-2 border rounded bg-light h-100">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                               <label class="small fw-bold mb-0">Mayo</label>
-                              <span class="badge" 
-                                    [class.bg-secondary]="concepto.get('disponibleMayo')?.value === 0"
-                                    [class.bg-warning]="concepto.get('disponibleMayo')?.value < 0"
-                                    [class.text-dark]="concepto.get('disponibleMayo')?.value < 0"
-                                    [class.bg-success]="concepto.get('disponibleMayo')?.value > 0 && !concepto.get('importeMayo')?.hasError('excedePresupuesto')"
-                                    [class.bg-danger]="concepto.get('disponibleMayo')?.value > 0 && concepto.get('importeMayo')?.hasError('excedePresupuesto')">
-                                Disp: {{ concepto.get('disponibleMayo')?.value | currency }}
-                              </span>
+                              <app-desglose-saldo [mes]="{
+                                nombre: 'Mayo',
+                                importe: concepto.get('importeMayo')?.value || 0,
+                                disponibleGrp: concepto.get('grpMayo')?.value || 0,
+                                precomprometido: concepto.get('precompMayo')?.value || 0,
+                                disponibleNeto: concepto.get('disponibleMayo')?.value || 0,
+                                haySuficiencia: !concepto.get('importeMayo')?.hasError('excedePresupuesto')
+                              }"></app-desglose-saldo>
                             </div>
                             
                             <input type="text" class="form-control form-control-sm text-end" formControlName="importeMayo"
@@ -381,14 +381,14 @@
                           <div class="p-2 border rounded bg-light h-100">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                               <label class="small fw-bold mb-0">Junio</label>
-                              <span class="badge" 
-                                    [class.bg-secondary]="concepto.get('disponibleJunio')?.value === 0"
-                                    [class.bg-warning]="concepto.get('disponibleJunio')?.value < 0"
-                                    [class.text-dark]="concepto.get('disponibleJunio')?.value < 0"
-                                    [class.bg-success]="concepto.get('disponibleJunio')?.value > 0 && !concepto.get('importeJunio')?.hasError('excedePresupuesto')"
-                                    [class.bg-danger]="concepto.get('disponibleJunio')?.value > 0 && concepto.get('importeJunio')?.hasError('excedePresupuesto')">
-                                Disp: {{ concepto.get('disponibleJunio')?.value | currency }}
-                              </span>
+                              <app-desglose-saldo [mes]="{
+                                nombre: 'Junio',
+                                importe: concepto.get('importeJunio')?.value || 0,
+                                disponibleGrp: concepto.get('grpJunio')?.value || 0,
+                                precomprometido: concepto.get('precompJunio')?.value || 0,
+                                disponibleNeto: concepto.get('disponibleJunio')?.value || 0,
+                                haySuficiencia: !concepto.get('importeJunio')?.hasError('excedePresupuesto')
+                              }"></app-desglose-saldo>
                             </div>
                             
                             <input type="text" class="form-control form-control-sm text-end" formControlName="importeJunio"
@@ -409,14 +409,14 @@
                           <div class="p-2 border rounded bg-light h-100">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                               <label class="small fw-bold mb-0">Julio</label>
-                              <span class="badge" 
-                                    [class.bg-secondary]="concepto.get('disponibleJulio')?.value === 0"
-                                    [class.bg-warning]="concepto.get('disponibleJulio')?.value < 0"
-                                    [class.text-dark]="concepto.get('disponibleJulio')?.value < 0"
-                                    [class.bg-success]="concepto.get('disponibleJulio')?.value > 0 && !concepto.get('importeJulio')?.hasError('excedePresupuesto')"
-                                    [class.bg-danger]="concepto.get('disponibleJulio')?.value > 0 && concepto.get('importeJulio')?.hasError('excedePresupuesto')">
-                                Disp: {{ concepto.get('disponibleJulio')?.value | currency }}
-                              </span>
+                              <app-desglose-saldo [mes]="{
+                                nombre: 'Julio',
+                                importe: concepto.get('importeJulio')?.value || 0,
+                                disponibleGrp: concepto.get('grpJulio')?.value || 0,
+                                precomprometido: concepto.get('precompJulio')?.value || 0,
+                                disponibleNeto: concepto.get('disponibleJulio')?.value || 0,
+                                haySuficiencia: !concepto.get('importeJulio')?.hasError('excedePresupuesto')
+                              }"></app-desglose-saldo>
                             </div>
                             
                             <input type="text" class="form-control form-control-sm text-end" formControlName="importeJulio"
@@ -437,14 +437,14 @@
                           <div class="p-2 border rounded bg-light h-100">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                               <label class="small fw-bold mb-0">Agosto</label>
-                              <span class="badge" 
-                                    [class.bg-secondary]="concepto.get('disponibleAgosto')?.value === 0"
-                                    [class.bg-warning]="concepto.get('disponibleAgosto')?.value < 0"
-                                    [class.text-dark]="concepto.get('disponibleAgosto')?.value < 0"
-                                    [class.bg-success]="concepto.get('disponibleAgosto')?.value > 0 && !concepto.get('importeAgosto')?.hasError('excedePresupuesto')"
-                                    [class.bg-danger]="concepto.get('disponibleAgosto')?.value > 0 && concepto.get('importeAgosto')?.hasError('excedePresupuesto')">
-                                Disp: {{ concepto.get('disponibleAgosto')?.value | currency }}
-                              </span>
+                              <app-desglose-saldo [mes]="{
+                                nombre: 'Agosto',
+                                importe: concepto.get('importeAgosto')?.value || 0,
+                                disponibleGrp: concepto.get('grpAgosto')?.value || 0,
+                                precomprometido: concepto.get('precompAgosto')?.value || 0,
+                                disponibleNeto: concepto.get('disponibleAgosto')?.value || 0,
+                                haySuficiencia: !concepto.get('importeAgosto')?.hasError('excedePresupuesto')
+                              }"></app-desglose-saldo>
                             </div>
                             
                             <input type="text" class="form-control form-control-sm text-end" formControlName="importeAgosto"
@@ -465,14 +465,14 @@
                           <div class="p-2 border rounded bg-light h-100">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                               <label class="small fw-bold mb-0">Septiembre</label>
-                              <span class="badge" 
-                                    [class.bg-secondary]="concepto.get('disponibleSeptiembre')?.value === 0"
-                                    [class.bg-warning]="concepto.get('disponibleSeptiembre')?.value < 0"
-                                    [class.text-dark]="concepto.get('disponibleSeptiembre')?.value < 0"
-                                    [class.bg-success]="concepto.get('disponibleSeptiembre')?.value > 0 && !concepto.get('importeSeptiembre')?.hasError('excedePresupuesto')"
-                                    [class.bg-danger]="concepto.get('disponibleSeptiembre')?.value > 0 && concepto.get('importeSeptiembre')?.hasError('excedePresupuesto')">
-                                Disp: {{ concepto.get('disponibleSeptiembre')?.value | currency }}
-                              </span>
+                              <app-desglose-saldo [mes]="{
+                                nombre: 'Septiembre',
+                                importe: concepto.get('importeSeptiembre')?.value || 0,
+                                disponibleGrp: concepto.get('grpSeptiembre')?.value || 0,
+                                precomprometido: concepto.get('precompSeptiembre')?.value || 0,
+                                disponibleNeto: concepto.get('disponibleSeptiembre')?.value || 0,
+                                haySuficiencia: !concepto.get('importeSeptiembre')?.hasError('excedePresupuesto')
+                              }"></app-desglose-saldo>
                             </div>
                             
                             <input type="text" class="form-control form-control-sm text-end" formControlName="importeSeptiembre"
@@ -493,14 +493,14 @@
                           <div class="p-2 border rounded bg-light h-100">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                               <label class="small fw-bold mb-0">Octubre</label>
-                              <span class="badge" 
-                                    [class.bg-secondary]="concepto.get('disponibleOctubre')?.value === 0"
-                                    [class.bg-warning]="concepto.get('disponibleOctubre')?.value < 0"
-                                    [class.text-dark]="concepto.get('disponibleOctubre')?.value < 0"
-                                    [class.bg-success]="concepto.get('disponibleOctubre')?.value > 0 && !concepto.get('importeOctubre')?.hasError('excedePresupuesto')"
-                                    [class.bg-danger]="concepto.get('disponibleOctubre')?.value > 0 && concepto.get('importeOctubre')?.hasError('excedePresupuesto')">
-                                Disp: {{ concepto.get('disponibleOctubre')?.value | currency }}
-                              </span>
+                              <app-desglose-saldo [mes]="{
+                                nombre: 'Octubre',
+                                importe: concepto.get('importeOctubre')?.value || 0,
+                                disponibleGrp: concepto.get('grpOctubre')?.value || 0,
+                                precomprometido: concepto.get('precompOctubre')?.value || 0,
+                                disponibleNeto: concepto.get('disponibleOctubre')?.value || 0,
+                                haySuficiencia: !concepto.get('importeOctubre')?.hasError('excedePresupuesto')
+                              }"></app-desglose-saldo>
                             </div>
                             
                             <input type="text" class="form-control form-control-sm text-end" formControlName="importeOctubre"
@@ -521,14 +521,14 @@
                           <div class="p-2 border rounded bg-light h-100">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                               <label class="small fw-bold mb-0">Noviembre</label>
-                              <span class="badge" 
-                                    [class.bg-secondary]="concepto.get('disponibleNoviembre')?.value === 0"
-                                    [class.bg-warning]="concepto.get('disponibleNoviembre')?.value < 0"
-                                    [class.text-dark]="concepto.get('disponibleNoviembre')?.value < 0"
-                                    [class.bg-success]="concepto.get('disponibleNoviembre')?.value > 0 && !concepto.get('importeNoviembre')?.hasError('excedePresupuesto')"
-                                    [class.bg-danger]="concepto.get('disponibleNoviembre')?.value > 0 && concepto.get('importeNoviembre')?.hasError('excedePresupuesto')">
-                                Disp: {{ concepto.get('disponibleNoviembre')?.value | currency }}
-                              </span>
+                              <app-desglose-saldo [mes]="{
+                                nombre: 'Noviembre',
+                                importe: concepto.get('importeNoviembre')?.value || 0,
+                                disponibleGrp: concepto.get('grpNoviembre')?.value || 0,
+                                precomprometido: concepto.get('precompNoviembre')?.value || 0,
+                                disponibleNeto: concepto.get('disponibleNoviembre')?.value || 0,
+                                haySuficiencia: !concepto.get('importeNoviembre')?.hasError('excedePresupuesto')
+                              }"></app-desglose-saldo>
                             </div>
                             
                             <input type="text" class="form-control form-control-sm text-end" formControlName="importeNoviembre"
@@ -549,14 +549,14 @@
                           <div class="p-2 border rounded bg-light h-100">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                               <label class="small fw-bold mb-0">Diciembre</label>
-                              <span class="badge" 
-                                    [class.bg-secondary]="concepto.get('disponibleDiciembre')?.value === 0"
-                                    [class.bg-warning]="concepto.get('disponibleDiciembre')?.value < 0"
-                                    [class.text-dark]="concepto.get('disponibleDiciembre')?.value < 0"
-                                    [class.bg-success]="concepto.get('disponibleDiciembre')?.value > 0 && !concepto.get('importeDiciembre')?.hasError('excedePresupuesto')"
-                                    [class.bg-danger]="concepto.get('disponibleDiciembre')?.value > 0 && concepto.get('importeDiciembre')?.hasError('excedePresupuesto')">
-                                Disp: {{ concepto.get('disponibleDiciembre')?.value | currency }}
-                              </span>
+                              <app-desglose-saldo [mes]="{
+                                nombre: 'Diciembre',
+                                importe: concepto.get('importeDiciembre')?.value || 0,
+                                disponibleGrp: concepto.get('grpDiciembre')?.value || 0,
+                                precomprometido: concepto.get('precompDiciembre')?.value || 0,
+                                disponibleNeto: concepto.get('disponibleDiciembre')?.value || 0,
+                                haySuficiencia: !concepto.get('importeDiciembre')?.hasError('excedePresupuesto')
+                              }"></app-desglose-saldo>
                             </div>
                             
                             <input type="text" class="form-control form-control-sm text-end" formControlName="importeDiciembre"
@@ -578,7 +578,7 @@
                       </div>
                     </div> <!-- CIERRE DE POSITION RELATIVE -->
                   </div> <!-- CIERRE DE CARD BODY -->
-                </div> <!-- CIERRE DEL CARD / FORMGROUP -->
+                </div> <!-- CIERRE DEL CARD / FORMGROUP -->              
               } <!-- CIERRE DEL FOR -->
             </div>
 
