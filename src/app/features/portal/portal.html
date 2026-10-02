@@ -1,23 +1,94 @@
-@if (authService.isAutenticando()) {
-  <div class="d-flex justify-content-center align-items-center vh-100 bg-light">
-    <div class="text-center">
-      <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
-        <span class="visually-hidden">Cargando...</span>
+<div class="portal-container">
+  <div class="bg-layer">
+    <!-- Malla Financiera -->
+    <svg class="bg-svg full-grid" width="100%" height="100%">
+      <defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="#e0e5eb" stroke-width="0.5"/></pattern></defs>
+      <rect width="100%" height="100%" fill="url(#grid)" />
+    </svg>
+
+    <!-- Gráfico de Tendencia Fluido (SOLUCIÓN ÓVALOS: xMidYMax slice) -->
+    <svg class="bg-svg fluid-chart" viewBox="0 0 1440 320" preserveAspectRatio="xMidYMax slice">
+      <defs>
+        <linearGradient id="chartFade" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#198754" stop-opacity="0.2" />
+          <stop offset="100%" stop-color="#198754" stop-opacity="0" />
+        </linearGradient>
+      </defs>
+      <path fill="url(#chartFade)" d="M0,160L48,165.3C96,171,192,181,288,160C384,139,480,85,576,85.3C672,85,768,139,864,170.7C960,203,1056,213,1152,192C1248,171,1344,117,1392,90.7L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+      <path fill="none" stroke="#198754" stroke-width="3" stroke-dasharray="6,4" d="M0,160L48,165.3C96,171,192,181,288,160C384,139,480,85,576,85.3C672,85,768,139,864,170.7C960,203,1056,213,1152,192C1248,171,1344,117,1392,90.7L1440,64"></path>
+      
+      <!-- Puntos de interés desvanecidos (Ahora siempre serán círculos perfectos) -->
+      <circle cx="288" cy="160" r="6" fill="#198754" opacity="0.4" />
+      <circle cx="576" cy="85.3" r="6" fill="#198754" opacity="0.3" />
+      <circle cx="864" cy="170.7" r="6" fill="#198754" opacity="0.5" />
+      <circle cx="1152" cy="192" r="6" fill="#198754" opacity="0.3" />
+    </svg>
+
+    <!-- Ilustración Flotante 1: Gráfica de Barras -->
+    <svg class="bg-svg float-bar-chart" viewBox="0 0 100 100">
+      <rect x="10" y="50" width="15" height="40" fill="#0b3b24" rx="2"/>
+      <rect x="35" y="30" width="15" height="60" fill="#198754" rx="2"/>
+      <rect x="60" y="10" width="15" height="80" fill="#f39c12" rx="2"/>
+      <path d="M 5 60 L 35 40 L 55 50 L 85 15" fill="none" stroke="#2c3e50" stroke-width="3" stroke-linecap="round"/>
+      <polygon points="80,10 92,10 88,22" fill="#2c3e50"/>
+    </svg>
+
+    <!-- Ilustración Flotante 2: Gráfica de Pay (70%, 10%, 10%, 10%) -->
+    <svg class="bg-svg float-pie-chart" viewBox="0 0 100 100">
+      <!-- 70% (Verde Institucional) -->
+      <path d="M 50 50 L 50 10 A 40 40 0 1 1 11.96 62.36 Z" fill="#198754" stroke="#ffffff" stroke-width="1"/>
+      <!-- 10% (Verde Oscuro) -->
+      <path d="M 50 50 L 11.96 62.36 A 40 40 0 0 1 11.96 37.64 Z" fill="#0b3b24" stroke="#ffffff" stroke-width="1"/>
+      <!-- 10% (Naranja/Dorado) -->
+      <path d="M 50 50 L 11.96 37.64 A 40 40 0 0 1 26.48 17.64 Z" fill="#f39c12" stroke="#ffffff" stroke-width="1"/>
+      <!-- 10% (Gris Claro) -->
+      <path d="M 50 50 L 26.48 17.64 A 40 40 0 0 1 50 10 Z" fill="#e0e5eb" stroke="#ffffff" stroke-width="1"/>
+    </svg>
+
+    <!-- Ilustración Flotante 3: Documento con Check -->
+    <svg class="bg-svg float-document" viewBox="0 0 100 100">
+      <!-- Hoja de documento -->
+      <rect x="25" y="15" width="50" height="65" fill="#ffffff" stroke="#d1d8e0" stroke-width="2" rx="3"/>
+      <!-- Líneas de texto -->
+      <line x1="35" y1="30" x2="65" y2="30" stroke="#e0e5eb" stroke-width="3" stroke-linecap="round"/>
+      <line x1="35" y1="40" x2="55" y2="40" stroke="#e0e5eb" stroke-width="3" stroke-linecap="round"/>
+      <!-- Insignia de validación (Check) -->
+      <circle cx="70" cy="70" r="15" fill="#198754" stroke="#ffffff" stroke-width="2"/>
+      <path d="M 64 70 L 68 74 L 76 65" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+
+    <!-- Ilustración Flotante 4: Moneda -->
+    <svg class="bg-svg float-coin" viewBox="0 0 100 100">
+      <circle cx="50" cy="54" r="30" fill="#d68910"/>
+      <circle cx="50" cy="50" r="30" fill="#f1c40f"/>
+      <circle cx="50" cy="50" r="22" fill="none" stroke="#d68910" stroke-width="2" stroke-dasharray="4,3"/>
+      <text x="50" y="61" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#b9770e" text-anchor="middle">$</text>
+    </svg>
+
+    <div class="accent-bar"></div>
+  </div>
+
+  <!-- CONTENIDO CENTRAL DEL LOGIN -->
+  <div class="portal-content">
+    @if (authService.isAutenticando()) {
+      <div class="text-center">
+        <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+        <h5 class="text-muted fw-light">{{ authService.mensajeCarga() }}</h5>
       </div>
-      <h5 class="text-muted fw-light">{{ authService.mensajeCarga() }}</h5>
-    </div>
+    } @else {
+      <div class="card shadow-lg p-5 text-center auth-card">
+        <img src="assets/images/logos/legislatura/actual/Logo_Legislatura_Color_Circular.png" alt="Logo Institucional" class="mb-4 mx-auto d-block logo-img">
+        <h2 class="mb-2 fw-bold text-dark">Bienvenido</h2>
+        <p class="text-muted mb-4 small text-uppercase fw-bold letter-spacing-1">Módulo de Precompromisos</p>
+        
+        <div class="divider mb-4"></div>
+
+        <button class="btn btn-dark w-100 py-2 fw-bold d-flex justify-content-center align-items-center gap-2" (click)="iniciarSesion()">
+          <i class="bi bi-microsoft"></i> Acceso Institucional
+        </button>
+      </div>
+    }
   </div>
-} @else {
-  <div class="d-flex justify-content-center align-items-center vh-100 bg-light">
-    <div class="card shadow-lg p-5 text-center" style="max-width: 400px; width: 100%;">
-      <img src="assets/images/logos/legislatura/actual/Logo_Legislatura_Color_Circular.png" alt="Logo Institucional del Senado" class="mb-4 mx-auto d-block" style="max-width: 130px; width: 100%;">
-      
-      <h2 class="mb-3">Bienvenido</h2>
-      <p class="text-muted mb-4">Sistema de Registro de Compromisos de Pago</p>
-      
-      <button class="btn btn-primary w-100 py-2 fw-bold" (click)="iniciarSesion()">
-        Iniciar sesión con Microsoft
-      </button>
-    </div>
-  </div>
-}
+</div>
