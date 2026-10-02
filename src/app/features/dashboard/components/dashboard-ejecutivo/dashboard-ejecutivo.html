@@ -1,0 +1,87 @@
+@if (cargando()) {
+  <div class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <!-- CORRECCIÓN: 'nombreArea' no existe en UsuarioSession, cambiamos a un texto genérico -->
+    <p class="mt-2 text-muted">Cargando métricas de tus unidades asignadas...</p>
+  </div>
+} @else {
+  <div class="row g-4">
+    <!-- COLUMNA PRINCIPAL (8) -->
+    <div class="col-lg-8">
+      
+      <!-- KPIs Funcionales con Pipes de Angular -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-4">
+          <div class="card shadow-sm border-0 border-start border-primary border-4 h-100">
+            <div class="card-body">
+              <h6 class="text-muted fw-bold mb-1">PRESUPUESTO GLOBAL</h6>
+              <h4 class="fw-bold mb-0 text-dark">{{ kpis().presupuestoGlobal | currency:'MXN' }}</h4>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card shadow-sm border-0 border-start border-warning border-4 h-100">
+            <div class="card-body">
+              <h6 class="text-muted fw-bold mb-1">EN TRÁMITE</h6>
+              <h4 class="fw-bold mb-0 text-dark">{{ kpis().enTramite | currency:'MXN' }}</h4>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card shadow-sm border-0 border-start border-success border-4 h-100">
+            <div class="card-body">
+              <h6 class="text-muted fw-bold mb-1">DISPONIBLE NETO</h6>
+              <h4 class="fw-bold mb-0 text-success">{{ kpis().disponibleNeto | currency:'MXN' }}</h4>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bandeja de Acción Iterando Signals -->
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+          <h6 class="mb-0 fw-bold"><i class="bi bi-inbox me-2 text-primary"></i>Pendientes de Validación</h6>
+          <span class="badge bg-danger rounded-pill">{{ tramitesPendientes().length }} Trámites</span>
+        </div>
+        <div class="list-group list-group-flush">
+          @for (tramite of tramitesPendientes(); track tramite.folio) {
+            <div class="list-group-item py-3">
+              <div class="d-flex w-100 justify-content-between align-items-center">
+                <div>
+                  <h6 class="mb-1 fw-bold">Folio: {{ tramite.folio }}</h6>
+                  <p class="mb-1 text-muted small">{{ tramite.desc }}</p>
+                </div>
+                <div class="text-end">
+                  <h6 class="mb-1 fw-bold">{{ tramite.monto | currency:'MXN' }}</h6>
+                  <button class="btn btn-sm btn-dark">Revisar</button>
+                </div>
+              </div>
+            </div>
+          } @empty {
+            <div class="list-group-item py-4 text-center text-muted">
+              <i class="bi bi-check2-circle fs-3 d-block mb-2 text-success"></i>
+              <p class="mb-0 small">No tienes precompromisos pendientes por revisar.</p>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- COLUMNA LATERAL (4) -->
+    <div class="col-lg-4">
+      
+      <!-- INYECCIÓN DEL COMPONENTE DE AVISOS -->
+      <app-avisos></app-avisos>
+
+      <!-- Trazabilidad Fija (Por implementar signal) -->
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-header bg-white border-bottom py-3">
+          <h6 class="mb-0 fw-bold"><i class="bi bi-clock-history me-2 text-primary"></i>Actividad Reciente</h6>
+        </div>
+        <div class="card-body text-center text-muted py-4">
+          <small>El historial se cargará aquí.</small>
+        </div>
+      </div>
+    </div>
+  </div>
+}

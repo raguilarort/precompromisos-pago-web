@@ -22,6 +22,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/home/home').then(m => m.Home),
     children: [
       {
+        path: '', 
+        loadComponent: () => import('./features/dashboard/inicio/inicio').then(m => m.Inicio)
+      },
+      {
         // Ruta para visualizar el listado de precompromisos
         path: 'precompromisos/list',
         // BLINDAJE NIVEL 2: Todos los perfiles del negocio pueden ver la lista

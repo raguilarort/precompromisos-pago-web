@@ -173,4 +173,23 @@ export class Permisos {
 
     return false;
   }
+
+  //Reglas Dashboard
+  esEjecutivo(): boolean {
+    const user = this.auth.usuarioAutenticado();
+    if (!user) return false;
+    
+    // Por ahora, Revisor y Validador tienen bandeja de entrada. 
+    // (Podemos incluir al Capturista después para folios 'Rechazados')
+    return [RolSistema.Revisor, RolSistema.Validador, RolSistema.Administrador].includes(user.rol);
+  }
+
+  esOperativo(): boolean {
+    const user = this.auth.usuarioAutenticado();
+    if (!user) return false;
+    
+    // Por ahora, Revisor y Validador tienen bandeja de entrada. 
+    // (Podemos incluir al Capturista después para folios 'Rechazados')
+    return [RolSistema.Capturista].includes(user.rol);
+  }
 }
