@@ -3,7 +3,9 @@
   <div class="container-fluid px-3 px-lg-4 position-relative">
     
     <!-- MARCA (Siempre visible) -->
-    <a class="navbar-brand fw-bold text-white" href="#">Precompromisos App</a>
+    <a class="navbar-brand fw-bold text-white" routerLink="/home" style="cursor: pointer;">
+      Precompromisos App
+    </a>
 
     <!-- BOTÓN HAMBURGUESA (Visible solo en móviles/tablets) -->
     <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContenido" aria-controls="navbarContenido" aria-expanded="false" aria-label="Alternar navegación">
@@ -16,7 +18,14 @@
       <!-- 1. SECCIÓN IZQUIERDA: Menú -->
       <ul class="navbar-nav me-auto mb-2 mb-lg-0 mt-3 mt-lg-0">
         <li class="nav-item">
-          <a class="nav-link px-0 px-lg-2" aria-current="page" routerLink="/home/precompromisos/list" routerLinkActive="active">Mis Precompromisos</a>
+          <a class="nav-link" routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+            <i class="bi bi-house-door-fill me-1"></i> Inicio
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link px-0 px-lg-2" aria-current="page" routerLink="/home/precompromisos/list" routerLinkActive="active">
+            <i class="bi bi-card-list me-1"></i> Mis Precompromisos
+          </a>
         </li>
         <!-- Menú Reportes -->
         <li class="nav-item dropdown">
