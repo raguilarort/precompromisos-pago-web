@@ -19,8 +19,8 @@ thead th {
   border-right: 2px solid #dee2e6 !important;
   
   /* Uso de !important para que Bootstrap no lo sobreescriba */
-  width: 240px !important;      
-  min-width: 220px !important;  
+  width: 210px !important;      
+  min-width: 210px !important;  
   max-width: 460px !important;  
   
   /* Forzar al texto a comportarse dentro de la caja */
