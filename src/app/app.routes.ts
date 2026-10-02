@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/guards/auth-guard'; // Asegúrate de ajustar la ruta de importación
 import { roleGuard } from './core/auth/guards/role-guard';
 import { RolSistema } from './core/auth/models/auth.model';
+import { ReportesPresupuestales } from './features/reportes/presupuestales/services/reportes-presupuestales';
 
 export const routes: Routes = [
   {
@@ -95,6 +96,17 @@ export const routes: Routes = [
           ] 
         },
         loadComponent: () => import('./features/admin/usuarios/panel/panel').then(m => m.Panel)
+      },
+      {
+        path: 'reportes/presupuestales/situacion-presupuestal',
+        canActivate: [roleGuard],
+        data: { 
+          rolesPermitidos: [
+            RolSistema.Validador,
+            RolSistema.Administrador
+          ] 
+        },
+        loadComponent: () => import('./features/reportes/presupuestales/situacion-presupuestal/situacion-presupuestal').then(m => m.SituacionPresupuestal)
       }
     ]
   },

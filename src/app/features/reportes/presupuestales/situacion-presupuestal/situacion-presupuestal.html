@@ -1,0 +1,138 @@
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold text-dark mb-0">
+      <i class="bi bi-bar-chart-line-fill text-primary me-2"></i> Situación Presupuestal {{ ejercicio() }}
+    </h3>
+    <button class="btn btn-outline-secondary" (click)="cargarDatos()">
+      <i class="bi bi-arrow-clockwise"></i> Actualizar
+    </button>
+  </div>
+
+  @if (cargando()) {
+    <div class="d-flex flex-column justify-content-center align-items-center bg-light rounded" style="min-height: 400px;">
+      <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
+      <h5 class="text-muted mt-3">Construyendo matriz financiera...</h5>
+    </div>
+  } @else if (error()) {
+    <div class="alert alert-danger shadow-sm d-flex align-items-center py-4">
+      <i class="bi bi-exclamation-triangle-fill fs-3 me-3"></i>
+      <div>
+        <h5 class="alert-heading fw-bold">Reporte no disponible</h5>
+        <p class="mb-0">{{ error() }}</p>
+      </div>
+    </div>
+  } @else {
+    <!-- KPIs -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-4">
+        <div class="card shadow-sm border-0 border-start border-primary border-5 h-100">
+          <div class="card-body">
+            <h6 class="text-muted fw-bold mb-1">DISPONIBLE TOTAL (SAPFIN)</h6>
+            <h3 class="fw-bold mb-0 text-dark">{{ kpiTotalDisponibleSAPFIN() | currency:'MXN' }}</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card shadow-sm border-0 border-start border-warning border-5 h-100">
+          <div class="card-body">
+            <h6 class="text-muted fw-bold mb-1">TOTAL PRECOMPROMETIDO</h6>
+            <h3 class="fw-bold mb-0 text-dark">{{ kpiTotalPrecomprometido() | currency:'MXN' }}</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card shadow-sm border-0 border-start border-success border-5 h-100">
+          <div class="card-body">
+            <h6 class="text-muted fw-bold mb-1">DISPONIBLE NETO</h6>
+            <h3 class="fw-bold mb-0 text-success">{{ kpiTotalDisponibleNeto() | currency:'MXN' }}</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BARRA DE FILTROS Y TABS -->
+    <div class="card shadow-sm border-0 mb-3">
+      <div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div class="input-group" style="max-width: 400px;">
+          <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+          <!-- Actualizamos ngModel para emitir al Signal -->
+          <input type="text" class="form-control border-start-0" placeholder="Ej. 21601, Limpieza, 04R01..." 
+                 [ngModel]="textoBusqueda()" (ngModelChange)="textoBusqueda.set($event)">
+        </div>
+        
+        <div class="btn-group shadow-sm">
+          <button type="button" class="btn fw-medium" [class.btn-primary]="tabActiva() === 'GRP'" [class.btn-outline-primary]="tabActiva() !== 'GRP'" (click)="tabActiva.set('GRP')">
+            Disponible (GRP)
+          </button>
+          <button type="button" class="btn fw-medium" [class.btn-warning]="tabActiva() === 'PRECOMP'" [class.btn-outline-warning]="tabActiva() !== 'PRECOMP'" (click)="tabActiva.set('PRECOMP')">
+            <i class="bi bi-lock-fill"></i> Precomprometido
+          </button>
+          <button type="button" class="btn fw-medium" [class.btn-success]="tabActiva() === 'NETO'" [class.btn-outline-success]="tabActiva() !== 'NETO'" (click)="tabActiva.set('NETO')">
+            <i class="bi bi-scales"></i> Balance Neto
+          </button>
+        </div>
+
+        <button class="btn btn-dark shadow-sm fw-medium" (click)="exportarExcel()">
+            <i class="bi bi-file-earmark-excel me-1"></i> Exportar
+        </button>
+      </div>
+    </div>
+
+    <!-- MATRIZ (TABLA) -->
+    <div class="card shadow-sm border-0">
+      <div class="table-responsive" style="max-height: 60vh;">
+        <table class="table table-hover table-bordered table-sm align-middle text-nowrap mb-0">
+          <thead class="table-dark text-center">
+            <tr>
+              <th class="sticky-col sticky-header py-3 align-middle bg-dark text-white border-end" style="min-width: 320px;">Clave Presupuestaria</th>
+              <th class="py-3 align-middle bg-primary border-primary">Total Anual</th>
+              
+              @for (mes of meses; track mes.id) {
+                <th class="py-3 align-middle">{{ mes.nombre }}</th>
+              }
+            </tr>
+          </thead>
+          <tbody class="font-monospace small">
+            <!-- AQUÍ USAMOS EL SIGNAL FILTRADO -->
+            @for (fila of datosFiltrados(); track fila.idCvePresupuestaria) {
+              <tr>
+                <td class="sticky-col bg-white border-end shadow-sm">
+                  <div class="d-flex flex-column px-2 py-1">
+                    <span class="badge bg-light border text-primary border-primary fw-bold text-start mb-1" style="width: fit-content;">
+                      {{ fila.clavePresupuestariaFormateada }}
+                    </span>
+                    <span class="text-truncate text-muted lh-sm" title="{{ fila.descUnidad }}"><i class="bi bi-building me-1"></i>{{ fila.descUnidad }}</span>
+                    <span class="text-truncate text-muted lh-sm" title="{{ fila.descPrograma }}"><i class="bi bi-diagram-3 me-1"></i>{{ fila.descPrograma }}</span>
+                    <span class="text-truncate text-dark fw-medium lh-sm" title="{{ fila.descPartida }}"><i class="bi bi-box me-1"></i>{{ fila.descPartida }}</span>
+                  </div>
+                </td>
+
+                <td class="text-end fw-bold bg-light fs-6">
+                  {{ obtenerTotalFila(fila) | currency:'MXN' }}
+                </td>
+
+                @for (mes of meses; track mes.id) {
+                  <td class="text-end"
+                      [class.text-muted]="obtenerMontoCelda(fila, mes.id) === 0"
+                      [class.bg-danger-subtle]="tabActiva() === 'NETO' && obtenerMontoCelda(fila, mes.id) < 0"
+                      [class.text-danger]="tabActiva() === 'NETO' && obtenerMontoCelda(fila, mes.id) < 0"
+                      [class.fw-bold]="tabActiva() === 'NETO' && obtenerMontoCelda(fila, mes.id) < 0">
+                    {{ obtenerMontoCelda(fila, mes.id) | currency:'MXN' }}
+                  </td>
+                }
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="14" class="text-center py-5 text-muted bg-light">
+                  <i class="bi bi-search fs-1 d-block mb-2 text-secondary"></i>
+                  <span class="fs-5 fw-medium">No se encontraron resultados</span>
+                  <p class="small mt-1">Intenta con otra combinación de búsqueda.</p>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>
