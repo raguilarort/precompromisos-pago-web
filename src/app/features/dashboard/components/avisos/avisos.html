@@ -1,0 +1,26 @@
+<div class="card shadow-sm border-0 mb-4">
+  <div class="card-header bg-white border-bottom py-3 d-flex align-items-center">
+    <i class="bi bi-megaphone-fill text-warning fs-5 me-2"></i>
+    <h6 class="mb-0 fw-bold">Avisos Institucionales</h6>
+  </div>
+  <div class="list-group list-group-flush">
+    @for (aviso of listaAvisos(); track aviso.id) {
+      <div class="list-group-item py-3">
+        <div class="d-flex w-100 justify-content-between">
+          <h6 class="mb-1 fw-bold" 
+              [class.text-danger]="aviso.prioridad === 'ALTA'"
+              [class.text-primary]="aviso.prioridad === 'MEDIA'">
+            {{ aviso.titulo }}
+          </h6>
+          <small class="text-muted">{{ aviso.fecha | date:'dd MMM' }}</small>
+        </div>
+        <p class="mb-1 small text-muted">{{ aviso.mensaje }}</p>
+      </div>
+    } @empty {
+      <div class="list-group-item py-4 text-center text-muted">
+        <i class="bi bi-bell-slash fs-3 d-block mb-2 text-light"></i>
+        <small>No hay avisos recientes</small>
+      </div>
+    }
+  </div>
+</div>
