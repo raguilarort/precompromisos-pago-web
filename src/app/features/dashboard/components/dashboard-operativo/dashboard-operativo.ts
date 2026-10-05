@@ -4,17 +4,21 @@ import { Avisos } from '../avisos/avisos';
 import { Auth } from '../../../../core/auth/services/auth';
 import { ContextoGlobal } from '../../../../core/services/contexto-global';
 import { Precompromiso } from '../../../precompromisos/services/precompromiso';
+import { RouterModule } from '@angular/router';
+import { Permisos } from '../../../../core/auth/permisos';
 
 @Component({
   selector: 'app-dashboard-operativo',
   standalone: true,
-  imports: [CommonModule, Avisos],
+  imports: [CommonModule, RouterModule, Avisos],
   templateUrl: './dashboard-operativo.html',
   styleUrl: './dashboard-operativo.css',
 })
 export class DashboardOperativo {
   private contextoGlobal = inject(ContextoGlobal);
   private precompromisoService = inject(Precompromiso);
+
+  permisos = inject(Permisos);
 
   cargando = signal<boolean>(true);
   todosLosPrecompromisos = signal<any[]>([]);
@@ -39,6 +43,8 @@ export class DashboardOperativo {
     this.precompromisoService.consultarPorEjercicio(ejercicio).subscribe({
       next: (data) => {
         this.todosLosPrecompromisos.set(data);
+        console.log("HOLA HOLA");
+        console.log(data);
         this.cargando.set(false);
       },
       error: (err) => {
