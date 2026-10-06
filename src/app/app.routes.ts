@@ -87,6 +87,18 @@ export const routes: Routes = [
         loadComponent: () => import('./features/precompromisos/form/form').then(m => m.Form)
       },
       {
+        path: 'reportes/presupuestales/situacion-presupuestal',
+        canActivate: [roleGuard],
+        data: { 
+          rolesPermitidos: [
+            RolSistema.Revisor,
+            RolSistema.Validador,
+            RolSistema.Administrador
+          ] 
+        },
+        loadComponent: () => import('./features/reportes/presupuestales/situacion-presupuestal/situacion-presupuestal').then(m => m.SituacionPresupuestal)
+      },
+      {
         path: 'precompromisos',
         redirectTo: 'precompromisos/list',
         pathMatch: 'full'
@@ -101,17 +113,7 @@ export const routes: Routes = [
         },
         loadComponent: () => import('./features/admin/usuarios/panel/panel').then(m => m.Panel)
       },
-      {
-        path: 'reportes/presupuestales/situacion-presupuestal',
-        canActivate: [roleGuard],
-        data: { 
-          rolesPermitidos: [
-            RolSistema.Validador,
-            RolSistema.Administrador
-          ] 
-        },
-        loadComponent: () => import('./features/reportes/presupuestales/situacion-presupuestal/situacion-presupuestal').then(m => m.SituacionPresupuestal)
-      }
+      
     ]
   },
   {
