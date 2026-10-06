@@ -2,6 +2,7 @@ import { Component, Input, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Precompromiso } from '../../services/precompromiso';
 import { SeguimientoOperativoDTO } from '../../models/seguimiento-operativo.dto';
+import { ESTATUS_PRECOMPROMISO } from '../../../../shared/constants/precompromiso-estatus.constants';
 
 @Component({
   selector: 'app-seguimiento-operativo',
@@ -17,6 +18,8 @@ export class SeguimientoOperativo implements OnInit {
   @Input() vista: 'timeline' | 'popover' = 'timeline'; 
 
   private precompromisoService = inject(Precompromiso);
+
+  readonly ESTATUS = ESTATUS_PRECOMPROMISO;
 
   historial = signal<SeguimientoOperativoDTO[]>([]);
   cargando = signal<boolean>(true);

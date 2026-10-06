@@ -17,28 +17,42 @@
           
           <div class="d-flex justify-content-between align-items-center mb-1">
             <div>
-              <span class="badge bg-light text-dark border font-monospace shadow-sm">{{ item.fechaMovimiento }}</span>
+              <span class="badge bg-light text-dark border shadow-sm" style="font-size: 0.65rem; letter-spacing: 0.5px;">
+                {{ item.estatusDescripcion || item.tipoMovimiento }}
+              </span>
               <span class="badge bg-secondary-subtle text-secondary ms-2 small">Unidad {{ item.unidad }}</span>
             </div>
             <small class="text-muted font-monospace"><i class="bi bi-clock me-1"></i>{{ item.fechaMovimiento }}</small>
           </div>
   
           <div class="fw-bold text-dark small mt-2">
-            <i class="bi bi-person-circle text-secondary me-1"></i> {{ item.nombreServidorPublico }}
+            <i class="bi bi-person-circle text-secondary me-1"></i> {{ item.nombreServidorPublico | titlecase}}
             <span class="text-muted fw-normal ms-1">(#{{ item.numEmpleado }})</span>
           </div>
-  
-          <div class="mt-2 p-2 bg-light rounded text-secondary small fst-italic border-start border-3 border-secondary">
-            @if (item.tipoMovimiento === 'REGISTRO_INICIAL') {
-                <i class="bi bi-star-fill text-warning me-1"></i>
-            } @else if (item.tipoMovimiento === 'MODIFICACION') {
-                <i class="bi bi-pencil-fill text-primary me-1"></i>
-            } @else if (item.tipoMovimiento === 'CAMBIO_ESTATUS' && item.estatusDescripcion) {
-                <i class="bi bi-trash3-fill text-danger me-1"></i>
-            } @else if (item.tipoMovimiento === 'CAMBIO_ESTATUS') {
-                <i class="bi bi-arrow-right-circle-fill text-info me-1"></i>
-            }
-            {{ item.observaciones }}
+          
+          <div class="mt-2 p-2 bg-light rounded text-secondary small fst-italic border-start border-3 border-secondary d-flex align-items-start">
+            <!-- Iconografía dinámica idéntica al Dashboard Ejecutivo -->
+            <div class="me-2">
+              @switch (item.idEstatus) {
+                @case (ESTATUS.AUTORIZADO) { <i class="bi bi-check-circle-fill text-success"></i> }
+                @case (ESTATUS.RECHAZADO) { <i class="bi bi-exclamation-triangle-fill text-warning"></i> }
+                @case (ESTATUS.CANCELADO) { <i class="bi bi-x-octagon-fill text-danger"></i> }
+                @case (ESTATUS.ELIMINADO) { <i class="bi bi-trash-fill text-secondary"></i> }
+                @case (ESTATUS.REVISADO) { <i class="bi bi-eye-fill text-info"></i> }
+                @case (ESTATUS.CAPTURADO) { <i class="bi bi-pencil-fill text-primary"></i> }
+                @default { 
+                  <!-- Fallback a tipoMovimiento si no hay estatus -->
+                  @if (item.tipoMovimiento === 'REGISTRO_INICIAL') {
+                    <i class="bi bi-plus-circle-fill text-primary"></i>
+                  } @else if (item.tipoMovimiento === 'MODIFICACION') {
+                    <i class="bi bi-pencil-fill text-primary"></i>
+                  } @else {
+                    <i class="bi bi-record-circle text-muted"></i>
+                  }
+                }
+              }
+            </div>
+            <div>{{ item.observaciones || 'Sin observaciones.' }}</div>
           </div>
   
         </div>
@@ -50,16 +64,18 @@
     <div class="list-group list-group-flush small bg-white" style="min-width: 220px;">
       @for (item of historialFiltrado; track item.idSeguimiento) {
         <div class="list-group-item px-2 py-2 border-0">
-          <div class="fw-bold mb-1" [ngClass]="obtenerClaseEstatus(item.estatusDescripcion)">{{ item.estatusDescripcion }}</div>
+          <div class="fw-bold mb-1" [ngClass]="obtenerClaseEstatus(item.estatusDescripcion)">
+            {{ item.estatusDescripcion }}
+          </div>
           <div class="text-muted mb-1" style="font-size: 0.70rem;">
             <i class="bi bi-clock me-1"></i>{{ item.fechaMovimiento }}
           </div>
           <div class="text-dark text-truncate" style="font-size: 0.75rem;" title="{{ item.nombreServidorPublico }}">
-            <i class="bi bi-person me-1"></i>{{ item.nombreServidorPublico }}
+            <i class="bi bi-person me-1"></i>{{ item.nombreServidorPublico | titlecase }}
           </div>
         </div>
       }
-      @if (historialFiltrado.length === 0) {
+      @empty {
          <div class="text-center text-muted p-2 small">Sin transiciones registradas</div>
       }
     </div>
