@@ -1,4 +1,4 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, computed, signal, HostListener } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router'; // Nuevas importaciones
 import { Auth } from '../../../core/auth/services/auth';
 import { RolSistema } from '../../../core/auth/models/auth.model'
@@ -21,6 +21,9 @@ export class Navbar {
   // Si mañana agregas un nuevo rol al Enum, aparecerá aquí automáticamente.
   rolesIds = Object.values(RolSistema).filter(v => typeof v === 'number') as number[];
 
+  menuReportesAbierto = signal<boolean>(false);
+  menuAdminAbierto = signal<boolean>(false);
+
   // 3. Señal computada para renderizar dinámicamente el perfil
   // Usa el Mapeo Inverso: RolSistema[1] devuelve "Consultor"
   nombreRolActual = computed(() => {
@@ -32,5 +35,24 @@ export class Navbar {
   cambiarRolDev(valorSeleccionado: string) {
     const nuevoRol = Number(valorSeleccionado) as RolSistema;
     this.authService.simularCambioDeRol(nuevoRol);
+  }
+
+  toggleReportes(event: Event) {
+    event.stopPropagation(); // Evita que el clic se propague al HostListener
+    this.menuReportesAbierto.update(v => !v);
+    this.menuAdminAbierto.set(false); // Cierra el otro menú automáticamente
+  }
+
+  toggleAdmin(event: Event) {
+    event.stopPropagation();
+    this.menuAdminAbierto.update(v => !v);
+    this.menuReportesAbierto.set(false);
+  }
+
+  // Escucha clics en cualquier parte de la pantalla para cerrar los menús
+  @HostListener('document:click')
+  cerrarMenusDesplegables() {
+    this.menuReportesAbierto.set(false);
+    this.menuAdminAbierto.set(false);
   }
 }

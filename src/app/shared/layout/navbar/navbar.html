@@ -27,29 +27,44 @@
             <i class="bi bi-card-list me-1"></i> Mis Precompromisos
           </a>
         </li>
+
         <!-- Menú Reportes -->
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="navbarReportes" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <a class="nav-link dropdown-toggle" 
+             style="cursor: pointer;" 
+             (click)="toggleReportes($event)"
+             [class.show]="menuReportesAbierto()"
+             aria-expanded="false">
             <i class="bi bi-graph-up-arrow"></i> Reportes
           </a>
-          <ul class="dropdown-menu shadow-sm" aria-labelledby="navbarReportes">
+          <ul class="dropdown-menu shadow-sm" [class.show]="menuReportesAbierto()">
             <li>
-              <a class="dropdown-item d-flex align-items-center" routerLink="/home/reportes/presupuestales/situacion-presupuestal">
+              <!-- IMPORTANTE: Al hacer clic en un enlace, cerramos los menús -->
+              <a class="dropdown-item d-flex align-items-center" 
+                 routerLink="/home/reportes/presupuestales/situacion-presupuestal"
+                 (click)="cerrarMenusDesplegables()">
                 <i class="bi bi-bar-chart-line-fill text-primary me-2"></i> Situación Presupuestal
               </a>
             </li>
-            <!-- Otros reportes -->
           </ul>
+          <!-- Otros reportes -->
         </li>
+
+        <!-- Menú Administración -->
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="menuAdministracion" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <a class="nav-link dropdown-toggle" 
+             style="cursor: pointer;" 
+             (click)="toggleAdmin($event)"
+             [class.show]="menuAdminAbierto()"
+             aria-expanded="false">
             <i class="bi bi-gear-fill"></i> Administración
-          </a>
-          
-          <ul class="dropdown-menu shadow-sm" aria-labelledby="menuAdministracion">
+          </a>          
+          <ul class="dropdown-menu shadow-sm" [class.show]="menuAdminAbierto()">
             <li>
-              <!-- routerLinkActive="active" ilumina la opción cuando estás en esa ruta -->
-              <a class="dropdown-item py-2" routerLink="/home/admin/usuarios" routerLinkActive="active">
+              <a class="dropdown-item py-2" 
+                 routerLink="/home/admin/usuarios" 
+                 routerLinkActive="active"
+                 (click)="cerrarMenusDesplegables()">
                 <i class="bi bi-people-fill me-2"></i> Usuarios
               </a>
             </li>
