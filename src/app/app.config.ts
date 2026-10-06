@@ -5,10 +5,8 @@ import localeEsMx from '@angular/common/locales/es-MX';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS, withInterceptors } from '@angular/common/http';
 import { routes } from './app.routes';
-import { environment } from '../environments/environment.development';
+import { environment } from '../environments/environment';
 import { authInterceptor } from './core/auth/interceptors/auth-interceptor';
-
-
 
 import { 
   MsalService, 

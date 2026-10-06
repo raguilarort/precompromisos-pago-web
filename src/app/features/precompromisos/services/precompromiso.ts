@@ -1,7 +1,7 @@
 import { Service, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
-import { environment } from '../../../../environments/environment.development';
+import { environment } from '../../../../environments/environment';
 import { PrecompromisoRequestDTO, PrecompromisoResponse } from '../models/precompromiso-request.dto';
 import { PrecompromisoResumeDTO } from '../models/precompromiso-resume.dto';
 import { PrecompromisoDetailDTO } from '../models/precompromiso-detail.dto';

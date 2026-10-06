@@ -5,7 +5,7 @@ import { MsalService, MsalBroadcastService } from '@azure/msal-angular';
 import { AuthenticationResult, InteractionStatus, AccountInfo } from '@azure/msal-browser';
 import { catchError, map, of } from 'rxjs';
 import { RolSistema, UsuarioSession, BackendAuthResponse } from '../models/auth.model'; 
-import { environment } from '../../../../environments/environment.development';
+import { environment } from '../../../../environments/environment';
 
 @Service()
 export class Auth {
