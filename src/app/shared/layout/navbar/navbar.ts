@@ -37,6 +37,18 @@ export class Navbar {
     this.authService.simularCambioDeRol(nuevoRol);
   }
 
+  mostrarMenuAdministracion = computed(() => {
+    const rol = this.authService.usuarioAutenticado()?.rol;
+    return rol === RolSistema.Administrador;
+  });
+
+  mostrarMenuReportes = computed(() => {
+    const rol = this.authService.usuarioAutenticado()?.rol;
+    return rol === RolSistema.Administrador || 
+           rol === RolSistema.Validador || 
+           rol === RolSistema.Revisor;
+  });
+
   toggleReportes(event: Event) {
     event.stopPropagation(); // Evita que el clic se propague al HostListener
     this.menuReportesAbierto.update(v => !v);
