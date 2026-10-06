@@ -1,13 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal } from '@angular/core';
-
-interface AvisoDTO {
-  id: number;
-  titulo: string;
-  mensaje: string;
-  fecha: Date;
-  prioridad: 'ALTA' | 'MEDIA' | 'BAJA';
-}
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { AvisoDTO } from './models/aviso.dto';
+import { Aviso } from './services/aviso';
 
 @Component({
   selector: 'app-avisos',
@@ -16,13 +10,27 @@ interface AvisoDTO {
   styleUrl: './avisos.css',
 })
 export class Avisos implements OnInit {
+  private avisosService = inject(Aviso);
+
   listaAvisos = signal<AvisoDTO[]>([]);
+  cargando = signal<boolean>(true); // Útil por si quieres mostrar un skeleton o spinner
 
   ngOnInit() {
-    // Simulación de respuesta del backend
-    this.listaAvisos.set([
-      { id: 1, titulo: 'Cierre Presupuestal', mensaje: 'El límite para registrar precompromisos de este mes es el día 25.', fecha: new Date(), prioridad: 'ALTA' },
-      { id: 2, titulo: 'Mantenimiento del Sistema', mensaje: 'El viernes a las 20:00 hrs el sistema tendrá una intermitencia de 30 minutos.', fecha: new Date(), prioridad: 'MEDIA' }
-    ]);
+    this.cargarAvisos();
+  }
+
+  private cargarAvisos() {
+    this.cargando.set(true);
+    this.avisosService.obtenerAvisosActivos().subscribe({
+      next: (datos) => {
+        this.listaAvisos.set(datos);
+        this.cargando.set(false);
+      },
+      error: (err) => {
+        console.error('Error al obtener los avisos institucionales:', err);
+        // Opcional: Podrías setear un aviso por defecto indicando que no se pudieron cargar
+        this.cargando.set(false);
+      }
+    });
   }
 }
