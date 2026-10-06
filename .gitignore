@@ -42,3 +42,9 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Entornos de publicación con datos sensibles
+src/environments/environment.ts
+src/environments/environment.development.ts
+src/environments/environment.qa.ts
+src/environments/environment.prod.ts
