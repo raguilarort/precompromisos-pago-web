@@ -1,0 +1,18 @@
+/* Scrollbar invisible/tenue para Actividad Reciente */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f8f9fa; /* Color muy claro para la pista */
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #dee2e6; /* Gris tenue */
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #adb5bd; /* Se oscurece ligeramente al pasar el cursor */
+}

@@ -7,6 +7,7 @@ import { Precompromiso } from '../../../precompromisos/services/precompromiso';
 import { Permisos } from '../../../../core/auth/permisos';
 import { RouterModule } from '@angular/router';
 import { ESTATUS_PRECOMPROMISO } from '../../../../shared/constants/precompromiso-estatus.constants';
+import { Dashboard } from '../../services/dashboard';
 
 @Component({
   selector: 'app-dashboard-ejecutivo',
@@ -20,6 +21,7 @@ export class DashboardEjecutivo {
   private authService = inject(Auth);
   private contextoGlobal = inject(ContextoGlobal);
   private precompromisoService = inject(Precompromiso);
+  private dashboardService = inject(Dashboard);
   public permisos = inject(Permisos);
 
   usuarioActivo = computed(() => this.authService.usuarioAutenticado());
@@ -27,33 +29,49 @@ export class DashboardEjecutivo {
   
   // Lista raw de precompromisos de ese ejercicio para sus unidades
   todosLosPrecompromisos = signal<any[]>([]);
-  
-  // 1. Tareas pendientes del usuario activo
-  tramitesPendientes = computed(() => {
-    return this.todosLosPrecompromisos().filter(c => this.permisos.esPendienteParaMi(c.estatus));
-  });
-
-  // 2. Trámites globales aprobados este mes (Productividad)
-  tramitesAprobados = computed(() => {
-    const mesActual = new Date().getMonth();
-    return this.todosLosPrecompromisos().filter(c => {
-      // Suponiendo que el objeto tiene fechaAprobacion o fechaCreacion
-      const fecha = c.fechaAprobacion ? new Date(c.fechaAprobacion) : null;
-      return c.estatus === 'APROBADO' && fecha?.getMonth() === mesActual;
-    }).length;
-  });
-
-  // 3. Trámites rechazados o en corrección (Cuellos de botella)
-  tramitesRechazados = computed(() => {
-    return this.todosLosPrecompromisos().filter(c => c.estatus === 'RECHAZADO' || c.estatus === 'CANCELADO').length;
-  });
+  actividadReciente = signal<any[]>([]);
 
   constructor() {
     effect(() => {
       const ejercicio = this.contextoGlobal.ejercicioFiscal();
+      
       this.cargarBandeja(ejercicio);
+      this.cargarActividadReciente(ejercicio); // Nueva llamada
     });
   }
+  
+  // 1. Tareas pendientes del usuario activo
+  // 1. Naranja (Pendientes)
+  tramitesPendientes = computed(() => {
+    return this.todosLosPrecompromisos().filter(c => this.permisos.esPendienteParaMi(c.estatus));
+  });
+
+  // 2. Verde (Aprobados del mes)
+  tramitesAprobados = computed(() => {
+    const mesActual = new Date().getMonth();
+
+    return this.todosLosPrecompromisos().filter(c => {
+      if (c.idEstatus !== ESTATUS_PRECOMPROMISO.AUTORIZADO) return false;
+      const fechaRaw = c.fechaAprobacion || c.fechaCreacion || c.fechaRegistro;
+      if (!fechaRaw) return true; 
+      return new Date(fechaRaw).getMonth() === mesActual;
+    }).length;
+  });
+
+  // 3. Amarillo (Rechazados)
+  tramitesRechazados = computed(() => {
+    return this.todosLosPrecompromisos().filter(c => c.estatus?.toUpperCase() === 'RECHAZADO').length;
+  });
+
+  // 4. Rojo (Cancelados)
+  tramitesCancelados = computed(() => {
+    return this.todosLosPrecompromisos().filter(c => c.estatus?.toUpperCase() === 'CANCELADO').length;
+  });
+
+  // 5. Gris (Eliminados)
+  tramitesEliminados = computed(() => {
+    return this.todosLosPrecompromisos().filter(c => c.estatus?.toUpperCase() === 'ELIMINADO').length;
+  });
 
   obtenerNombreEstatus(idEstatus: number): string {
 
@@ -73,6 +91,17 @@ export class DashboardEjecutivo {
         console.error('Error al cargar datos operativos:', err);
         this.cargando.set(false);
       }
+    });
+  }
+
+  private cargarActividadReciente(ejercicio: number) {
+    this.dashboardService.obtenerActividadReciente(ejercicio).subscribe({
+      next: (datos) => {
+        console.log("consolelog");
+        console.log(datos);
+        this.actividadReciente.set(datos)
+      },
+      error: (err) => console.error('Error al cargar la actividad reciente:', err)
     });
   }
 }

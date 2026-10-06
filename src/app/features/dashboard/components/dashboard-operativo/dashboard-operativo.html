@@ -11,17 +11,16 @@
           <h6 class="mb-0 fw-bold"><i class="bi bi-folder2-open me-2 text-primary"></i>Mis Precompromisos (Devueltos)</h6>
         </div>
         <div class="list-group list-group-flush">
-          @for (tramite of misBorradoresYRechazados(); track tramite.idPrecompromiso) {
+          @for (tramite of misRechazados(); track tramite.idPrecompromiso) {
             <div class="list-group-item py-3">
               <div class="d-flex w-100 justify-content-between align-items-center">
                 <div>
-                  <h6 class="mb-1 fw-bold">{{ tramite.folio }} <span class="badge bg-warning-subtle text-warning-emphasis ms-2">{{ tramite.estatus }}</span></h6>
-                  <p class="mb-1 text-muted small"><i class="bi bi-info-circle me-1"></i> {{ tramite.observaciones }}</p>
+                  <h6 class="mb-1 fw-bold">{{ tramite.folio || 'Sin Folio' }} <span class="badge bg-warning-subtle text-warning-emphasis ms-2">{{ tramite.estatus }}</span></h6>
+                  <p class="mb-1 text-muted small"><i class="bi bi-info-circle me-1"></i>{{ tramite.tipoRequerimiento || 'Documento en revisión' }}</p>
                 </div>
                 @if (permisos.puedeGestionarPrecompromisos()) {
-                  <button class="btn btn-sm btn-outline-primary" 
-                          [routerLink]="['/home/precompromisos/edit', tramite.idPrecompromiso]">
-                    <i class="bi bi-pencil-square me-1"></i> Corregir
+                  <button class="btn btn-sm btn-outline-primary" (click)="abrirModalMotivo(tramite.idPrecompromiso)">
+                    <i class="bi bi-eye me-1"></i> Ver Motivo
                   </button>
                 }
               </div>
@@ -47,6 +46,30 @@
             <span class="fs-5">Registrar Nuevo</span>
         </a>
       }
+    </div>
+  </div>
+  <div class="modal fade" id="modalMotivoRechazo" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-light border-bottom-0">
+          <h5 class="modal-title fw-bold text-dark"><i class="bi bi-clock-history me-2 text-warning"></i>Historial del Precompromiso</h5>
+          <button type="button" class="btn-close" (click)="cerrarModal()" aria-label="Close"></button>
+        </div>
+        <div class="modal-body bg-light pt-0">
+          @if (tramiteSeleccionadoParaModal() !== null) {
+            <app-seguimiento-operativo [idPrecompromiso]="tramiteSeleccionadoParaModal()!" vista="timeline"></app-seguimiento-operativo>
+          }
+        </div>
+        <div class="modal-footer border-top-0 bg-white">
+          <button type="button" class="btn btn-outline-secondary" (click)="cerrarModal()">Cancelar</button>
+          <!-- BOTÓN DE ACCIÓN PRINCIPAL (Ruteo a tu módulo de edición) -->
+          <button type="button" class="btn btn-dark" 
+                  [routerLink]="['/home/precompromisos/edit', tramiteSeleccionadoParaModal()]"
+                  (click)="cerrarModal()">
+            <i class="bi bi-pencil-square me-1"></i> Corregir Precompromiso
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 }

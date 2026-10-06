@@ -25,11 +25,9 @@ export class Dashboard {
     return this.http.get<DashboardKpisDTO>(`${this.baseUrl}/kpis`, { params });
   }
 
-  obtenerActividadReciente(ejercicio: number, unidades: number[]): Observable<any[]> {
+  obtenerActividadReciente(ejercicio: number): Observable<any[]> {
     let params = new HttpParams().set('ejercicio', ejercicio.toString());
-    if (unidades && unidades.length > 0) {
-      params = params.set('unidades', unidades.join(','));
-    }
-    return this.http.get<any[]>(`${this.baseUrl}/actividad`, { params });
+    
+    return this.http.get<any[]>(`${this.baseUrl}/actividad-reciente`, { params });
   }
 }

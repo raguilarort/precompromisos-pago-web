@@ -1,16 +1,18 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { Avisos } from '../avisos/avisos';
-import { Auth } from '../../../../core/auth/services/auth';
 import { ContextoGlobal } from '../../../../core/services/contexto-global';
 import { Precompromiso } from '../../../precompromisos/services/precompromiso';
 import { RouterModule } from '@angular/router';
 import { Permisos } from '../../../../core/auth/permisos';
+import { SeguimientoOperativo } from '../../../precompromisos/components/seguimiento-operativo/seguimiento-operativo';
+
+import * as bootstrap from 'bootstrap';
 
 @Component({
   selector: 'app-dashboard-operativo',
   standalone: true,
-  imports: [CommonModule, RouterModule, Avisos],
+  imports: [CommonModule, RouterModule, Avisos, SeguimientoOperativo],
   templateUrl: './dashboard-operativo.html',
   styleUrl: './dashboard-operativo.css',
 })
@@ -22,9 +24,10 @@ export class DashboardOperativo {
 
   cargando = signal<boolean>(true);
   todosLosPrecompromisos = signal<any[]>([]);
+  tramiteSeleccionadoParaModal = signal<number | null>(null);
 
   // Filtramos la lista completa para mostrar solo el área de trabajo activa del capturista
-  misBorradoresYRechazados = computed(() => {
+  misRechazados = computed(() => {
     return this.todosLosPrecompromisos().filter(c => 
       c.estatus === 'BORRADOR' || c.estatus === 'RECHAZADO'
     );
@@ -43,8 +46,6 @@ export class DashboardOperativo {
     this.precompromisoService.consultarPorEjercicio(ejercicio).subscribe({
       next: (data) => {
         this.todosLosPrecompromisos.set(data);
-        console.log("HOLA HOLA");
-        console.log(data);
         this.cargando.set(false);
       },
       error: (err) => {
@@ -52,5 +53,24 @@ export class DashboardOperativo {
         this.cargando.set(false);
       }
     });
+  }
+
+  abrirModalMotivo(idPrecompromiso: number) {
+    this.tramiteSeleccionadoParaModal.set(idPrecompromiso);
+    const modalElement = document.getElementById('modalMotivoRechazo');
+    if (modalElement) {
+      const modal = new bootstrap.Modal(modalElement);
+      modal.show();
+    }
+  }
+
+  cerrarModal() {
+    const modalElement = document.getElementById('modalMotivoRechazo');
+    if (modalElement) {
+      const modal = bootstrap.Modal.getInstance(modalElement);
+      modal?.hide();
+    }
+    // Retrasamos la limpieza de la señal para que la animación del modal termine sin parpadeos
+    setTimeout(() => this.tramiteSeleccionadoParaModal.set(null), 300);
   }
 }
