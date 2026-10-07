@@ -31,6 +31,12 @@ export class SessionManager {
 
       // 2. Calculamos cuándo mostrar la advertencia (5 minutos antes)
       const tiempoParaAdvertencia = tiempoRestanteMs - (5 * 60 * 1000);
+      
+      //En desarrollo si se quiere ver cuando aparece el modal de aviso y cuando caduca el token.
+      //const fechaAviso = new Date(Date.now() + tiempoParaAdvertencia);
+      //const fechaCaducidad = new Date(fechaExpiracion);
+      //console.info(`[SESIÓN] El token caduca a las: ${fechaCaducidad.toLocaleTimeString()}`);
+      //console.info(`[SESIÓN] El modal aparecerá a las: ${fechaAviso.toLocaleTimeString()}`);
 
       // 3. Programamos la aparición del Modal
       if (tiempoParaAdvertencia > 0) {
@@ -43,11 +49,21 @@ export class SessionManager {
       }
 
       // 4. Programamos el cierre de sesión forzado si el usuario ignoró el modal
-      this.timeoutExpiracion = setTimeout(() => {
-        this.cerrarModalAdvertencia();
-        sessionStorage.clear();
-        this.router.navigate(['/portal'], { queryParams: { session: 'expired' } });
-      }, tiempoRestanteMs);
+      const tiempoParaCierre = tiempoRestanteMs - 5000;
+
+      if (tiempoParaCierre > 0) {
+        this.timeoutExpiracion = setTimeout(() => {
+          this.cerrarModalAdvertencia();
+          
+          // 5. Avisamos a la API que cerraremos por inactividad
+          this.http.post(`${environment.apiUrl}/auth/logout`, { motivo: 'Cierre de sesión automático por caducidad del token o inactividad' })
+            .subscribe({
+              next: () => this.ejecutarCierreLocal(),
+              error: () => this.ejecutarCierreLocal() // Si falla, cerramos de todas formas
+            });
+
+        }, tiempoParaCierre);
+      }
 
     } catch (e) {
       console.error('Error al leer el token JWT', e);
@@ -92,5 +108,11 @@ export class SessionManager {
         this.router.navigate(['/portal'], { queryParams: { session: 'expired' } });
       }
     });
+  }
+
+  private ejecutarCierreLocal() {
+    sessionStorage.clear();
+    // Aquí puedes llamar a tu authService.cerrarSesion() si MSAL requiere limpieza
+    this.router.navigate(['/portal'], { queryParams: { session: 'expired' } });
   }
 }
