@@ -46,7 +46,7 @@ export class Auth {
     });
   }
 
-  cerrarSesion() {
+  cerrarSesionLocal(esCierreAutomatico: boolean = false) {
     const cuentaActiva = this.msalService.instance.getActiveAccount();
 
     if (cuentaActiva) {
@@ -55,15 +55,39 @@ export class Auth {
     
     this.sessionManager.detenerMonitoreo(); 
 
-    // NUEVO: Limpiamos la sesión de negocio al salir
+    const motivoTexto = esCierreAutomatico 
+      ? 'Cierre de sesión automático por caducidad del token o inactividad' 
+      : 'Cierre de sesión manual realizado por el usuario';
+    
+    this.http.post(`${environment.apiUrl}/auth/logout`, { motivo: motivoTexto })
+      .subscribe({ 
+        next: () => this.finalizarLimpiezaLocal(esCierreAutomatico),
+        error: () => {
+          console.warn('Aviso de logout local falló. Procediendo a limpiar de todos modos.');
+          this.finalizarLimpiezaLocal(esCierreAutomatico);
+        }
+      });
+  }
+
+  private finalizarLimpiezaLocal(esCierreAutomatico: boolean) {
+    // Limpiamos frontend
     this.usuarioAutenticado.set(null);
+    this.userName.set('Usuario');
+    this.userPhoto.set(null);
     
-    sessionStorage.removeItem('sesion_negocio'); // NUEVO: Destruimos la sesión del negocio en el navegador
-    sessionStorage.removeItem('accessToken'); // Limpiamos el JWT de Spring Boot
+    // Liberamos MSAL
+    this.msalService.instance.setActiveAccount(null);
     
-    this.msalService.logoutRedirect({
-      postLogoutRedirectUri: window.location.origin
-    });
+    // Destruimos credenciales
+    sessionStorage.removeItem('sesion_negocio');
+    sessionStorage.removeItem('accessToken'); 
+    
+    // Redirigimos
+    if (esCierreAutomatico) {
+      this.router.navigate(['/portal'], { queryParams: { session: 'expired' } });
+    } else {
+      this.router.navigate(['/portal']);
+    }
   }
 
   procesarRespuestaLogin() {
@@ -136,10 +160,13 @@ export class Auth {
           this.usuarioAutenticado.set(JSON.parse(sesionGuardada));
           
           // REINICIAMOS EL RELOJ DEL MODAL
-          this.sessionManager.iniciarMonitoreo(tokenGuardado); 
+          this.sessionManager.iniciarMonitoreo(
+            tokenGuardado, 
+            () => this.cerrarSesionLocal(true)
+          ); 
       } else {
           // Si falta el token o la sesión, lo mandamos a autenticarse
-          this.cerrarSesion(); 
+          this.cerrarSesionLocal(true); 
       }
     }
   }
@@ -189,7 +216,10 @@ export class Auth {
     sessionStorage.setItem('accessToken', perfilRegistradoBD.accessToken);
 
     //Inicia el monitoreo de la token
-    this.sessionManager.iniciarMonitoreo(perfilRegistradoBD.accessToken);
+    this.sessionManager.iniciarMonitoreo(
+      perfilRegistradoBD.accessToken, 
+      () => this.cerrarSesionLocal(true)
+    );
 
     // 2. Mapeamos la respuesta al modelo Frontend (UsuarioSession)
     const perfilNegocio: UsuarioSession = {

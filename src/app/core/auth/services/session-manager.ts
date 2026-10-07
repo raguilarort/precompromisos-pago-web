@@ -6,7 +6,7 @@ import { environment } from '../../../../environments/environment';
 
 @Service()
 export class SessionManager {
-    private http = inject(HttpClient);
+  private http = inject(HttpClient);
   private router = inject(Router);
 
   private timeoutAdvertencia: any;
@@ -16,8 +16,13 @@ export class SessionManager {
   mostrarAlerta = signal<boolean>(false);
   minutosRestantes = signal<number>(5);
 
-  iniciarMonitoreo(token: string) {
+  private funcionCierreSesion!: () => void;
+
+  iniciarMonitoreo(token: string, onCierreAutomatico: () => void) {
     this.detenerMonitoreo(); // Limpiar timers anteriores
+
+    // Guardamos la instrucción que nos envía Auth
+    this.funcionCierreSesion = onCierreAutomatico;
 
     try {
       // 1. Decodificamos el payload del JWT
@@ -45,16 +50,19 @@ export class SessionManager {
       // 4. Programamos el cierre de sesión forzado si el usuario ignoró el modal
       const tiempoParaCierre = tiempoRestanteMs - 5000;
 
+      //En desarrollo si se quiere ver cuando aparece el modal de aviso y cuando caduca el token.
+      const fechaAviso = new Date(Date.now() + tiempoParaAdvertencia);
+      const fechaCaducidad = new Date(fechaExpiracion);
+      console.info(`[SESIÓN] El token caduca a las: ${fechaCaducidad.toLocaleTimeString()}`);
+      console.info(`[SESIÓN] El modal aparecerá a las: ${fechaAviso.toLocaleTimeString()}`);
+
+
       if (tiempoParaCierre > 0) {
         this.timeoutExpiracion = setTimeout(() => {
-          this.cerrarModalAdvertencia();
           
-          // 5. Avisamos a la API que cerraremos por inactividad
-          this.http.post(`${environment.apiUrl}/auth/logout`, { motivo: 'Cierre de sesión automático por caducidad del token o inactividad' })
-            .subscribe({
-              next: () => this.ejecutarCierreLocal(),
-              error: () => this.ejecutarCierreLocal() // Si falla, cerramos de todas formas
-            });
+          this.cerrarModalAdvertencia();
+
+          this.funcionCierreSesion(); 
 
         }, tiempoParaCierre);
       }
@@ -93,20 +101,12 @@ export class SessionManager {
         sessionStorage.setItem('accessToken', response.token);
         this.cerrarModalAdvertencia();
         // Reiniciamos el cronómetro con el nuevo token
-        this.iniciarMonitoreo(response.token); 
+        this.iniciarMonitoreo(response.token, this.funcionCierreSesion); 
       },
       error: () => {
-        // Si falla la renovación, cerramos sesión
         this.cerrarModalAdvertencia();
-        sessionStorage.clear();
-        this.router.navigate(['/portal'], { queryParams: { session: 'expired' } });
+        this.funcionCierreSesion(); 
       }
     });
-  }
-
-  private ejecutarCierreLocal() {
-    sessionStorage.clear();
-    // Aquí puedes llamar a tu authService.cerrarSesion() si MSAL requiere limpieza
-    this.router.navigate(['/portal'], { queryParams: { session: 'expired' } });
   }
 }

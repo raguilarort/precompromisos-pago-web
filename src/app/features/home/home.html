@@ -7,6 +7,7 @@
   
   <router-outlet></router-outlet>
 
+  <!-- Modal para la Renovación de la Ssión -->
   <div class="modal fade" id="modalRenovarSesion" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content border-0 shadow-lg">
@@ -22,6 +23,43 @@
             <!-- Si da clic, invoca al método renovarSesion() de tu SessionManagerService -->
             <button type="button" class="btn btn-dark px-4 py-2 fw-bold" (click)="sessionManager.renovarSesion()">
               <i class="bi bi-arrow-clockwise me-2"></i> Sí, continuar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Modal de Confirmación de Cierre de Sesión -->
+  <div class="modal fade" id="modalConfirmarCierre" tabindex="-1" aria-labelledby="modalConfirmarCierreLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header border-0 pb-0">
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center px-4 pb-4 pt-2">
+          <div class="text-primary mb-3">
+            <i class="bi bi-door-open" style="font-size: 3.5rem;"></i>
+          </div>
+          <h4 class="fw-bold mb-3">¿Cerrar sesión?</h4>
+          
+          <!-- Bloque de advertencia amigable -->
+          <div class="alert alert-info text-start small mb-4 shadow-sm border-0" role="alert">
+            <div class="d-flex">
+              <i class="bi bi-info-circle-fill me-2 fs-5 mt-1"></i>
+              <div>
+                <strong>Aviso de seguridad:</strong> Esta acción cerrará tu acceso únicamente al <em>Módulo de Precompromisos</em>. <br><br>
+                Tu cuenta institucional de Microsoft seguirá activa en este navegador. Si te encuentras en un equipo público o compartido, te recomendamos <strong>cerrar por completo la ventana del navegador</strong> al finalizar.
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-center gap-3">
+            <button type="button" class="btn btn-light fw-bold px-4" data-bs-dismiss="modal">
+              Cancelar
+            </button>
+            <!-- El botón ejecuta el cierre local y cierra el modal simultáneamente -->
+            <button type="button" class="btn btn-primary fw-bold px-4" data-bs-dismiss="modal" (click)="authService.cerrarSesionLocal()">
+              Sí, salir del Módulo
             </button>
           </div>
         </div>
