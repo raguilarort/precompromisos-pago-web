@@ -32,12 +32,6 @@ export class SessionManager {
       // 2. Calculamos cuándo mostrar la advertencia (5 minutos antes)
       const tiempoParaAdvertencia = tiempoRestanteMs - (5 * 60 * 1000);
       
-      //En desarrollo si se quiere ver cuando aparece el modal de aviso y cuando caduca el token.
-      //const fechaAviso = new Date(Date.now() + tiempoParaAdvertencia);
-      //const fechaCaducidad = new Date(fechaExpiracion);
-      //console.info(`[SESIÓN] El token caduca a las: ${fechaCaducidad.toLocaleTimeString()}`);
-      //console.info(`[SESIÓN] El modal aparecerá a las: ${fechaAviso.toLocaleTimeString()}`);
-
       // 3. Programamos la aparición del Modal
       if (tiempoParaAdvertencia > 0) {
         this.timeoutAdvertencia = setTimeout(() => {
