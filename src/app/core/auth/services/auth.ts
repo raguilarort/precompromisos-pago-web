@@ -6,6 +6,7 @@ import { AuthenticationResult, InteractionStatus, AccountInfo } from '@azure/msa
 import { catchError, map, of } from 'rxjs';
 import { RolSistema, UsuarioSession, BackendAuthResponse } from '../models/auth.model'; 
 import { environment } from '../../../../environments/environment';
+import { SessionManager } from './session-manager';
 
 @Service()
 export class Auth {
@@ -13,6 +14,8 @@ export class Auth {
   private broadcastService = inject(MsalBroadcastService); // Inyectamos el servicio
   private http = inject(HttpClient);
   private router = inject(Router);
+
+  private sessionManager = inject(SessionManager);
 
   // Señales reactivas para actualizar el Navbar
   userName = signal<string>('Usuario');
@@ -49,6 +52,8 @@ export class Auth {
     if (cuentaActiva) {
       this.generarLogAuditoria('AUTH_LOGOUT', cuentaActiva);
     }
+    
+    this.sessionManager.detenerMonitoreo(); 
 
     // NUEVO: Limpiamos la sesión de negocio al salir
     this.usuarioAutenticado.set(null);
@@ -125,10 +130,16 @@ export class Auth {
       
       // Si el usuario recarga la página, recuperamos la sesión de negocio de la RAM/Storage
       const sesionGuardada = sessionStorage.getItem('sesion_negocio');
-      if (sesionGuardada) {
+      const tokenGuardado = sessionStorage.getItem('accessToken'); // Recuperamos el token
+
+      if (sesionGuardada && tokenGuardado) {
           this.usuarioAutenticado.set(JSON.parse(sesionGuardada));
+          
+          // REINICIAMOS EL RELOJ DEL MODAL
+          this.sessionManager.iniciarMonitoreo(tokenGuardado); 
       } else {
-          this.router.navigate(['/unauthorized']);
+          // Si falta el token o la sesión, lo mandamos a autenticarse
+          this.cerrarSesion(); 
       }
     }
   }
@@ -176,6 +187,9 @@ export class Auth {
 
     // 1. Guardamos el JWT de Spring Boot para que el Interceptor lo inyecte
     sessionStorage.setItem('accessToken', perfilRegistradoBD.accessToken);
+
+    //Inicia el monitoreo de la token
+    this.sessionManager.iniciarMonitoreo(perfilRegistradoBD.accessToken);
 
     // 2. Mapeamos la respuesta al modelo Frontend (UsuarioSession)
     const perfilNegocio: UsuarioSession = {

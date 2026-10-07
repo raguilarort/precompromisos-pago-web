@@ -1,9 +1,31 @@
 <app-navbar></app-navbar>
 
 <main class="container-fluid px-4 mt-4">
-  <div class="alert alert-info" role="alert">
+  <!--<div class="alert alert-info" role="alert">
     <strong>¡Hola!</strong> Esta es la estructura base del Home. Debajo de este mensaje se renderizará el módulo correspondiente.
-  </div>
+  </div>-->
   
   <router-outlet></router-outlet>
+
+  <div class="modal fade" id="modalRenovarSesion" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-body text-center p-5">
+          <div class="text-warning mb-3">
+            <i class="bi bi-hourglass-split" style="font-size: 4rem;"></i>
+          </div>
+          <h4 class="fw-bold mb-3">Tu sesión está por expirar</h4>
+          <p class="text-muted mb-4">
+            Por políticas de seguridad, tu sesión se cerrará pronto por inactividad. ¿Deseas seguir trabajando?
+          </p>
+          <div class="d-flex justify-content-center gap-3">
+            <!-- Si da clic, invoca al método renovarSesion() de tu SessionManagerService -->
+            <button type="button" class="btn btn-dark px-4 py-2 fw-bold" (click)="sessionManager.renovarSesion()">
+              <i class="bi bi-arrow-clockwise me-2"></i> Sí, continuar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </main>
