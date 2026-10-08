@@ -22,6 +22,7 @@ import { SeguimientoOperativo } from '../components/seguimiento-operativo/seguim
 import { DesgloseSaldoComponent } from '../../presupuesto/saldos/components/desglose-saldo/desglose-saldo';
 import { Auth } from '../../../core/auth/services/auth';
 import { RolSistema } from '../../../core/auth/models/auth.model';
+import { finalize } from 'rxjs';
 
 
 @Component({
@@ -55,6 +56,7 @@ export class Form implements OnInit {
 
   // NUEVO: Signals para manejar el estado de carga
   cargando = signal<boolean>(true);
+  guardando = signal<boolean>(false);
   mensajeError = signal<string | null>(null);
   mensajeAlerta = signal<string | null>(null);
   mensajeExito = signal<string | null>(null);
@@ -720,7 +722,9 @@ export class Form implements OnInit {
       return;
     }
 
-    this.cargando.set(true);
+    if (this.guardando()) return;
+
+    this.guardando.set(true);
 
     const rawValues = this.formulario.getRawValue();
 
@@ -730,14 +734,14 @@ export class Form implements OnInit {
 
       if (!c.combinacionValidada) {
         this.mostrarAlerta(`Debe validar la combinación del Concepto #${i + 1} antes de guardar.`, 'warning');
-        this.cargando.set(false);
+        this.guardando.set(false);
         return;
       }
       
       const llave = `${c.claveProgramatica}-${c.partidaEspecifica}-${c.fuenteFinanciamiento}`;
       if (combinacionesSet.has(llave)) {
         this.mostrarAlerta(`Los conceptos tienen combinaciones presupuestales duplicadas. Por favor, consolide los importes.`, 'warning');
-        this.cargando.set(false);
+        this.guardando.set(false);
         return;
       }
       combinacionesSet.add(llave);
@@ -768,41 +772,27 @@ export class Form implements OnInit {
       }))
     };
 
-    console.log("Después del tratamiento");
+    const request$ = this.esEdicion && this.idPrecompromiso 
+      ? this.precompromisoService.actualizar(this.idPrecompromiso, objetoGuardar)
+      : this.precompromisoService.registrar(objetoGuardar);
 
-    console.log(objetoGuardar);
-    
-    if (this.esEdicion && this.idPrecompromiso) {
-      this.precompromisoService.actualizar(this.idPrecompromiso, objetoGuardar).subscribe({
-        next: (respuesta: PrecompromisoResponse) => {
-          this.cargando.set(false);
-          const msj = respuesta.mensaje || 'Precompromiso actualizado exitosamente';
-          this.mostrarAlerta(msj, 'success');
+    request$.pipe(
+      finalize(() => this.guardando.set(false)) 
+    ).subscribe({
+      next: (respuesta: PrecompromisoResponse) => {
+        const msj = respuesta.mensaje || (this.esEdicion 
+          ? 'Precompromiso actualizado exitosamente' 
+          : `Registro exitoso. Folio asignado: ${respuesta.folio}`);
           
-          setTimeout(() => this.router.navigate(['/home/precompromisos/list']), 3000);
-        },
-        error: (err) => {
-          this.cargando.set(false);
-          const msjError = err.error?.mensaje || 'Ocurrió un error al intentar actualizar el precompromiso.';
-          this.mostrarAlerta(msjError, 'danger');
-        }
-      });
-    } else {
-      this.precompromisoService.registrar(objetoGuardar).subscribe({
-        next: (respuesta: PrecompromisoResponse) => {
-          this.cargando.set(false);
-          this.mostrarAlerta(`Registro exitoso. Folio asignado: ${respuesta.folio}`, 'success');
-          
-          setTimeout(() => this.router.navigate(['/home/precompromisos/list']), 3000);
-        },
-        error: (err) => {
-          this.cargando.set(false);
-          const msjError = err.error?.mensaje || 'Ocurrió un error al intentar guardar el precompromiso.';
-          console.error('Error atrapado en Angular:', err);
-          this.mostrarAlerta(msjError, 'danger');
-        }
-      });
-    }
+        this.mostrarAlerta(msj, 'success');
+        setTimeout(() => this.router.navigate(['/home/precompromisos/list']), 350);
+      },
+      error: (err) => {
+        const accion = this.esEdicion ? 'actualizar' : 'guardar';
+        const msjError = err.error?.mensaje || `Ocurrió un error al intentar ${accion} el precompromiso.`;
+        this.mostrarAlerta(msjError, 'danger');
+      }
+    });
   }
 
   // Validador personalizado para evaluar el tope presupuestal

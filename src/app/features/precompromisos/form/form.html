@@ -591,8 +591,13 @@
               <button type="button" class="btn btn-outline-primary" (click)="activeTab = 'generales'">← Regresar</button>
               <div class="gap-2 d-flex">
                 <a routerLink="/home/precompromisos/list" class="btn btn-secondary">Cancelar</a>
-                <button type="submit" class="btn btn-success fw-bold shadow-sm" [disabled]="formulario.invalid">
-                  <i class="bi bi-floppy me-1"></i> {{ esEdicion ? 'Actualizar Cambios' : 'Guardar Todo' }}
+                <button type="submit" class="btn btn-success fw-bold shadow-sm" [disabled]="formulario.invalid || guardando()">
+                  @if (guardando()) {
+                    <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span> 
+                    Procesando...
+                  } @else {
+                    <i class="bi bi-floppy me-1"></i> {{ esEdicion ? 'Actualizar Cambios' : 'Guardar Todo' }}
+                  }
                 </button>
               </div>
             </div>
