@@ -20,6 +20,8 @@ import { PrecompromisoRequestDTO, PrecompromisoResponse } from '../models/precom
 import { FiltroCombinacionEUPPFFDTO } from '../../presupuesto/claves-presupuestarias/model/filtro-clave-presupuestaria.dto';
 import { SeguimientoOperativo } from '../components/seguimiento-operativo/seguimiento-operativo';
 import { DesgloseSaldoComponent } from '../../presupuesto/saldos/components/desglose-saldo/desglose-saldo';
+import { Auth } from '../../../core/auth/services/auth';
+import { RolSistema } from '../../../core/auth/models/auth.model';
 
 
 @Component({
@@ -31,6 +33,7 @@ import { DesgloseSaldoComponent } from '../../presupuesto/saldos/components/desg
 })
 export class Form implements OnInit {
   private fb = inject(FormBuilder);
+  private authService = inject(Auth);
   private precompromisoService = inject(Precompromiso);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -125,11 +128,25 @@ export class Form implements OnInit {
 
   cargarCatalogosGlobales() {
     this.unidadEjecutoraService.getCatalogoUnidadesEjecutoras().subscribe(data => {
-      const unidadesTransformadas = data.map(unidad => ({
-        ...unidad, // Conservamos todas las propiedades originales (ambito, iniciales, etc)
-        // 2. Creamos la nueva propiedad concatenada
+      const usuario = this.authService.usuarioAutenticado();
+
+      
+
+      let unidadesTransformadas = data.map(unidad => ({
+        ...unidad, 
         textoVisible: `${unidad.unidadEjecutora} - ${unidad.nombreCorto}` 
       }));
+
+      console.log('Unidades permitidas usuario:', usuario?.unidadesPermitidas);
+      console.log('Unidades transformadas:', unidadesTransformadas[0]);
+      
+      if (usuario && usuario.rol !== RolSistema.Administrador && usuario.unidadesPermitidas.length > 0) {
+
+        unidadesTransformadas = unidadesTransformadas.filter(unidad => 
+          // NOTA: Cambia 'unidad.id' por el nombre real de tu columna ID en el DTO
+          usuario.unidadesPermitidas.includes(Number(unidad.unidadEjecutora))
+        );
+      }
 
       // 3. Guardamos el arreglo transformado en la señal
       this.catalogoUnidadesEjecutoras.set(unidadesTransformadas);
@@ -254,11 +271,13 @@ export class Form implements OnInit {
   }
 
   evaluarReglaUnidadEjecutora() {
-    // Regla: Si el usuario solo tiene acceso a 1 unidad, seleccionarla y bloquearla
     if (this.catalogoUnidadesEjecutoras().length === 1) {
-      const unicaUnidad = this.catalogoUnidadesEjecutoras()[0].id || this.catalogoUnidadesEjecutoras()[0].clave; // Ajusta según tu DTO
+      const unicaUnidad = this.catalogoUnidadesEjecutoras()[0].unidadEjecutora; 
+      
       this.formulario.get('unidad')?.setValue(unicaUnidad);
       this.formulario.get('unidad')?.disable();
+
+      this.configurarListenerUnidad();
     }
   }
 
