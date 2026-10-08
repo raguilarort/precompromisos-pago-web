@@ -46,6 +46,35 @@ export class Auth {
     });
   }
 
+  cerrarSesionGlobal() {
+    const cuentaActiva = this.msalService.instance.getActiveAccount();
+
+    if (cuentaActiva) {
+      this.generarLogAuditoria('AUTH_LOGOUT', cuentaActiva);
+    }
+    
+    this.sessionManager.detenerMonitoreo();
+
+    const motivoTexto = 'Cierre de sesión global de microsoft';
+    
+    this.http.post(`${environment.apiUrl}/auth/logout`, { motivo: motivoTexto })
+      .subscribe({ 
+        next: () => { 
+          this.finalizarLimpiezaGlobal();
+          this.msalService.logoutRedirect({
+            postLogoutRedirectUri: window.location.origin
+          });
+        },
+        error: () => {
+          console.warn('Aviso de logout local falló. Procediendo a limpiar de todos modos.');
+          this.finalizarLimpiezaGlobal();
+          this.msalService.logoutRedirect({
+            postLogoutRedirectUri: window.location.origin
+          });
+        }
+      });
+  }
+
   cerrarSesionLocal(esCierreAutomatico: boolean = false) {
     const cuentaActiva = this.msalService.instance.getActiveAccount();
 
@@ -88,6 +117,22 @@ export class Auth {
     } else {
       this.router.navigate(['/portal']);
     }
+  }
+
+  private finalizarLimpiezaGlobal() {
+    // Limpiamos frontend
+    this.usuarioAutenticado.set(null);
+    this.userName.set('Usuario');
+    this.userPhoto.set(null);
+    
+    // Liberamos MSAL
+    this.msalService.instance.setActiveAccount(null);
+    
+    // Destruimos credenciales
+    sessionStorage.removeItem('sesion_negocio');
+    sessionStorage.removeItem('accessToken'); 
+    
+    this.router.navigate(['/portal']);    
   }
 
   procesarRespuestaLogin() {
