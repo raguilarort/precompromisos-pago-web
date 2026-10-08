@@ -285,68 +285,70 @@ export class Form implements OnInit {
 
   // Crea la sub-estructura de controles para un concepto nuevo con sus 12 meses
   crearConceptoFormGroup(datosPrevios?: any): FormGroup {
-    const vieneConClave = !!datosPrevios?.claveProgramatica;
+      const vieneConClave = !!datosPrevios?.claveProgramatica;
 
-    const grupo = this.fb.group({
-      idConcepto: [datosPrevios?.idConcepto || null], 
-      descripcion: [datosPrevios?.descripcion || '', Validators.required],
-      // Control clave oculto: Indica si el candado está cerrado (true) o abierto (false)
-      combinacionValidada: [vieneConClave],
-      // NUEVO: Control en memoria (sin representación HTML)
-      idCvePresupuestaria: [datosPrevios?.idCvePresupuestaria || null], 
-      claveProgramatica: [{ value: datosPrevios?.claveProgramatica || null, disabled: vieneConClave }, Validators.required],
-      partidaEspecifica: [{ value: datosPrevios?.partidaEspecifica || null, disabled: vieneConClave || !datosPrevios?.claveProgramatica  }, Validators.required],   
-      fuenteFinanciamiento: [{ value: datosPrevios?.fuenteFinanciamiento || null, disabled: vieneConClave || !datosPrevios?.partidaEspecifica  }, Validators.required],
+      const grupo = this.fb.group({
+        idConcepto: [datosPrevios?.idConcepto || null], 
+        descripcion: [datosPrevios?.descripcion || '', Validators.required],
+        // Control clave oculto: Indica si el candado está cerrado (true) o abierto (false)
+        combinacionValidada: [vieneConClave],
+        // NUEVO: Control en memoria (sin representación HTML)
+        idCvePresupuestaria: [datosPrevios?.idCvePresupuestaria || null], 
+        claveProgramatica: [{ value: datosPrevios?.claveProgramatica || null, disabled: vieneConClave }, Validators.required],
+        partidaEspecifica: [{ value: datosPrevios?.partidaEspecifica || null, disabled: vieneConClave || !datosPrevios?.claveProgramatica  }, Validators.required],   
+        fuenteFinanciamiento: [{ value: datosPrevios?.fuenteFinanciamiento || null, disabled: vieneConClave || !datosPrevios?.partidaEspecifica  }, Validators.required],
 
-      // Controles para los input
-      codigoClaveProgramatica: [datosPrevios?.codigoClaveProgramatica || ''],
-      descClaveProgramatica: [datosPrevios?.descClaveProgramatica || ''],
-      codigoPartida: [datosPrevios?.codigoPartida || ''],
-      descPartida: [datosPrevios?.descPartidaEspecifica || ''],
-      idFuenteFinTexto: [datosPrevios?.idFuenteFinanciamiento || ''],
-      descFuenteFin: [datosPrevios?.descFuenteFinanciamiento || ''],
-      
-      // 2. Controles ocultos o de solo lectura para almacenar el saldo disponible
-      disponibleEnero: [datosPrevios?.disponibleEnero || 0],
-      disponibleFebrero: [datosPrevios?.disponibleFebrero || 0],
-      disponibleMarzo: [datosPrevios?.disponibleMarzo || 0],
-      disponibleAbril: [datosPrevios?.disponibleAbril || 0],
-      disponibleMayo: [datosPrevios?.disponibleMayo || 0],
-      disponibleJunio: [datosPrevios?.disponibleJunio || 0],
-      disponibleJulio: [datosPrevios?.disponibleJulio || 0],
-      disponibleAgosto: [datosPrevios?.disponibleAgosto || 0],
-      disponibleSeptiembre: [datosPrevios?.disponibleSeptiembre || 0],
-      disponibleOctubre: [datosPrevios?.disponibleOctubre || 0],
-      disponibleNoviembre: [datosPrevios?.disponibleNoviembre || 0],
-      disponibleDiciembre: [datosPrevios?.disponibleDiciembre || 0],
-      
-      grpEnero: [datosPrevios?.grpEnero || 0], precompEnero: [datosPrevios?.precompEnero || 0],
-      grpFebrero: [datosPrevios?.grpFebrero || 0], precompFebrero: [datosPrevios?.precompFebrero || 0],
-      grpMarzo: [datosPrevios?.grpMarzo || 0], precompMarzo: [datosPrevios?.precompMarzo || 0],
-      grpAbril: [datosPrevios?.grpAbril || 0], precompAbril: [datosPrevios?.precompAbril || 0],
-      grpMayo: [datosPrevios?.grpMayo || 0], precompMayo: [datosPrevios?.precompMayo || 0],
-      grpJunio: [datosPrevios?.grpJunio || 0], precompJunio: [datosPrevios?.precompJunio || 0],
-      grpJulio: [datosPrevios?.grpJulio || 0], precompJulio: [datosPrevios?.precompJulio || 0],
-      grpAgosto: [datosPrevios?.grpAgosto || 0], precompAgosto: [datosPrevios?.precompAgosto || 0],
-      grpSeptiembre: [datosPrevios?.grpSeptiembre || 0], precompSeptiembre: [datosPrevios?.precompSeptiembre || 0],
-      grpOctubre: [datosPrevios?.grpOctubre || 0], precompOctubre: [datosPrevios?.precompOctubre || 0],
-      grpNoviembre: [datosPrevios?.grpNoviembre || 0], precompNoviembre: [datosPrevios?.precompNoviembre || 0],
-      grpDiciembre: [datosPrevios?.grpDiciembre || 0], precompDiciembre: [datosPrevios?.precompDiciembre || 0],
-      
-      importeEnero: [{ value: datosPrevios?.importeEnero || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Enero')]],
-      importeFebrero: [{ value: datosPrevios?.importeFebrero || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Febrero')]],
-      importeMarzo: [{ value: datosPrevios?.importeMarzo || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Marzo')]],
-      importeAbril: [{ value: datosPrevios?.importeAbril || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Abril')]],
-      importeMayo: [{ value: datosPrevios?.importeMayo || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Mayo')]],
-      importeJunio: [{ value: datosPrevios?.importeJunio || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Junio')]],
-      importeJulio: [{ value: datosPrevios?.importeJulio || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Julio')]],
-      importeAgosto: [{ value: datosPrevios?.importeAgosto || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Agosto')]],
-      importeSeptiembre: [{ value: datosPrevios?.importeSeptiembre || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Septiembre')]],
-      importeOctubre: [{ value: datosPrevios?.importeOctubre || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Octubre')]],
-      importeNoviembre: [{ value: datosPrevios?.importeNoviembre || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Noviembre')]],
-      importeDiciembre: [{ value: datosPrevios?.importeDiciembre || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Diciembre')]],
-      importeTotal: [{ value: datosPrevios?.importeTotal || 0, disabled: true }]
-    });
+        // Controles para los input
+        codigoClaveProgramatica: [datosPrevios?.codigoClaveProgramatica || ''],
+        descClaveProgramatica: [datosPrevios?.descClaveProgramatica || ''],
+        codigoPartida: [datosPrevios?.codigoPartida || ''],
+        descPartida: [datosPrevios?.descPartidaEspecifica || ''],
+        idFuenteFinTexto: [datosPrevios?.idFuenteFinanciamiento || ''],
+        descFuenteFin: [datosPrevios?.descFuenteFinanciamiento || ''],
+        
+        // 2. Controles ocultos o de solo lectura para almacenar el saldo disponible
+        disponibleEnero: [datosPrevios?.disponibleEnero || 0],
+        disponibleFebrero: [datosPrevios?.disponibleFebrero || 0],
+        disponibleMarzo: [datosPrevios?.disponibleMarzo || 0],
+        disponibleAbril: [datosPrevios?.disponibleAbril || 0],
+        disponibleMayo: [datosPrevios?.disponibleMayo || 0],
+        disponibleJunio: [datosPrevios?.disponibleJunio || 0],
+        disponibleJulio: [datosPrevios?.disponibleJulio || 0],
+        disponibleAgosto: [datosPrevios?.disponibleAgosto || 0],
+        disponibleSeptiembre: [datosPrevios?.disponibleSeptiembre || 0],
+        disponibleOctubre: [datosPrevios?.disponibleOctubre || 0],
+        disponibleNoviembre: [datosPrevios?.disponibleNoviembre || 0],
+        disponibleDiciembre: [datosPrevios?.disponibleDiciembre || 0],
+        
+        grpEnero: [datosPrevios?.grpEnero || 0], precompEnero: [datosPrevios?.precompEnero || 0],
+        grpFebrero: [datosPrevios?.grpFebrero || 0], precompFebrero: [datosPrevios?.precompFebrero || 0],
+        grpMarzo: [datosPrevios?.grpMarzo || 0], precompMarzo: [datosPrevios?.precompMarzo || 0],
+        grpAbril: [datosPrevios?.grpAbril || 0], precompAbril: [datosPrevios?.precompAbril || 0],
+        grpMayo: [datosPrevios?.grpMayo || 0], precompMayo: [datosPrevios?.precompMayo || 0],
+        grpJunio: [datosPrevios?.grpJunio || 0], precompJunio: [datosPrevios?.precompJunio || 0],
+        grpJulio: [datosPrevios?.grpJulio || 0], precompJulio: [datosPrevios?.precompJulio || 0],
+        grpAgosto: [datosPrevios?.grpAgosto || 0], precompAgosto: [datosPrevios?.precompAgosto || 0],
+        grpSeptiembre: [datosPrevios?.grpSeptiembre || 0], precompSeptiembre: [datosPrevios?.precompSeptiembre || 0],
+        grpOctubre: [datosPrevios?.grpOctubre || 0], precompOctubre: [datosPrevios?.precompOctubre || 0],
+        grpNoviembre: [datosPrevios?.grpNoviembre || 0], precompNoviembre: [datosPrevios?.precompNoviembre || 0],
+        grpDiciembre: [datosPrevios?.grpDiciembre || 0], precompDiciembre: [datosPrevios?.precompDiciembre || 0],
+        
+        importeEnero: [{ value: datosPrevios?.importeEnero || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Enero')]],
+        importeFebrero: [{ value: datosPrevios?.importeFebrero || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Febrero')]],
+        importeMarzo: [{ value: datosPrevios?.importeMarzo || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Marzo')]],
+        importeAbril: [{ value: datosPrevios?.importeAbril || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Abril')]],
+        importeMayo: [{ value: datosPrevios?.importeMayo || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Mayo')]],
+        importeJunio: [{ value: datosPrevios?.importeJunio || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Junio')]],
+        importeJulio: [{ value: datosPrevios?.importeJulio || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Julio')]],
+        importeAgosto: [{ value: datosPrevios?.importeAgosto || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Agosto')]],
+        importeSeptiembre: [{ value: datosPrevios?.importeSeptiembre || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Septiembre')]],
+        importeOctubre: [{ value: datosPrevios?.importeOctubre || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Octubre')]],
+        importeNoviembre: [{ value: datosPrevios?.importeNoviembre || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Noviembre')]],
+        importeDiciembre: [{ value: datosPrevios?.importeDiciembre || 0, disabled: true }, [Validators.required, Validators.min(0), this.validarDisponibilidad('Diciembre')]],
+        importeTotal: [{ value: datosPrevios?.importeTotal || 0, disabled: true }]
+      },
+      { validators: this.validarTotalConcepto() }
+    );
 
     // Escucha cambios en Clave Programática
     // Lógica en cascada (Solo aplica cuando la combinación NO está validada)
@@ -584,11 +586,18 @@ export class Form implements OnInit {
       
       // Actualizamos el total individual sin disparar bucles infinitos de eventos
       g.get('importeTotal')?.setValue(t, { emitEvent: false });
+
+      //Obligamos a Angular a revisar el validador "validarTotalConcepto" silenciosamente
+      g.updateValueAndValidity({ emitEvent: false });
+
       granTotal += t;
     });
 
     // Actualizamos el total general de la requisición
     this.formulario.get('requisicion.importeTotalRequisicion')?.setValue(granTotal, { emitEvent: false });
+
+    // Refrescamos la validez del formulario completo
+    this.formulario.updateValueAndValidity({ emitEvent: false });
   }
 
   // ==========================================
@@ -716,6 +725,18 @@ export class Form implements OnInit {
   }
 
   guardar() {
+    const rawValues = this.formulario.getRawValue();
+
+    // REVISIÓN DE TOTALES EN CERO
+    for (let i = 0; i < rawValues.conceptos.length; i++) {
+      const c = rawValues.conceptos[i] as any;
+      if (Number(c.importeTotal) <= 0) {
+        this.formulario.markAllAsTouched();
+        this.mostrarAlerta(`El Concepto #${i + 1} debe tener por lo menos un mes con un importe mayor a cero.`, 'warning');
+        return;
+      }
+    }
+
     if (this.formulario.invalid) {
       this.formulario.markAllAsTouched();
       this.mostrarAlerta('Por favor, complete todos los campos obligatorios.', 'warning');
@@ -724,9 +745,7 @@ export class Form implements OnInit {
 
     if (this.guardando()) return;
 
-    this.guardando.set(true);
-
-    const rawValues = this.formulario.getRawValue();
+    this.guardando.set(true);    
 
     const combinacionesSet = new Set();
     for (let i = 0; i < rawValues.conceptos.length; i++) {
@@ -804,6 +823,13 @@ export class Form implements OnInit {
       // Buscamos el valor disponible que el backend nos entregó para este mes
       const disponible = control.parent.get(`disponible${mes}`)?.value || 0;
       return control.value > disponible ? { excedePresupuesto: true } : null;
+    };
+  }
+
+  validarTotalConcepto() {
+    return (group: AbstractControl) => {
+      const total = group.get('importeTotal')?.value || 0;
+      return total <= 0 ? { totalCero: true } : null;
     };
   }
 
