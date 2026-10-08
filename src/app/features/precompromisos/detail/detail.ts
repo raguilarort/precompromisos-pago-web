@@ -285,22 +285,19 @@ export class Detail implements OnInit {
   }
 
   eliminar(motivo: string) {
-    // Conservamos tu confirm original
-    if (confirm('¿Está seguro de que desea eliminar este precompromiso de forma permanente? Esta acción no se puede deshacer.')) {
-      this.cargando.set(true);
-      this.mensajeCarga.set('Eliminando registro...');
+    this.cargando.set(true);
+    this.mensajeCarga.set('Eliminando registro...');
 
-      this.precompromisoService.eliminar(this.idPrecompromiso(), motivo).subscribe({
-        next: (data: any) => {
-          this.mostrarAlerta(data.mensaje || 'Precompromiso eliminado exitosamente', 'success');
-          setTimeout(() => this.router.navigate(['/home/precompromisos/list']), 1500);
-        },
-        error: (err: any) => {
-          this.cargando.set(false);
-          this.mostrarAlerta(err.error?.mensaje || 'Error en el servidor.', 'danger');
-        }
-      });
-    }
+    this.precompromisoService.eliminar(this.idPrecompromiso(), motivo).subscribe({
+      next: (data: any) => {
+        this.mostrarAlerta(data.mensaje || 'Precompromiso eliminado exitosamente', 'success');
+        setTimeout(() => this.router.navigate(['/home/precompromisos/list']), 1500);
+      },
+      error: (err: any) => {
+        this.cargando.set(false);
+        this.mostrarAlerta(err.error?.mensaje || 'Error en el servidor.', 'danger');
+      }
+    });
   }
 
   procesarAccionModal(evento: ModalMotivoResult) {
