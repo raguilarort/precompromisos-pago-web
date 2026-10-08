@@ -84,7 +84,7 @@
         </thead>
         <tbody>
           @for (item of registrosFiltrados(); track item.idPrecompromiso) {
-            <tr class="border-bottom" [class.opacity-50]="item.estatus === 'ELIMINADO'">
+            <tr class="border-bottom" [class.opacity-50]="item.idEstatus === ESTATUS.ELIMINADO">
               <td class="ps-3 fw-bold text-primary">{{ item.folio }}</td>
               <td class="d-none d-md-table-cell">
                 <span class="d-block fw-medium">{{ item.ejercicio }}</span>
@@ -157,7 +157,7 @@
                     </a>
                     <button type="button" class="btn btn-sm btn-outline-danger" (click)="modalDinamico.abrir('ELIMINAR', item.idPrecompromiso)" title="Eliminar"
                         [disabled]="!permisos.puedeEliminarPrecompromiso(item.idEstatus)"
-                        [attr.title]="!permisos.puedeEliminarPrecompromiso(item.idEstatus) ? 'Solo eliminable en estatus Capturado' : 'Eliminar Registro'">
+                        [attr.title]="!permisos.puedeEliminarPrecompromiso(item.idEstatus) ? 'Solo se puede eliminar en estatus Capturado o Rechazado' : 'Eliminar Registro'">
                       <i class="bi bi-trash"></i>
                       <span class="d-none d-lg-inline ms-1">Eliminar</span>
                     </button>

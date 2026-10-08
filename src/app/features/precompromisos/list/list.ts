@@ -91,27 +91,25 @@ export class List {
 
   // 4. MÉTODOS PÚBLICOS (Llamados desde list.html)
   eliminar(id: number, motivo: string) {
-    if (confirm('¿Está seguro de que desea eliminar este precompromiso de forma permanente? Esta acción no se puede deshacer.')) {
-      this.precompromisoService.eliminar(id, motivo).subscribe({
-        next: (data) => {
-          this.mostrarAlerta(data.mensaje || 'Precompromiso eliminado exitosamente', 'success');
-          
-          // ACTUALIZACIÓN EN TIEMPO REAL: Transformamos el registro a 'ELIMINADO'
-          this.listaPrecompromisos.update(lista => 
-            lista.map(c => 
-              c.idPrecompromiso === id 
-                ? { ...c, estatus: 'ELIMINADO' } // Muta solo este registro
-                : c // Deja los demás intactos
-            )
-          );
-        },
-        error: (err) => {
-          console.error('Error al eliminar precompromiso:', err);
-          const msjError = err.error?.mensaje || 'No se pudo eliminar el precompromiso por un error en el servidor.';
-          this.mostrarAlerta(msjError, 'danger');
-        }
-      });
-    }
+    this.precompromisoService.eliminar(id, motivo).subscribe({
+      next: (data) => {
+        this.mostrarAlerta(data.mensaje || 'Precompromiso eliminado exitosamente', 'success');
+        
+        // ACTUALIZACIÓN EN TIEMPO REAL: Transformamos el registro a 'ELIMINADO'
+        this.listaPrecompromisos.update(lista => 
+          lista.map(c => 
+            c.idPrecompromiso === id 
+              ? { ...c, idEstatus: this.ESTATUS.ELIMINADO } // Muta solo este registro
+              : c // Deja los demás intactos
+          )
+        );
+      },
+      error: (err) => {
+        console.error('Error al eliminar precompromiso:', err);
+        const msjError = err.error?.mensaje || 'No se pudo eliminar el precompromiso por un error en el servidor.';
+        this.mostrarAlerta(msjError, 'danger');
+      }
+    });
   }
 
   private consultarPrecompromisos(ejercicio: number) {
