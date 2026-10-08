@@ -594,7 +594,7 @@
                 <button type="submit" class="btn btn-success fw-bold shadow-sm" [disabled]="formulario.invalid || guardando()">
                   @if (guardando()) {
                     <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span> 
-                    Procesando...
+                    {{ esEdicion ? 'Actualizando...' : 'Guardando...' }}
                   } @else {
                     <i class="bi bi-floppy me-1"></i> {{ esEdicion ? 'Actualizar Cambios' : 'Guardar Todo' }}
                   }

@@ -776,16 +776,18 @@ export class Form implements OnInit {
       ? this.precompromisoService.actualizar(this.idPrecompromiso, objetoGuardar)
       : this.precompromisoService.registrar(objetoGuardar);
 
-    request$.pipe(
-      finalize(() => this.guardando.set(false)) 
-    ).subscribe({
+
+    request$.subscribe({
       next: (respuesta: PrecompromisoResponse) => {
         const msj = respuesta.mensaje || (this.esEdicion 
           ? 'Precompromiso actualizado exitosamente' 
           : `Registro exitoso. Folio asignado: ${respuesta.folio}`);
-          
+
         this.mostrarAlerta(msj, 'success');
-        setTimeout(() => this.router.navigate(['/home/precompromisos/list']), 350);
+
+        this.formulario.disable();          
+        
+        setTimeout(() => this.router.navigate(['/home/precompromisos/list']), 900);
       },
       error: (err) => {
         const accion = this.esEdicion ? 'actualizar' : 'guardar';
