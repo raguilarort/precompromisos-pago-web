@@ -1,10 +1,11 @@
-/* Contenedor principal con scroll interno */
+/* ==========================================
+   CONFIGURACIÓN DE TABLA Y SCROLL
+   ========================================== */
 .table-responsive {
   overflow-x: auto;
   overflow-y: auto;
 }
 
-/* Fijar los encabezados arriba */
 thead th {
   position: sticky;
   top: 0;
@@ -12,40 +13,52 @@ thead th {
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
 }
 
-.sticky-col {
+/* ==========================================
+   COLUMNA FIJA RESPONSIVA (Sustituye a sticky-col)
+   ========================================== */
+.columna-clave-fija {
   position: sticky;
   left: 0;
-  z-index: 5;
-  border-right: 2px solid #dee2e6 !important;
+  z-index: 5; /* Por encima de las celdas normales que hacen scroll */
   
-  /* Uso de !important para que Bootstrap no lo sobreescriba */
-  width: 210px !important;      
-  min-width: 210px !important;  
-  max-width: 460px !important;  
+  /* En móviles: Ancho reducido (160px) para dejar espacio al dedo para hacer scroll lateral */
+  width: 160px !important;
+  min-width: 160px !important;
+  max-width: 160px !important;
   
-  /* Forzar al texto a comportarse dentro de la caja */
-  white-space: normal !important; 
-  word-wrap: break-word !important; 
+  /* Permite que el texto fluya hacia abajo si es muy largo */
+  white-space: normal !important;
+  word-wrap: break-word !important;
   overflow: hidden;
 }
 
-/* La celda superior izquierda debe estar por encima de todos (encabezados horizontales y columnas verticales) */
-th.sticky-col.sticky-header {
+/* La intersección (Esquina superior izquierda) debe flotar sobre todo */
+th.columna-clave-fija.sticky-header {
   z-index: 15;
 }
 
-/* Mejor legibilidad de números */
+/* En tablets y monitores recupera el tamaño completo de 320px */
+@media (min-width: 768px) {
+  .columna-clave-fija {
+    width: 320px !important;
+    min-width: 320px !important;
+    max-width: 320px !important;
+    white-space: nowrap !important; /* En escritorio sí forzamos una sola línea */
+  }
+}
+
+/* ==========================================
+   ESTÉTICA GENERAL
+   ========================================== */
 .font-monospace {
   font-family: var(--bs-font-monospace);
   letter-spacing: -0.5px;
 }
 
-/* Suavizar la transición al cambiar de Tab */
 tbody td {
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* Estilizar la barra de desplazamiento (Scrollbar) para que se vea más limpia */
 .table-responsive::-webkit-scrollbar {
   width: 8px;
   height: 8px;

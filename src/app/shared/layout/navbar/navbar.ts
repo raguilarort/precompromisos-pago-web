@@ -23,6 +23,7 @@ export class Navbar {
 
   menuReportesAbierto = signal<boolean>(false);
   menuAdminAbierto = signal<boolean>(false);
+  menuColapsado = signal(false);
 
   // 3. Señal computada para renderizar dinámicamente el perfil
   // Usa el Mapeo Inverso: RolSistema[1] devuelve "Consultor"

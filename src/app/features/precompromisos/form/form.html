@@ -587,11 +587,13 @@
               <span class="fs-4 fw-bold text-success">{{ formulario.get('requisicion.importeTotalRequisicion')?.value | currency }}</span>
             </div>
 
-            <div class="d-flex justify-content-between mt-4 border-top pt-3">
-              <button type="button" class="btn btn-outline-primary" (click)="activeTab = 'generales'">← Regresar</button>
-              <div class="gap-2 d-flex">
-                <a routerLink="/home/precompromisos/list" class="btn btn-secondary">Cancelar</a>
-                <button type="submit" class="btn btn-success fw-bold shadow-sm" [disabled]="formulario.invalid || guardando()">
+            <div class="d-flex flex-column flex-md-row justify-content-between mt-4 border-top pt-3 gap-3">
+              <button type="button" class="btn btn-outline-primary w-100 w-md-auto" (click)="activeTab = 'generales'">
+                ← Regresar
+              </button>
+              <div class="d-flex flex-column flex-sm-row gap-2 w-100 w-md-auto">
+                <a routerLink="/home/precompromisos/list" class="btn btn-secondary w-100 w-sm-auto">Cancelar</a>
+                <button type="submit" class="btn btn-success fw-bold shadow-sm w-100 w-sm-auto" [disabled]="formulario.invalid || guardando()">
                   @if (guardando()) {
                     <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span> 
                     {{ esEdicion ? 'Actualizando...' : 'Guardando...' }}

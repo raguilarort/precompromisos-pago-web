@@ -122,14 +122,17 @@
               @for (concepto of item.conceptos; track $index) {
                 <div class="accordion-item border-bottom">                  
                   <h2 class="accordion-header">
-                    <button class="accordion-button collapsed px-4 py-3" type="button" data-bs-toggle="collapse" [attr.data-bs-target]="'#collapse' + $index">
-                      <div class="d-flex justify-content-between w-100 me-3 align-items-center">
-                        <div>
-                          <span class="d-block fw-bold text-dark">Concepto #{{ $index + 1 }} - {{ concepto.descripcion }}</span>
-                          <span class="badge bg-light border text-secondary font-monospace mt-1 shadow-sm mb-2">
+                    <div class="accordion-button px-4 py-3" 
+                         [class.collapsed]="conceptoAbierto() !== $index"
+                         role="button"
+                         (click)="toggleConcepto($index)">
+                      <div class="d-flex justify-content-between w-100 align-items-center">
+                        <div class="flex-grow-1" style="min-width: 0;">
+                          <span class="d-block fw-bold text-dark text-truncate">Concepto #{{ $index + 1 }} - {{ concepto.descripcion }}</span>
+                          <span class="badge bg-light border text-secondary font-monospace mt-1 shadow-sm mb-2 text-wrap text-break">
                             {{ concepto.clavePresupuestariaFormateada }}
                           </span>
-                          <div class="small text-muted lh-sm mt-1 border-start border-3 border-primary ps-2">
+                          <div class="small text-muted lh-sm mt-1 border-start border-3 border-primary ps-2 pe-2">
                             <div class="text-truncate mb-1">
                               <i class="bi bi-diagram-3 text-secondary me-1"></i> 
                               <strong>Programa:</strong> {{ concepto.claveProgramatica }} - {{ concepto.descClaveProgramatica }}
@@ -145,15 +148,17 @@
                           </div>
                         </div>
                         
-                        <div class="text-end fw-bold fs-5 text-success mt-1">
+                        <div class="text-end fw-bold fs-5 text-success ms-2 me-3 flex-shrink-0">
                           {{ concepto.importeTotal | currency }}
                         </div>
                       </div>
-                    </button>
+                    </div>
                   </h2>
                   
                   <!-- Cuerpo del Acordeón: Cuadrícula de Meses (Estilo Formulario) -->
-                  <div [id]="'collapse' + $index" class="accordion-collapse collapse" data-bs-parent="#acordeonConceptos">
+                  <div [id]="'collapseConcepto' + $index" 
+                       class="accordion-collapse collapse" 
+                       [class.show]="conceptoAbierto() === $index">
                     <div class="accordion-body bg-light p-4">
 
                       <!-- BARRA DE HERRAMIENTAS DEL CONCEPTO (Botón reubicado) -->

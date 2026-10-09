@@ -45,6 +45,8 @@ export class Detail implements OnInit {
   mensajeAlerta = signal<string | null>(null);
   mensajeExito = signal<string | null>(null);
 
+  conceptoAbierto = signal<number | null>(null);
+
   ngOnInit() {
     const idParam = this.route.snapshot.paramMap.get('id');
 
@@ -307,6 +309,14 @@ export class Detail implements OnInit {
       this.cancelar(evento.motivo);
     } else if (evento.accion === 'ELIMINAR') {
       this.eliminar(evento.motivo); 
+    }
+  }
+
+  toggleConcepto(index: number) {
+    if (this.conceptoAbierto() === index) {
+      this.conceptoAbierto.set(null); // Si ya estaba abierto, lo cierra
+    } else {
+      this.conceptoAbierto.set(index); // Abre el seleccionado
     }
   }
 
