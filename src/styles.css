@@ -1,6 +1,36 @@
 /* You can add global styles to this file, and also import other style files */
 @import "@ng-select/ng-select/themes/default.theme.css";
 
+ /*--app-navbar-bg: #212529;      /*#241F0C*/          
+/*--app-sidebar-bg: #212529;     /*#212529*/  
+/*
+:root {
+  --app-navbar-bg: #212529;                
+  --app-sidebar-bg: #212529;     
+  --app-border-subtle: rgba(100, 101, 105, 0.35); 
+  --app-text-muted: #B2B2B2;
+  --app-accent-bg: #007E48;                 
+  --app-accent-border: #007E48;
+  --app-sublink-active-bg: rgba(0, 126, 72, 0.22);
+  --app-avatar-bg: #728472;
+}*/
+
+:root {
+  --app-navbar-bg: #241F0C;                       /* Alternativa cálida: #241F0C */
+  --app-sidebar-bg: #241F0C;
+  --app-border-subtle: rgba(100, 101, 105, 0.35); /* #646569 */
+  --app-text-muted: #B2B2B2;
+  --app-accent-bg: #728472;                       /* Verde salvia institucional */
+  --app-accent-border: #728472;
+  --app-sublink-active-bg: rgba(114, 132, 114, 0.24);
+  --app-avatar-bg: #728472;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
 /* Pequeño ajuste para que los bordes coincidan perfectamente con Bootstrap 5 */
 .ng-select .ng-select-container {
     border-color: #dee2e6;
