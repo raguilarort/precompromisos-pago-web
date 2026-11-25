@@ -16,3 +16,17 @@
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #adb5bd; /* Se oscurece ligeramente al pasar el cursor */
 }
+
+.actividad-scroll {
+  max-height: 400px; /* Altura cómoda para móviles/tablets */
+  overflow-y: auto;
+}
+
+/* En escritorio ocupa exactamente el alto restante de la pantalla */
+@media (min-width: 992px) {
+  .actividad-scroll {
+    height: calc(100vh - 450px);
+    max-height: none;
+    min-height: 250px;
+  }
+}
