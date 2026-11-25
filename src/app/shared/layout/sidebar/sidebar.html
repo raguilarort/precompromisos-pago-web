@@ -1,0 +1,125 @@
+<aside class="sidebar bg-dark shadow"
+       [class.expanded]="layout.sidebarExpandido()"
+       [class.collapsed]="!layout.sidebarExpandido()"
+       [class.mobile-open]="layout.sidebarMovilAbierto()">
+
+  <div class="d-flex flex-column h-100 overflow-y-auto overflow-x-hidden pt-3 pb-4 custom-scrollbar">
+
+    <!-- Selector de Ejercicio: Visible SOLO en móvil dentro del menú hamburguesa -->
+    <div class="d-lg-none px-3 pb-3 mb-2 border-bottom border-secondary border-opacity-25">
+      <span class="text-secondary small text-uppercase fw-bold d-block mb-2" style="font-size: 0.7rem;">
+        Ejercicio Fiscal
+      </span>
+      <app-selector-ejercicio></app-selector-ejercicio>
+    </div>
+
+    <ul class="nav nav-pills flex-column px-2 gap-1 mb-auto w-100">
+
+      <!-- Inicio -->
+      <li class="nav-item">
+        <a routerLink="/home"
+           routerLinkActive="active"
+           [routerLinkActiveOptions]="{ exact: true }"
+           class="nav-link text-white d-flex align-items-center sidebar-link"
+           [class.justify-content-center]="!layout.sidebarExpandido()"
+           (click)="navegarYCerrarMovil()"
+           title="Inicio">
+          <i class="bi bi-house-door-fill sidebar-icon"></i>
+          <span class="sidebar-text ms-2 text-truncate" [class.d-lg-none]="!layout.sidebarExpandido()">
+            Inicio
+          </span>
+        </a>
+      </li>
+
+      <!-- Mis Precompromisos -->
+      <li class="nav-item">
+        <a routerLink="/home/precompromisos/list"
+           routerLinkActive="active"
+           class="nav-link text-white d-flex align-items-center sidebar-link"
+           [class.justify-content-center]="!layout.sidebarExpandido()"
+           (click)="navegarYCerrarMovil()"
+           title="Mis Precompromisos">
+          <i class="bi bi-card-list sidebar-icon"></i>
+          <span class="sidebar-text ms-2 text-truncate" [class.d-lg-none]="!layout.sidebarExpandido()">
+            Mis Precompromisos
+          </span>
+        </a>
+      </li>
+
+      <hr class="border-secondary opacity-25 my-2">
+
+      <!-- Submenú: Reportes -->
+      @if (mostrarMenuReportes()) {
+        <li class="nav-item">
+          <a class="nav-link text-white d-flex align-items-center justify-content-between sidebar-link"
+             style="cursor: pointer;"
+             [class.justify-content-center]="!layout.sidebarExpandido()"
+             (click)="toggleReportes()"
+             title="Reportes">
+            <div class="d-flex align-items-center overflow-hidden">
+              <i class="bi bi-graph-up-arrow sidebar-icon"></i>
+              <span class="sidebar-text ms-2 text-truncate" [class.d-lg-none]="!layout.sidebarExpandido()">
+                Reportes
+              </span>
+            </div>
+            <i class="bi bi-chevron-down small transition-transform"
+               [class.rotate-180]="menuReportesAbierto()"
+               [class.d-lg-none]="!layout.sidebarExpandido()"></i>
+          </a>
+
+          <div class="collapse" [class.show]="menuReportesAbierto() && layout.sidebarExpandido()">
+            <ul class="nav flex-column ms-2 mt-1 ps-2 border-start border-secondary border-opacity-25">
+              <li class="nav-item">
+                <a routerLink="/home/reportes/presupuestales/situacion-presupuestal"
+                   routerLinkActive="text-primary fw-bold"
+                   class="nav-link text-white-50 sidebar-sublink d-flex align-items-center"
+                   (click)="navegarYCerrarMovil()"
+                   title="Situación Presupuestal">
+                  <i class="bi bi-bar-chart-line-fill me-2 flex-shrink-0"></i>
+                  <span class="text-truncate">Situación Presupuestal</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
+      }
+
+      <!-- Submenú: Administración -->
+      @if (mostrarMenuAdministracion()) {
+        <li class="nav-item">
+          <a class="nav-link text-white d-flex align-items-center justify-content-between sidebar-link"
+             style="cursor: pointer;"
+             [class.justify-content-center]="!layout.sidebarExpandido()"
+             (click)="toggleAdmin()"
+             title="Administración">
+            <div class="d-flex align-items-center overflow-hidden">
+              <i class="bi bi-gear-fill sidebar-icon"></i>
+              <span class="sidebar-text ms-2 text-truncate" [class.d-lg-none]="!layout.sidebarExpandido()">
+                Administración
+              </span>
+            </div>
+            <i class="bi bi-chevron-down small transition-transform"
+               [class.rotate-180]="menuAdminAbierto()"
+               [class.d-lg-none]="!layout.sidebarExpandido()"></i>
+          </a>
+
+          <div class="collapse" [class.show]="menuAdminAbierto() && layout.sidebarExpandido()">
+            <ul class="nav flex-column ms-2 mt-1 ps-2 border-start border-secondary border-opacity-25">
+              <li class="nav-item">
+                <a routerLink="/home/admin/usuarios"
+                   routerLinkActive="text-primary fw-bold"
+                   class="nav-link text-white-50 sidebar-sublink d-flex align-items-center"
+                   (click)="navegarYCerrarMovil()"
+                   title="Usuarios">
+                  <i class="bi bi-people-fill me-2 flex-shrink-0"></i>
+                  <span class="text-truncate">Usuarios</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
+      }
+
+    </ul>
+  </div>
+</aside>

@@ -1,147 +1,98 @@
-<!-- Agregamos fixed-top para anclarla arriba -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top">
-  <div class="container-fluid px-3 px-lg-4 position-relative">
-    
-    <!-- MARCA (Siempre visible) -->
-    <a class="navbar-brand fw-bold text-white" routerLink="/home" style="cursor: pointer;">
-      Precompromisos App
-    </a>
+<nav class="navbar navbar-dark bg-dark shadow-sm fixed-top py-0 border-bottom border-secondary border-opacity-25">
+  <!-- ps-0 permite que el contenedor de 72px arranque exactamente en el borde izquierdo -->
+  <div class="container-fluid ps-0 pe-3 pe-lg-4 d-flex align-items-center justify-content-between h-100">
 
-    <!-- BOTÓN HAMBURGUESA (Visible solo en móviles/tablets) -->
-    <button class="navbar-toggler border-0 shadow-none" type="button" 
-            (click)="menuColapsado.set(!menuColapsado())"
-            aria-label="Alternar navegación">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+    <!-- 1. IZQUIERDA: Botón alineado (72px) + Logo + Nombre -->
+    <div class="d-flex align-items-center h-100">
 
-    <div class="collapse navbar-collapse" [class.show]="menuColapsado()" id="navbarContenido">
-      
-      <!-- 1. SECCIÓN IZQUIERDA: Menú -->
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0 mt-3 mt-lg-0">
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
-              data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show"
-              (click)="menuColapsado.set(false)">
-            <i class="bi bi-house-door-fill me-1"></i> Inicio
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link px-0 px-lg-2" aria-current="page" routerLink="/home/precompromisos/list" routerLinkActive="active"
-              data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show"
-              (click)="menuColapsado.set(false)">
-            <i class="bi bi-card-list me-1"></i> Mis Precompromisos
-          </a>
-        </li>
+      <!-- Contenedor de 72px exactos (alineado con el sidebar contraído) -->
+      <div class="d-flex justify-content-center align-items-center flex-shrink-0" style="width: 72px;">
+        <!-- Botón Hamburguesa (Solo Móvil) -->
+        <button class="btn btn-dark border-0 shadow-none d-lg-none p-1"
+                type="button"
+                (click)="layoutService.toggleSidebarMovil()"
+                aria-label="Alternar navegación móvil">
+          <i class="bi bi-list fs-4"></i>
+        </button>
 
-        <!-- Menú Reportes -->
-        @if (mostrarMenuReportes()) {
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" 
-              style="cursor: pointer;" 
-              (click)="toggleReportes($event)"
-              [class.show]="menuReportesAbierto()"
-              aria-expanded="false">
-              <i class="bi bi-graph-up-arrow"></i> Reportes
-            </a>
-            <ul class="dropdown-menu shadow-sm" [class.show]="menuReportesAbierto()">
-              <li>
-                <!-- IMPORTANTE: Al hacer clic en un enlace, cerramos los menús -->
-                <a class="dropdown-item d-flex align-items-center" 
-                  routerLink="/home/reportes/presupuestales/situacion-presupuestal"
-                  (click)="cerrarMenusDesplegables(); menuColapsado.set(false)">
-                  <i class="bi bi-bar-chart-line-fill text-primary me-2"></i> Situación Presupuestal
-                </a>
-              </li>
-            </ul>
-            <!-- Otros reportes -->
-          </li>
-        }
-
-        <!-- Menú Administración -->
-        @if (mostrarMenuAdministracion()) {        
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" 
-              style="cursor: pointer;" 
-              (click)="toggleAdmin($event)"
-              [class.show]="menuAdminAbierto()"
-              aria-expanded="false">
-              <i class="bi bi-gear-fill"></i> Administración
-            </a>          
-            <ul class="dropdown-menu shadow-sm" [class.show]="menuAdminAbierto()">
-              <li>
-                <a class="dropdown-item py-2" 
-                  routerLink="/home/admin/usuarios" 
-                  routerLinkActive="active"
-                  (click)="cerrarMenusDesplegables(); menuColapsado.set(false)">
-                  <i class="bi bi-people-fill me-2"></i> Usuarios
-                </a>
-              </li>
-            </ul>
-          </li>
-        }
-      </ul>
-      
-
-      <!-- 2. SECCIÓN CENTRAL: Selector de Ejercicio -->
-      <!-- Vista Móvil: Flujo normal con un buen margen vertical (my-3) -->
-      <div class="d-lg-none my-3">
-        <app-selector-ejercicio></app-selector-ejercicio>
-      </div>
-      <!-- Vista Desktop: Centro matemático absoluto, ignorando el ancho de los demás elementos -->
-      <div class="d-none d-lg-block position-absolute top-50 start-50 translate-middle">
-        <app-selector-ejercicio></app-selector-ejercicio>
-      </div>
-
-      <!-- 3. SECCIÓN DERECHA: Perfil y Salida -->
-      <!-- En móviles, agregamos un borde superior sutil para separar el perfil del resto del menú -->
-      <!--<div class="d-flex align-items-center gap-3 pt-3 pt-lg-0 border-top border-secondary border-opacity-50 d-lg-flex" style="border-top: none !important;">-->
-      <div class="d-flex align-items-center gap-3 pt-3 pt-lg-0 mt-2 mt-lg-0 pb-2 pb-lg-0">
-        <!-- HERRAMIENTA DEV: Selector de Roles temporal -->
-        <div class="d-none d-lg-flex align-items-center me-3 border border-warning rounded px-2" title="Herramienta de Desarrollo">
-          <span class="badge bg-warning text-dark me-2 shadow-sm" style="font-size: 0.65rem;">DEV MODE</span>
-          
-          <select #rolSelect 
-                  class="form-select form-select-sm border-0 bg-transparent text-white fw-medium focus-ring focus-ring-dark" 
-                  style="width: 140px; box-shadow: none;"
-                  (change)="cambiarRolDev(rolSelect.value)">
-                  
-            @for (id of rolesIds; track id) {
-              <option [value]="id" 
-                      [selected]="authService.usuarioAutenticado()?.rol === id"
-                      class="text-dark">
-                {{ RolSistema[id] }} <!-- Magia del mapeo inverso -->
-              </option>
-            }
-            
-          </select>
-        </div>
-        
-        <!-- Perfil de Usuario -->
-        <div class="d-flex align-items-center gap-2">
-           <!-- El nombre se muestra siempre, alineado a la izquierda en móvil y a la derecha en desktop -->
-          <div class="text-white small fw-medium text-start text-lg-end lh-sm">
-            <span class="d-block">{{ authService.userName() }}</span>
-            <span class="text-secondary" style="font-size: 0.75rem;">{{ nombreRolActual() }}</span>
-          </div>
-          @if (authService.userPhoto()) {
-            <div class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center fw-bold shadow-sm flex-shrink-0" 
-               style="width: 38px; height: 38px; font-size: 0.9rem;">
-              <img [src]="authService.userPhoto()" alt="Perfil" class="rounded-circle me-3 border border-2 border-secondary" style="width: 42px; height: 42px; object-fit: cover;">
-            </div>
-          } @else {
-            <div class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center fw-bold shadow-sm flex-shrink-0" 
-               style="width: 38px; height: 38px; font-size: 0.9rem;">
-              {{ authService.userInitials() }}
-            </div>
-          }
-        </div>
-
-        <div class="vr text-secondary d-none d-lg-block"></div>
-
-        <button class="btn btn-outline-light btn-sm d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalConfirmarCierre">
-          <i class="bi bi-box-arrow-right"></i> Salir
+        <!-- Botón Contraer/Expandir (Solo Desktop) -->
+        <button class="btn btn-dark border-0 shadow-none d-none d-lg-block p-1 text-secondary"
+                type="button"
+                (click)="layoutService.toggleSidebarDesktop()"
+                title="Expandir/Contraer menú lateral">
+          <i class="bi fs-5"
+             [class.bi-list]="!layoutService.sidebarExpandido()"
+             [class.bi-text-indent-left]="layoutService.sidebarExpandido()"></i>
         </button>
       </div>
+
+      <!-- Logo Institucional y Marca -->
+      <a class="navbar-brand d-flex align-items-center gap-2 text-white mb-0 py-0" routerLink="/home" style="cursor: pointer;">
+        <!-- Reemplaza la ruta src con tu imagen (idealmente SVG o PNG transparente en versión clara) -->
+        <img src="assets/images/logos/legislatura/actual/Logo_Legislatura_Blanco.png"
+             alt="Logo Institucional"
+             class="navbar-logo">
+        <span class="fw-bold fs-6 d-none d-sm-inline">Precompromisos App</span>
+      </a>
     </div>
+
+    <!-- 2. CENTRO: Selector de Ejercicio (Solo Desktop; en móvil vive dentro del sidebar) -->
+    <div class="d-none d-lg-block position-absolute top-50 start-50 translate-middle">
+      <app-selector-ejercicio></app-selector-ejercicio>
+    </div>
+
+    <!-- 3. DERECHA: Dev Mode, Perfil y Salir -->
+    <div class="d-flex align-items-center gap-2 gap-md-3">
+
+      <!-- DEV MODE (Ancho ajustado a 150px para que no corte "Administrador") -->
+      <div class="d-none d-xl-flex align-items-center border border-warning rounded px-2" title="Herramienta de Desarrollo">
+        <span class="badge bg-warning text-dark me-2 shadow-sm" style="font-size: 0.65rem;">DEV</span>
+        <select #rolSelect
+                class="form-select form-select-sm border-0 bg-transparent text-white fw-medium focus-ring focus-ring-dark py-1"
+                style="width: 150px; box-shadow: none;"
+                (change)="cambiarRolDev(rolSelect.value)">
+          @for (id of rolesIds; track id) {
+            <option [value]="id"
+                    [selected]="authService.usuarioAutenticado()?.rol === id"
+                    class="text-dark">
+              {{ RolSistema[id] }}
+            </option>
+          }
+        </select>
+      </div>
+
+      <!-- Perfil de Usuario -->
+      <div class="d-flex align-items-center gap-2">
+        <div class="d-none d-md-block text-white small fw-medium text-end lh-sm">
+          <span class="d-block">{{ authService.userName() }}</span>
+          <span class="text-secondary" style="font-size: 0.75rem;">{{ nombreRolActual() }}</span>
+        </div>
+
+        @if (authService.userPhoto()) {
+          <img [src]="authService.userPhoto()"
+               alt="Perfil"
+               class="rounded-circle border border-2 border-secondary flex-shrink-0"
+               style="width: 36px; height: 36px; object-fit: cover;">
+        } @else {
+          <div class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center fw-bold shadow-sm flex-shrink-0"
+               style="width: 36px; height: 36px; font-size: 0.9rem;">
+            {{ authService.userInitials() }}
+          </div>
+        }
+      </div>
+
+      <div class="vr text-secondary d-none d-md-block"></div>
+
+      <!-- Botón Salir -->
+      <button class="btn btn-outline-light btn-sm d-flex align-items-center gap-2"
+              type="button"
+              data-bs-toggle="modal"
+              data-bs-target="#modalConfirmarCierre">
+        <i class="bi bi-box-arrow-right"></i>
+        <span class="d-none d-md-inline">Salir</span>
+      </button>
+
+    </div>
+
   </div>
 </nav>

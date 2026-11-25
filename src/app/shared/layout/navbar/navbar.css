@@ -1,0 +1,10 @@
+.navbar {
+  height: 60px;
+  z-index: 1050;
+}
+
+.navbar-logo {
+  height: 32px;
+  width: auto;
+  object-fit: contain;
+}

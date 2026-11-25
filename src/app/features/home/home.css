@@ -1,0 +1,41 @@
+/* =========================================
+   CONTENEDOR PRINCIPAL (Desktop)
+   ========================================= */
+.main-content {
+  margin-top: 60px;              /* Compensa la altura fija del navbar */
+  margin-left: 72px;             /* Ancho del sidebar contraído */
+  min-height: calc(100vh - 60px);
+  transition: margin-left 0.3s ease;
+}
+
+.main-content.sidebar-abierto {
+  margin-left: 260px;            /* Ancho del sidebar expandido */
+}
+
+/* =========================================
+   MÓVIL / TABLET (< 992px)
+   ========================================= */
+@media (max-width: 991.98px) {
+  .main-content,
+  .main-content.sidebar-abierto {
+    margin-left: 0;              /* En móvil el sidebar flota encima */
+  }
+
+  .sidebar-overlay {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    width: 100vw;
+    height: calc(100vh - 60px);
+    background-color: rgba(0, 0, 0, 0.55);
+    z-index: 1039;               /* Justo debajo del sidebar (1040) */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+
+  .sidebar-overlay.show {
+    opacity: 1;
+    visibility: visible;
+  }
+}

@@ -1,0 +1,92 @@
+.sidebar {
+  position: fixed;
+  top: 60px; /* Empieza justo debajo del navbar */
+  bottom: 0;
+  left: 0;
+  z-index: 1040;
+  transition: width 0.3s ease, left 0.3s ease;
+}
+
+/* Opciones principales compactas */
+.sidebar-link {
+  padding: 0.45rem 0.75rem;
+  font-size: 0.875rem; /* 14px */
+  border-radius: 6px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.sidebar-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-link.active {
+  background-color: var(--bs-primary);
+  font-weight: 600;
+}
+
+.sidebar-icon {
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+/* Submenús en una sola línea */
+.sidebar-sublink {
+  padding: 0.35rem 0.5rem;
+  font-size: 0.8rem; /* ~12.8px */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-sublink:hover {
+  color: #ffffff !important;
+}
+
+.transition-transform {
+  transition: transform 0.25s ease;
+}
+
+.rotate-180 {
+  transform: rotate(180deg);
+}
+
+/* =========================================
+   DESKTOP (>= 992px)
+   ========================================= */
+@media (min-width: 992px) {
+  .sidebar.expanded {
+    width: 260px;
+  }
+
+  .sidebar.collapsed {
+    width: 72px;
+  }
+
+  .sidebar.collapsed .sidebar-icon {
+    font-size: 1.25rem !important;
+  }
+}
+
+/* =========================================
+   MÓVIL / TABLET (< 992px)
+   ========================================= */
+@media (max-width: 991.98px) {
+  .sidebar {
+    width: 280px;
+    left: -280px;
+  }
+
+  .sidebar.mobile-open {
+    left: 0;
+  }
+}
+
+/* Scrollbar sutil */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
