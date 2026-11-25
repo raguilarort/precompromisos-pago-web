@@ -1,10 +1,36 @@
-.navbar {
+.app-navbar {
   height: 60px;
   z-index: 1050;
+  background-color: var(--app-navbar-bg);
+  border-bottom: 1px solid var(--app-border-subtle);
 }
 
 .navbar-logo {
-  height: 32px;
+  height: 38px;
   width: auto;
   object-fit: contain;
+}
+
+.btn-sidebar-toggle {
+  color: var(--app-text-muted);
+  background-color: transparent;
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.btn-sidebar-toggle:hover,
+.btn-sidebar-toggle:focus {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.navbar-role-text {
+  font-size: 0.72rem;
+  color: var(--app-text-muted);
+}
+
+.navbar-avatar {
+  width: 36px;
+  height: 36px;
+  font-size: 0.85rem;
+  background-color: var(--app-avatar-bg);
 }

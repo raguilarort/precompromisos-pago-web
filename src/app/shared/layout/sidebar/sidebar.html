@@ -1,4 +1,4 @@
-<aside class="sidebar bg-dark shadow"
+<aside class="sidebar shadow"
        [class.expanded]="layout.sidebarExpandido()"
        [class.collapsed]="!layout.sidebarExpandido()"
        [class.mobile-open]="layout.sidebarMovilAbierto()">
@@ -6,8 +6,8 @@
   <div class="d-flex flex-column h-100 overflow-y-auto overflow-x-hidden pt-3 pb-4 custom-scrollbar">
 
     <!-- Selector de Ejercicio: Visible SOLO en móvil dentro del menú hamburguesa -->
-    <div class="d-lg-none px-3 pb-3 mb-2 border-bottom border-secondary border-opacity-25">
-      <span class="text-secondary small text-uppercase fw-bold d-block mb-2" style="font-size: 0.7rem;">
+    <div class="d-lg-none px-3 pb-3 mb-2 sidebar-divider-bottom">
+      <span class="sidebar-section-label d-block mb-2">
         Ejercicio Fiscal
       </span>
       <app-selector-ejercicio></app-selector-ejercicio>
@@ -20,7 +20,7 @@
         <a routerLink="/home"
            routerLinkActive="active"
            [routerLinkActiveOptions]="{ exact: true }"
-           class="nav-link text-white d-flex align-items-center sidebar-link"
+           class="nav-link d-flex align-items-center sidebar-link"
            [class.justify-content-center]="!layout.sidebarExpandido()"
            (click)="navegarYCerrarMovil()"
            title="Inicio">
@@ -35,7 +35,7 @@
       <li class="nav-item">
         <a routerLink="/home/precompromisos/list"
            routerLinkActive="active"
-           class="nav-link text-white d-flex align-items-center sidebar-link"
+           class="nav-link d-flex align-items-center sidebar-link"
            [class.justify-content-center]="!layout.sidebarExpandido()"
            (click)="navegarYCerrarMovil()"
            title="Mis Precompromisos">
@@ -46,12 +46,12 @@
         </a>
       </li>
 
-      <hr class="border-secondary opacity-25 my-2">
+      <hr class="sidebar-divider my-2">
 
       <!-- Submenú: Reportes -->
       @if (mostrarMenuReportes()) {
         <li class="nav-item">
-          <a class="nav-link text-white d-flex align-items-center justify-content-between sidebar-link"
+          <a class="nav-link d-flex align-items-center justify-content-between sidebar-link"
              style="cursor: pointer;"
              [class.justify-content-center]="!layout.sidebarExpandido()"
              (click)="toggleReportes()"
@@ -68,11 +68,11 @@
           </a>
 
           <div class="collapse" [class.show]="menuReportesAbierto() && layout.sidebarExpandido()">
-            <ul class="nav flex-column ms-2 mt-1 ps-2 border-start border-secondary border-opacity-25">
+            <ul class="nav flex-column ms-2 mt-1 ps-2 sidebar-submenu">
               <li class="nav-item">
                 <a routerLink="/home/reportes/presupuestales/situacion-presupuestal"
-                   routerLinkActive="text-primary fw-bold"
-                   class="nav-link text-white-50 sidebar-sublink d-flex align-items-center"
+                   routerLinkActive="active"
+                   class="nav-link sidebar-sublink d-flex align-items-center"
                    (click)="navegarYCerrarMovil()"
                    title="Situación Presupuestal">
                   <i class="bi bi-bar-chart-line-fill me-2 flex-shrink-0"></i>
@@ -87,7 +87,7 @@
       <!-- Submenú: Administración -->
       @if (mostrarMenuAdministracion()) {
         <li class="nav-item">
-          <a class="nav-link text-white d-flex align-items-center justify-content-between sidebar-link"
+          <a class="nav-link d-flex align-items-center justify-content-between sidebar-link"
              style="cursor: pointer;"
              [class.justify-content-center]="!layout.sidebarExpandido()"
              (click)="toggleAdmin()"
@@ -104,11 +104,11 @@
           </a>
 
           <div class="collapse" [class.show]="menuAdminAbierto() && layout.sidebarExpandido()">
-            <ul class="nav flex-column ms-2 mt-1 ps-2 border-start border-secondary border-opacity-25">
+            <ul class="nav flex-column ms-2 mt-1 ps-2 sidebar-submenu">
               <li class="nav-item">
                 <a routerLink="/home/admin/usuarios"
-                   routerLinkActive="text-primary fw-bold"
-                   class="nav-link text-white-50 sidebar-sublink d-flex align-items-center"
+                   routerLinkActive="active"
+                   class="nav-link sidebar-sublink d-flex align-items-center"
                    (click)="navegarYCerrarMovil()"
                    title="Usuarios">
                   <i class="bi bi-people-fill me-2 flex-shrink-0"></i>

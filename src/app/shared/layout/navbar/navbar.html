@@ -1,14 +1,13 @@
-<nav class="navbar navbar-dark bg-dark shadow-sm fixed-top py-0 border-bottom border-secondary border-opacity-25">
-  <!-- ps-0 permite que el contenedor de 72px arranque exactamente en el borde izquierdo -->
-  <div class="container-fluid ps-0 pe-3 pe-lg-4 d-flex align-items-center justify-content-between h-100">
+<nav class="navbar navbar-dark shadow-sm fixed-top py-0 app-navbar">
+  <div class="container-fluid ps-0 pe-3 pe-lg-4 d-flex align-items-center justify-content-between h-100 position-relative">
 
-    <!-- 1. IZQUIERDA: Botón alineado (72px) + Logo + Nombre -->
+    <!-- 1. IZQUIERDA: Botón alineado (72px) + Logo y Marca (Desktop) -->
     <div class="d-flex align-items-center h-100">
 
       <!-- Contenedor de 72px exactos (alineado con el sidebar contraído) -->
       <div class="d-flex justify-content-center align-items-center flex-shrink-0" style="width: 72px;">
         <!-- Botón Hamburguesa (Solo Móvil) -->
-        <button class="btn btn-dark border-0 shadow-none d-lg-none p-1"
+        <button class="btn border-0 shadow-none d-lg-none p-1 btn-sidebar-toggle"
                 type="button"
                 (click)="layoutService.toggleSidebarMovil()"
                 aria-label="Alternar navegación móvil">
@@ -16,7 +15,7 @@
         </button>
 
         <!-- Botón Contraer/Expandir (Solo Desktop) -->
-        <button class="btn btn-dark border-0 shadow-none d-none d-lg-block p-1 text-secondary"
+        <button class="btn border-0 shadow-none d-none d-lg-block p-1 btn-sidebar-toggle"
                 type="button"
                 (click)="layoutService.toggleSidebarDesktop()"
                 title="Expandir/Contraer menú lateral">
@@ -26,17 +25,26 @@
         </button>
       </div>
 
-      <!-- Logo Institucional y Marca -->
-      <a class="navbar-brand d-flex align-items-center gap-2 text-white mb-0 py-0" routerLink="/home" style="cursor: pointer;">
-        <!-- Reemplaza la ruta src con tu imagen (idealmente SVG o PNG transparente en versión clara) -->
+      <!-- Logo y Marca (Solo Desktop) -->
+      <a class="navbar-brand d-none d-lg-flex align-items-center gap-2 text-white mb-0 py-0" routerLink="/home" style="cursor: pointer;">
         <img src="assets/images/logos/legislatura/actual/Logo_Legislatura_Blanco.png"
              alt="Logo Institucional"
              class="navbar-logo">
-        <span class="fw-bold fs-6 d-none d-sm-inline">Precompromisos App</span>
+        <span class="fw-bold fs-6">Precompromisos App</span>
       </a>
     </div>
 
-    <!-- 2. CENTRO: Selector de Ejercicio (Solo Desktop; en móvil vive dentro del sidebar) -->
+    <!-- 2. CENTRO -->
+    <!-- Móvil: Logo centrado -->
+    <a class="d-lg-none position-absolute top-50 start-50 translate-middle d-flex align-items-center"
+       routerLink="/home"
+       aria-label="Inicio">
+      <img src="assets/images/logos/legislatura/actual/Logo_Legislatura_Blanco.png"
+           alt="Logo Institucional"
+           class="navbar-logo">
+    </a>
+
+    <!-- Desktop: Selector de Ejercicio -->
     <div class="d-none d-lg-block position-absolute top-50 start-50 translate-middle">
       <app-selector-ejercicio></app-selector-ejercicio>
     </div>
@@ -44,7 +52,7 @@
     <!-- 3. DERECHA: Dev Mode, Perfil y Salir -->
     <div class="d-flex align-items-center gap-2 gap-md-3">
 
-      <!-- DEV MODE (Ancho ajustado a 150px para que no corte "Administrador") -->
+      <!-- DEV MODE -->
       <div class="d-none d-xl-flex align-items-center border border-warning rounded px-2" title="Herramienta de Desarrollo">
         <span class="badge bg-warning text-dark me-2 shadow-sm" style="font-size: 0.65rem;">DEV</span>
         <select #rolSelect
@@ -65,7 +73,7 @@
       <div class="d-flex align-items-center gap-2">
         <div class="d-none d-md-block text-white small fw-medium text-end lh-sm">
           <span class="d-block">{{ authService.userName() }}</span>
-          <span class="text-secondary" style="font-size: 0.75rem;">{{ nombreRolActual() }}</span>
+          <span class="navbar-role-text">{{ nombreRolActual() }}</span>
         </div>
 
         @if (authService.userPhoto()) {
@@ -74,8 +82,7 @@
                class="rounded-circle border border-2 border-secondary flex-shrink-0"
                style="width: 36px; height: 36px; object-fit: cover;">
         } @else {
-          <div class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center fw-bold shadow-sm flex-shrink-0"
-               style="width: 36px; height: 36px; font-size: 0.9rem;">
+          <div class="rounded-circle text-white d-flex justify-content-center align-items-center fw-bold shadow-sm flex-shrink-0 navbar-avatar">
             {{ authService.userInitials() }}
           </div>
         }
